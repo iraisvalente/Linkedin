@@ -161,20 +161,38 @@ class _RegisterState extends State<Register> {
                       child: ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            User user = User(
-                                firstnameController.text,
-                                lastnameController.text,
-                                emailController.text,
-                                companyController.text,
-                                positionController.text,
-                                passwordController.text);
-                            await _sqliteService.createUser(user).then((value) {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          Home()));
-                            });
+                            if (passwordController.text ==
+                                confirmPasswordController.text) {
+                              try {
+                                User user = User(
+                                    firstnameController.text,
+                                    lastnameController.text,
+                                    emailController.text,
+                                    companyController.text,
+                                    positionController.text,
+                                    passwordController.text);
+                                await _sqliteService
+                                    .createUser(user)
+                                    .then((value) {
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              Home()));
+                                });
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          'There was a problem adding a user, please try again')),
+                                );
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Passwords does not match')),
+                              );
+                            }
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(

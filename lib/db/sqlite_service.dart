@@ -1,17 +1,33 @@
-import 'package:flutter/widgets.dart';
+import 'dart:io';
+
 import 'package:project/db/encrypt.dart';
 import 'package:project/models/user.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:path/path.dart';
 
 class SqliteService {
   Future<Database> initDb() async {
     sqfliteFfiInit();
 
     var databaseFactory = databaseFactoryFfi;
-    var db = await databaseFactory.openDatabase('C:\\Project.db');
 
-    databaseFactory.databaseExists('C:\\Project.db');
+    if (await File('${Directory.current.path}/Project.db').exists()) {
+      File('${Directory.current.path}/Project.db').create();
+    }
+
+    var db = await databaseFactory
+        .openDatabase('${Directory.current.path}/Project.db');
+
+    db.execute('''
+        CREATE TABLE IF NOT EXISTS USER (
+          id         INTEGER PRIMARY KEY AUTOINCREMENT,
+          first_name TEXT NOT NULL,
+          last_name  TEXT NOT NULL,
+          email      TEXT NOT NULL,
+          company    TEXT NOT NULL,
+          position   INT  NOT NULL,
+          password   TEXT NOT NULL
+        )
+      ''');
 
     return db;
   }
@@ -34,7 +50,6 @@ class SqliteService {
         where: 'email="$username" and password="$password"');
     User user = User.login(result[0]['email'].toString());
     await db.close();
-    print(user);
     return user;
   }
 }
