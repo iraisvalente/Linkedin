@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project/navbar_inside.dart';
+import 'package:project/widgets/navbar_inside.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});

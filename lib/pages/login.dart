@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project/db/sqlite_service.dart';
-import 'package:project/home.dart';
-import 'package:project/navbar_init.dart';
+import 'package:project/pages/home.dart';
+import 'package:project/widgets/navbar_init.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
