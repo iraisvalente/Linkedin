@@ -21,15 +21,25 @@ class _NavBarState extends State<NavBar> {
       NavBarItem(
         text: 'Login',
         function: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (BuildContext context) => Login()));
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (_, __, ___) => Login(),
+              transitionDuration: Duration(seconds: 0),
+            ),
+          );
         },
       ),
       NavBarItem(
         text: 'Register',
         function: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (BuildContext context) => Register()));
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (_, __, ___) => Register(),
+              transitionDuration: Duration(seconds: 0),
+            ),
+          );
         },
       ),
     ];

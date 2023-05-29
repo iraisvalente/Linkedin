@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:project/pages/analytics/analytics_page.dart';
 import 'package:project/pages/import_search/import_search_page.dart';
@@ -8,7 +7,6 @@ import 'package:project/pages/summary/summary_page.dart';
 import 'package:project/pages/home.dart';
 import 'package:project/widgets/navbar_button.dart';
 import 'package:project/widgets/navbar_item.dart';
-import 'package:project/pages/login.dart';
 
 class NavBar extends StatefulWidget {
   const NavBar({super.key});
@@ -20,19 +18,19 @@ class NavBar extends StatefulWidget {
 class _NavBarState extends State<NavBar> {
   double collapsableHeight = 0.0;
 
-  dynamic displayBar(BuildContext context, String text, {bool cancel = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: !cancel ? Text("Click Item $text") : Text(text)));
-  }
-
   @override
   Widget build(BuildContext context) {
     List<Widget> navBarItems = [
       NavBarItem(
         text: 'Home',
         function: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (BuildContext context) => Login()));
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (_, __, ___) => Home(),
+              transitionDuration: Duration(seconds: 0),
+            ),
+          );
         },
       )
     ];
@@ -85,9 +83,12 @@ class _NavBarState extends State<NavBar> {
                         text: 'Home',
                         function: () {
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) => Home()));
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (_, __, ___) => Home(),
+                              transitionDuration: Duration(seconds: 0),
+                            ),
+                          );
                         },
                       ),
                       SizedBox(
@@ -105,16 +106,20 @@ class _NavBarState extends State<NavBar> {
                           onSelected: (i) {
                             if (i == "Analytics") {
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          AnalyticsPage()));
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (_, __, ___) => AnalyticsPage(),
+                                  transitionDuration: Duration(seconds: 0),
+                                ),
+                              );
                             } else {
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          SummaryPage()));
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (_, __, ___) => SummaryPage(),
+                                  transitionDuration: Duration(seconds: 0),
+                                ),
+                              );
                             }
                           },
                           child: Text(
@@ -142,22 +147,30 @@ class _NavBarState extends State<NavBar> {
                           onSelected: (i) {
                             if (i == "Search") {
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          SearchPage()));
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (_, __, ___) => SearchPage(),
+                                  transitionDuration: Duration(seconds: 0),
+                                ),
+                              );
                             } else if (i == "Import Search") {
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          ImportSearchPage()));
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (_, __, ___) =>
+                                      ImportSearchPage(),
+                                  transitionDuration: Duration(seconds: 0),
+                                ),
+                              );
                             } else {
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          SavedSearchPage()));
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (_, __, ___) =>
+                                      SavedSearchPage(),
+                                  transitionDuration: Duration(seconds: 0),
+                                ),
+                              );
                             }
                           },
                           child: Text(
