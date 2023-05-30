@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:project/widgets/navbar_button.dart';
 import 'package:project/widgets/navbar_item.dart';
-import 'package:project/pages/login.dart';
-import 'package:project/pages/register.dart';
+import 'package:project/pages/login/login.dart';
+import 'package:project/pages/register/register.dart';
 
 class NavBar extends StatefulWidget {
   const NavBar({super.key});

@@ -4,7 +4,7 @@ import 'package:project/pages/import_search/import_search_page.dart';
 import 'package:project/pages/saved_search/saved_search_page.dart';
 import 'package:project/pages/search/search_page.dart';
 import 'package:project/pages/summary/summary_page.dart';
-import 'package:project/pages/home.dart';
+import 'package:project/pages/home/home.dart';
 import 'package:project/widgets/navbar_button.dart';
 import 'package:project/widgets/navbar_item.dart';
 
