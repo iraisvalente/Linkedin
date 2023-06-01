@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project/widgets/navbar_inside.dart';
+import 'dart:io';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -71,9 +72,15 @@ class _HomeState extends State<Home> {
                             }
                             return Size(150, 40);
                           })),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                            } else {
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate())
+                            {
+                              print(emailController.text.toString());
+                              print(passwordController.text.toString());
+                              var result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",emailController.text.toString(),passwordController.text.toString(),"choice"]);
+                              print(result.stdout);
+                            }
+                            else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content: Text('Please fill input')),
@@ -96,8 +103,12 @@ class _HomeState extends State<Home> {
                             }
                             return Size(150, 40);
                           })),
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
+                              print(emailController.text.toString());
+                              print(passwordController.text.toString());
+                              var result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",emailController.text.toString(),passwordController.text.toString(),"download"]);
+                              print(result.stdout);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -121,8 +132,12 @@ class _HomeState extends State<Home> {
                             }
                             return Size(150, 40);
                           })),
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
+                              print(emailController.text.toString());
+                              print(passwordController.text.toString());
+                              var result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","extract"]);
+                              print(result.stdout);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -146,8 +161,12 @@ class _HomeState extends State<Home> {
                             }
                             return Size(150, 40);
                           })),
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
+                              print(emailController.text.toString());
+                              print(passwordController.text.toString());
+                              var result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","update"]);
+                              print(result.stdout);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
