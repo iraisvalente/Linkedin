@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:project/widgets/navbar_inside.dart';
 
@@ -16,19 +19,25 @@ class _SearchPageState extends State<SearchPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController companyController = TextEditingController();
   TextEditingController positionController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
   TextEditingController searchName = TextEditingController();
   TextEditingController searchNote = TextEditingController();
-  String? codeDialog;
-  String? valueText;
-  String dropdownvalue = 'Item 1';
 
-  var items = [
-    'Item 1',
-    'Item 2',
-    'Item 3',
-    'Item 4',
-    'Item 5',
-  ];
+  Directory currentDir = Directory.current;
+  List<List<dynamic>> listData = [];
+  DataTableSource _searchTable = SearchTable([]);
+  List<List<dynamic>> head = [];
+
+  Future readCsv() async {
+    final File file = File(
+        '${currentDir.path}/LinkedIn/unzip/Basic_LinkedInDataExport_04-25-2023/Connections.csv');
+    String contents = await file.readAsString();
+    setState(() {
+      listData = const CsvToListConverter().convert(contents);
+      head = [listData[0]];
+      _searchTable = SearchTable(listData..removeAt(0));
+    });
+  }
 
   Future<void> _displayTextInputDialog(BuildContext context) async {
     return showDialog(
@@ -89,6 +98,14 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    print('listData');
+    print(listData);
+    readCsv();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
@@ -117,12 +134,6 @@ class _SearchPageState extends State<SearchPage> {
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
                                 labelText: "Firstname"),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your firstname';
-                              }
-                              return null;
-                            },
                           ),
                         ),
                       ),
@@ -134,12 +145,6 @@ class _SearchPageState extends State<SearchPage> {
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
                                 labelText: "Lastname"),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your lastname';
-                              }
-                              return null;
-                            },
                           ),
                         ),
                       )
@@ -155,12 +160,6 @@ class _SearchPageState extends State<SearchPage> {
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
                                 labelText: "Email"),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
-                              }
-                              return null;
-                            },
                           ),
                         ),
                       ),
@@ -172,12 +171,6 @@ class _SearchPageState extends State<SearchPage> {
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
                                 labelText: "Company"),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your company';
-                              }
-                              return null;
-                            },
                           ),
                         ),
                       )
@@ -193,33 +186,27 @@ class _SearchPageState extends State<SearchPage> {
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
                                 labelText: "Position"),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your position';
-                              }
-                              return null;
-                            },
                           ),
                         ),
                       ),
                       Expanded(
                         child: Container(
                           padding: EdgeInsets.all(15),
-                          child: DropdownButtonFormField(
+                          child: TextFormField(
+                            controller: dateController,
                             decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                            ),
-                            value: dropdownvalue,
-                            isExpanded: true,
-                            items: items.map((String items) {
-                              return DropdownMenuItem(
-                                value: items,
-                                child: Text(items),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
+                                border: OutlineInputBorder(),
+                                labelText: "Connected On"),
+                            onTap: () async {
+                              DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate:
+                                      DateTime.now(), //get today's date
+                                  firstDate: DateTime
+                                      .now(), //DateTime.now() - not to allow to choose before today.
+                                  lastDate: DateTime(2101));
                               setState(() {
-                                dropdownvalue = newValue!;
+                                dateController.text = pickedDate.toString();
                               });
                             },
                           ),
@@ -230,86 +217,87 @@ class _SearchPageState extends State<SearchPage> {
                   Container(
                       margin: EdgeInsets.only(left: 35, right: 35),
                       child: ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            try {} catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text(
-                                        'There was a problem adding a user, please try again')),
-                              );
-                            }
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Please fill input')),
-                            );
-                          }
-                        },
+                        onPressed: () async {},
                         child: const Text('Search'),
                       )),
                   SizedBox(
                     height: 20,
                   ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.90,
-                    child: DataTable(columns: [
-                      DataColumn(
-                        label: Text('First name'),
-                      ),
-                      DataColumn(
-                        label: Text('Last name'),
-                      ),
-                      DataColumn(
-                        label: Text('Email'),
-                      ),
-                      DataColumn(
-                        label: Text('Company'),
-                      ),
-                      DataColumn(
-                        label: Text('Position'),
-                      ),
-                      DataColumn(
-                        label: Text('Count of connections'),
-                      ),
-                    ], rows: [
-                      DataRow(cells: [
-                        DataCell(Text("Alex")),
-                        DataCell(Text("Anderson")),
-                        DataCell(Text("anderson_axle@email.com")),
-                        DataCell(Text("Example")),
-                        DataCell(Text("Dev")),
-                        DataCell(Text("1")),
-                      ]),
-                    ]),
+                  Text(
+                    "Company Analysis",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
                   ),
-                  SizedBox(height: 20),
-                  Container(
-                    margin: EdgeInsets.only(left: 35, right: 35),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                            child: ElevatedButton(
-                          onPressed: () {
-                            _displayTextInputDialog(context);
-                          },
-                          child: const Text('Toggle save search'),
-                        )),
-                        SizedBox(width: 35),
-                        SizedBox(
-                            child: ElevatedButton(
-                          onPressed: () {},
-                          child: const Text('Export selected'),
-                        )),
-                      ],
-                    ),
-                  )
+                  SizedBox(
+                    height: 30,
+                  ),
+                  PaginatedDataTable(
+                    source: _searchTable,
+                    columns: [
+                      DataColumn(label: Text(head[0][0])),
+                      DataColumn(label: Text(head[0][1])),
+                      DataColumn(label: Text(head[0][2])),
+                      DataColumn(label: Text(head[0][3])),
+                      DataColumn(label: Text(head[0][4])),
+                      DataColumn(label: Text(head[0][5])),
+                    ],
+                    columnSpacing: 100,
+                    horizontalMargin: 10,
+                    rowsPerPage: 8,
+                    showCheckboxColumn: false,
+                  ),
                 ],
               ),
             ),
+            Container(
+              margin: EdgeInsets.only(left: 35, right: 35),
+              child: Row(
+                children: [
+                  SizedBox(
+                      child: ElevatedButton(
+                    onPressed: () {
+                      _displayTextInputDialog(context);
+                    },
+                    child: const Text('Toggle save search'),
+                  )),
+                  SizedBox(width: 10),
+                  SizedBox(
+                      child: ElevatedButton(
+                    onPressed: () {},
+                    child: const Text('Export selected'),
+                  )),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            )
           ],
         ),
       ),
     );
+  }
+}
+
+class SearchTable extends DataTableSource {
+  late List<List<dynamic>> listData;
+
+  SearchTable(this.listData);
+
+  @override
+  bool get isRowCountApproximate => false;
+  @override
+  int get rowCount => listData.length;
+  @override
+  int get selectedRowCount => 0;
+  @override
+  DataRow getRow(int index) {
+    return DataRow(cells: [
+      DataCell(Text(listData[index][0].toString())),
+      DataCell(Text(listData[index][1])),
+      DataCell(Text(listData[index][2].toString())),
+      DataCell(Text(listData[index][3].toString())),
+      DataCell(Text(listData[index][4].toString())),
+      DataCell(Text(listData[index][5].toString())),
+    ]);
   }
 }

@@ -15,15 +15,8 @@ class NavBarButton extends StatefulWidget {
 class _NavBarButtonState extends State<NavBarButton> {
   Widget build(BuildContext context) {
     return Container(
-      height: 55.0,
+      height: 60.0,
       width: 60.0,
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Color(0xcfffffff),
-          width: 2.0,
-        ),
-        borderRadius: BorderRadius.circular(15.0),
-      ),
       child: Material(
         color: Colors.transparent,
         shape: RoundedRectangleBorder(

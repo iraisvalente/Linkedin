@@ -10,12 +10,12 @@ class SqliteService {
 
     var databaseFactory = databaseFactoryFfi;
 
-    if (await File('${Directory.current.path}/Project.db').exists()) {
-      File('${Directory.current.path}/Project.db').create();
+    if (await File('${Directory.current.path}/LinkedIn/linkedin.db').exists()) {
+      File('${Directory.current.path}/LinkedIn/linkedin.db').create();
     }
 
     var db = await databaseFactory
-        .openDatabase('${Directory.current.path}/Project.db');
+        .openDatabase('${Directory.current.path}/LinkedIn/linkedin.db');
 
     db.execute('''
         CREATE TABLE IF NOT EXISTS USER (

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:project/widgets/navbar_button.dart';
 import 'package:project/widgets/navbar_item.dart';
 import 'package:project/pages/login/login.dart';
 import 'package:project/pages/register/register.dart';
+import 'package:project/widgets/navbar_item_column.dart';
 
 class NavBar extends StatefulWidget {
   const NavBar({super.key});
@@ -17,8 +17,9 @@ class _NavBarState extends State<NavBar> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> navBarItems = [
-      NavBarItem(
+    double width = MediaQuery.of(context).size.width;
+    List<Widget> navBarItemsRow = [
+      NavBarItemRow(
         text: 'Login',
         function: () {
           Navigator.push(
@@ -30,7 +31,7 @@ class _NavBarState extends State<NavBar> {
           );
         },
       ),
-      NavBarItem(
+      NavBarItemRow(
         text: 'Register',
         function: () {
           Navigator.push(
@@ -41,9 +42,35 @@ class _NavBarState extends State<NavBar> {
             ),
           );
         },
-      ),
+      )
     ];
-    double width = MediaQuery.of(context).size.width;
+
+    List<Widget> navBarItemsColumns = [
+      NavBarItemColumn(
+        text: 'Login',
+        function: () {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (_, __, ___) => Login(),
+              transitionDuration: Duration(seconds: 0),
+            ),
+          );
+        },
+      ),
+      NavBarItemColumn(
+        text: 'Register',
+        function: () {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (_, __, ___) => Register(),
+              transitionDuration: Duration(seconds: 0),
+            ),
+          );
+        },
+      )
+    ];
 
     return Stack(
       children: [
@@ -56,10 +83,10 @@ class _NavBarState extends State<NavBar> {
           curve: Curves.ease,
           height: (width < 800.0) ? collapsableHeight : 0.0,
           width: double.infinity,
-          color: Color(0xff121212),
+          color: Colors.blue.shade900,
           child: SingleChildScrollView(
             child: Column(
-              children: navBarItems,
+              children: navBarItemsColumns,
             ),
           ),
         ),
@@ -76,9 +103,10 @@ class _NavBarState extends State<NavBar> {
                     onPressed: () {
                       if (collapsableHeight == 0.0) {
                         setState(() {
-                          collapsableHeight = 240.0;
+                          collapsableHeight = 50.0 * navBarItemsColumns.length;
                         });
-                      } else if (collapsableHeight == 240.0) {
+                      } else if (collapsableHeight ==
+                          50.0 * navBarItemsColumns.length) {
                         setState(() {
                           collapsableHeight = 0.0;
                         });
@@ -87,7 +115,7 @@ class _NavBarState extends State<NavBar> {
                   );
                 } else {
                   return Row(
-                    children: navBarItems,
+                    children: navBarItemsRow,
                   );
                 }
               })

@@ -5,20 +5,20 @@ double collapsableHeight = 0.0;
 Color selected = Color(0xffffffff);
 Color notSelected = Color(0xafffffff);
 
-class NavBarItem extends StatefulWidget {
+class NavBarItemRow extends StatefulWidget {
   final String text;
   final Function function;
-  NavBarItem({
+  NavBarItemRow({
     super.key,
     required this.text,
     required this.function,
   });
 
   @override
-  _NavBarItemState createState() => _NavBarItemState();
+  _NavBarItemRowState createState() => _NavBarItemRowState();
 }
 
-class _NavBarItemState extends State<NavBarItem> {
+class _NavBarItemRowState extends State<NavBarItemRow> {
   Color color = notSelected;
 
   @override
