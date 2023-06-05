@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
+import 'package:project/db/sqlite_service.dart';
+import 'package:project/models/connection.dart';
 import 'package:project/widgets/navbar_inside.dart';
 
 class SearchPage extends StatefulWidget {
@@ -24,19 +26,17 @@ class _SearchPageState extends State<SearchPage> {
   TextEditingController searchNote = TextEditingController();
 
   Directory currentDir = Directory.current;
-  List<List<dynamic>> listData = [];
+  List<Connection>? listData = [];
   DataTableSource _searchTable = SearchTable([]);
   List<List<dynamic>> head = [];
   bool valuefirst = false;
+  late SqliteService _sqliteService;
 
-  Future readCsv() async {
-    final File file = File(
-        '${currentDir.path}/LinkedIn/unzip/Basic_LinkedInDataExport_04-25-2023/Connections.csv');
-    String contents = await file.readAsString();
+  Future<void> allConnections() async {
+    listData = await _sqliteService.allConnections();
+    print(listData);
     setState(() {
-      listData = const CsvToListConverter().convert(contents);
-      head = [listData[0]];
-      _searchTable = SearchTable(listData..removeAt(0));
+      _searchTable = SearchTable(listData!);
     });
   }
 
@@ -101,9 +101,8 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    print('listData');
-    print(listData);
-    readCsv();
+    _sqliteService = SqliteService();
+    allConnections();
   }
 
   @override
@@ -256,12 +255,12 @@ class _SearchPageState extends State<SearchPage> {
                   PaginatedDataTable(
                     source: _searchTable,
                     columns: [
-                      DataColumn(label: Text(head[0][0])),
-                      DataColumn(label: Text(head[0][1])),
-                      DataColumn(label: Text(head[0][2])),
-                      DataColumn(label: Text(head[0][3])),
-                      DataColumn(label: Text(head[0][4])),
-                      DataColumn(label: Text(head[0][5])),
+                      DataColumn(label: Text('First Name')),
+                      DataColumn(label: Text('Last Name')),
+                      DataColumn(label: Text('Email Address')),
+                      DataColumn(label: Text('Company')),
+                      DataColumn(label: Text('Position')),
+                      DataColumn(label: Text('Connected On')),
                     ],
                     columnSpacing: 100,
                     horizontalMargin: 10,
@@ -302,7 +301,7 @@ class _SearchPageState extends State<SearchPage> {
 }
 
 class SearchTable extends DataTableSource {
-  late List<List<dynamic>> listData;
+  late List<Connection> listData;
 
   SearchTable(this.listData);
 
@@ -315,12 +314,12 @@ class SearchTable extends DataTableSource {
   @override
   DataRow getRow(int index) {
     return DataRow(cells: [
-      DataCell(Text(listData[index][0].toString())),
-      DataCell(Text(listData[index][1])),
-      DataCell(Text(listData[index][2].toString())),
-      DataCell(Text(listData[index][3].toString())),
-      DataCell(Text(listData[index][4].toString())),
-      DataCell(Text(listData[index][5].toString())),
+      DataCell(Text(listData[index].firstname.toString())),
+      DataCell(Text(listData[index].lastname)),
+      DataCell(Text(listData[index].email.toString())),
+      DataCell(Text(listData[index].company.toString())),
+      DataCell(Text(listData[index].position.toString())),
+      DataCell(Text(listData[index].connection.toString())),
     ]);
   }
 }

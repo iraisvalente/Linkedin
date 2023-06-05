@@ -181,13 +181,15 @@ class _RegisterState extends State<Register> {
                                 await _sqliteService
                                     .createUser(user)
                                     .then((value) {
-                                  saveCredentials(emailController.text,
-                                      passwordController.text);
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (BuildContext context) =>
-                                              Home()));
+                                  if (value == BigInt.one) {
+                                    saveCredentials(emailController.text,
+                                        passwordController.text);
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                Home()));
+                                  }
                                 });
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
