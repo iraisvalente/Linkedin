@@ -87,7 +87,7 @@ class _HomeState extends State<Home> {
                               );
                             }
                           },
-                          child: const Text('Start Process'),
+                          child: const Text('Connect to LinkedIn'),
                         ),
                       ),
                     ),
@@ -109,34 +109,9 @@ class _HomeState extends State<Home> {
                               print(passwordController.text.toString());
                               var result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",emailController.text.toString(),passwordController.text.toString(),"download"]);
                               print(result.stdout);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Please fill input')),
-                              );
-                            }
-                          },
-                          child: const Text('Download Data'),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 16.0),
-                      child: Center(
-                        child: ElevatedButton(
-                          style: ButtonStyle(minimumSize:
-                              MaterialStateProperty.resolveWith((states) {
-                            if (states.contains(MaterialState.disabled)) {
-                              return Size(100, 40);
-                            }
-                            return Size(150, 40);
-                          })),
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              print(emailController.text.toString());
-                              print(passwordController.text.toString());
-                              var result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","extract"]);
+                              result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","extract"]);
+                              print(result.stdout);
+                              result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","update"]);
                               print(result.stdout);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -145,44 +120,71 @@ class _HomeState extends State<Home> {
                               );
                             }
                           },
-                          child: const Text('Extract File'),
+                          child: const Text('Start Process'),
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 16.0),
-                      child: Center(
-                        child: ElevatedButton(
-                          style: ButtonStyle(minimumSize:
-                              MaterialStateProperty.resolveWith((states) {
-                            if (states.contains(MaterialState.disabled)) {
-                              return Size(100, 40);
-                            }
-                            return Size(150, 40);
-                          })),
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              print(emailController.text.toString());
-                              print(passwordController.text.toString());
-                              var result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","update"]);
-                              print(result.stdout);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Please fill input')),
-                              );
-                            }
-                          },
-                          child: const Text('Update Database'),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ],
-            ),
+                    //Padding(
+        //  padding: const EdgeInsets.symmetric(
+      //                 horizontal: 8, vertical: 16.0),
+      //              child: Center(
+      //                child: ElevatedButton(
+        //                  style: ButtonStyle(minimumSize:
+        //                    MaterialStateProperty.resolveWith((states) {
+        //                  if (states.contains(MaterialState.disabled)) {
+    //                    return Size(100, 40);
+        //                      }
+    //                  return Size(150, 40);
+      //                    })),
+        //                  onPressed: () async {
+        //                  if (_formKey.currentState!.validate()) {
+        //                    print(emailController.text.toString());
+        //                    print(passwordController.text.toString());
+
+    //                        } else {
+    //                        ScaffoldMessenger.of(context).showSnackBar(
+    //                          const SnackBar(
+    //                              content: Text('Please fill input')),
+    //                        );
+    //                      }
+    //                    },
+    //                    child: const Text('Extract File'),
+    //                  ),
+    //                ),
+    //              ),
+    //              Padding(
+    //                padding: const EdgeInsets.symmetric(
+    //                    horizontal: 8, vertical: 16.0),
+    //                child: Center(
+    //                  child: ElevatedButton(
+    //                    style: ButtonStyle(minimumSize:
+    //                        MaterialStateProperty.resolveWith((states) {
+    //                      if (states.contains(MaterialState.disabled)) {
+    //                        return Size(100, 40);
+    //                      }
+    //                      return Size(150, 40);
+    //                    })),
+    //                    onPressed: () async {
+    //                      if (_formKey.currentState!.validate()) {
+    //                        print(emailController.text.toString());
+    //                        print(passwordController.text.toString());
+
+    //                      } else {
+    //                        ScaffoldMessenger.of(context).showSnackBar(
+    //                          const SnackBar(
+    //                              content: Text('Please fill input')),
+    //                        );
+    //                      }
+    //                    },
+    //                    child: const Text('Update Database'),
+      //                ),
+      //            ),
+                    //           )
+               ],
+             ),
+           ],
           ),
+        ),
         ),
       ],
     ));
