@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:file_picker/file_picker.dart';
 
-class ImportSearchPage extends StatefulWidget {
-  const ImportSearchPage({super.key});
+class ImportContactSearchPage extends StatefulWidget {
+  const ImportContactSearchPage({super.key});
 
   @override
-  State<ImportSearchPage> createState() => _ImportSearchPageState();
+  State<ImportContactSearchPage> createState() =>
+      _ImportContactSearchPageState();
 }
 
-class _ImportSearchPageState extends State<ImportSearchPage> {
+class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
   String fileName = "No file chosen";
 
   @override
@@ -25,7 +26,7 @@ class _ImportSearchPageState extends State<ImportSearchPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Import Search",
+                    "Import Contacts",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
                   ),
                   SizedBox(

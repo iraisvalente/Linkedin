@@ -34,188 +34,195 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Column(
-      children: [
-        NavBar(),
-        Form(
-          key: _formKey,
-          child: Container(
-            margin: EdgeInsets.all(50),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                  child: TextFormField(
-                    controller: emailController,
-                    decoration: const InputDecoration(
-                        border: OutlineInputBorder(), labelText: "Email"),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      return null;
-                    },
+        body: SingleChildScrollView(
+      child: Column(
+        children: [
+          NavBar(),
+          Form(
+            key: _formKey,
+            child: Container(
+              margin: EdgeInsets.all(50),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 16),
+                      child: Text(
+                          'The following credentials most be from your LinkedIn account')),
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    child: TextFormField(
+                      controller: emailController,
+                      decoration: const InputDecoration(
+                          border: OutlineInputBorder(), labelText: "Email"),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        return null;
+                      },
+                    ),
                   ),
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                  child: TextFormField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                        border: OutlineInputBorder(), labelText: "Password"),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      return null;
-                    },
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    child: TextFormField(
+                      controller: passwordController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                          border: OutlineInputBorder(), labelText: "Password"),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        return null;
+                      },
+                    ),
                   ),
-                ),
-                Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 16.0),
-                      child: Center(
-                        child: ElevatedButton(
-                          style: ButtonStyle(minimumSize:
-                              MaterialStateProperty.resolveWith((states) {
-                            if (states.contains(MaterialState.disabled)) {
-                              return Size(100, 40);
-                            }
-                            return Size(150, 40);
-                          })),
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              print(emailController.text.toString());
-                              print(passwordController.text.toString());
-                              var result = await Process.run("python", [
-                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
-                                emailController.text.toString(),
-                                passwordController.text.toString(),
-                                "choice"
-                              ]);
-                              print(result.stdout);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Please fill input')),
-                              );
-                            }
-                          },
-                          child: const Text('Start Process'),
+                  Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 16.0),
+                        child: Center(
+                          child: ElevatedButton(
+                            style: ButtonStyle(minimumSize:
+                                MaterialStateProperty.resolveWith((states) {
+                              if (states.contains(MaterialState.disabled)) {
+                                return Size(100, 40);
+                              }
+                              return Size(150, 40);
+                            })),
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                print(emailController.text.toString());
+                                print(passwordController.text.toString());
+                                var result = await Process.run("python", [
+                                  "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                  emailController.text.toString(),
+                                  passwordController.text.toString(),
+                                  "choice"
+                                ]);
+                                print(result.stdout);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('Please fill input')),
+                                );
+                              }
+                            },
+                            child: const Text('Start Process'),
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 16.0),
-                      child: Center(
-                        child: ElevatedButton(
-                          style: ButtonStyle(minimumSize:
-                              MaterialStateProperty.resolveWith((states) {
-                            if (states.contains(MaterialState.disabled)) {
-                              return Size(100, 40);
-                            }
-                            return Size(150, 40);
-                          })),
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              print(emailController.text.toString());
-                              print(passwordController.text.toString());
-                              var result = await Process.run("python", [
-                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
-                                emailController.text.toString(),
-                                passwordController.text.toString(),
-                                "download"
-                              ]);
-                              print(result.stdout);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Please fill input')),
-                              );
-                            }
-                          },
-                          child: const Text('Download Data'),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 16.0),
+                        child: Center(
+                          child: ElevatedButton(
+                            style: ButtonStyle(minimumSize:
+                                MaterialStateProperty.resolveWith((states) {
+                              if (states.contains(MaterialState.disabled)) {
+                                return Size(100, 40);
+                              }
+                              return Size(150, 40);
+                            })),
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                print(emailController.text.toString());
+                                print(passwordController.text.toString());
+                                var result = await Process.run("python", [
+                                  "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                  emailController.text.toString(),
+                                  passwordController.text.toString(),
+                                  "download"
+                                ]);
+                                print(result.stdout);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('Please fill input')),
+                                );
+                              }
+                            },
+                            child: const Text('Download Data'),
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 16.0),
-                      child: Center(
-                        child: ElevatedButton(
-                          style: ButtonStyle(minimumSize:
-                              MaterialStateProperty.resolveWith((states) {
-                            if (states.contains(MaterialState.disabled)) {
-                              return Size(100, 40);
-                            }
-                            return Size(150, 40);
-                          })),
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              print(emailController.text.toString());
-                              print(passwordController.text.toString());
-                              var result = await Process.run("python", [
-                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
-                                "extract"
-                              ]);
-                              print(result.stdout);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Please fill input')),
-                              );
-                            }
-                          },
-                          child: const Text('Extract File'),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 16.0),
+                        child: Center(
+                          child: ElevatedButton(
+                            style: ButtonStyle(minimumSize:
+                                MaterialStateProperty.resolveWith((states) {
+                              if (states.contains(MaterialState.disabled)) {
+                                return Size(100, 40);
+                              }
+                              return Size(150, 40);
+                            })),
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                print(emailController.text.toString());
+                                print(passwordController.text.toString());
+                                var result = await Process.run("python", [
+                                  "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                  "extract"
+                                ]);
+                                print(result.stdout);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('Please fill input')),
+                                );
+                              }
+                            },
+                            child: const Text('Extract File'),
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 16.0),
-                      child: Center(
-                        child: ElevatedButton(
-                          style: ButtonStyle(minimumSize:
-                              MaterialStateProperty.resolveWith((states) {
-                            if (states.contains(MaterialState.disabled)) {
-                              return Size(100, 40);
-                            }
-                            return Size(150, 40);
-                          })),
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              print(emailController.text.toString());
-                              print(passwordController.text.toString());
-                              var result = await Process.run("python", [
-                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
-                                "update"
-                              ]);
-                              print(result.stdout);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Please fill input')),
-                              );
-                            }
-                          },
-                          child: const Text('Update Database'),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 16.0),
+                        child: Center(
+                          child: ElevatedButton(
+                            style: ButtonStyle(minimumSize:
+                                MaterialStateProperty.resolveWith((states) {
+                              if (states.contains(MaterialState.disabled)) {
+                                return Size(100, 40);
+                              }
+                              return Size(150, 40);
+                            })),
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                print(emailController.text.toString());
+                                print(passwordController.text.toString());
+                                var result = await Process.run("python", [
+                                  "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                  "update"
+                                ]);
+                                print(result.stdout);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('Please fill input')),
+                                );
+                              }
+                            },
+                            child: const Text('Update Database'),
+                          ),
                         ),
-                      ),
-                    )
-                  ],
-                ),
-              ],
+                      )
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     ));
   }
 }

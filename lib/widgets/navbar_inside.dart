@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project/pages/analytics/analytics_page.dart';
+import 'package:project/pages/contact_search/contact_search.dart';
 import 'package:project/pages/import_search/import_search_page.dart';
 import 'package:project/pages/login/login.dart';
 import 'package:project/pages/saved_search/saved_search_page.dart';
@@ -18,12 +19,13 @@ class NavBar extends StatefulWidget {
 
 class _NavBarState extends State<NavBar> {
   double collapsableHeight = 0.0;
+  double heigthMenu = 50.0 * 4;
 
   @override
   Widget build(BuildContext context) {
     List<Widget> navBarItems = [
       NavBarItemRow(
-        text: 'Home',
+        text: 'Automation',
         function: () {
           Navigator.push(
             context,
@@ -48,24 +50,43 @@ class _NavBarState extends State<NavBar> {
             curve: Curves.ease,
             height: (width < 800.0) ? collapsableHeight : 0.0,
             width: double.infinity,
-            color: Colors.blue.shade500,
+            color: Colors.blue.shade900,
             child: ListView(
               children: [
-                NavBarItemRow(
-                  text: 'Home',
-                  function: () {
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (_, __, ___) => Home(),
-                        transitionDuration: Duration(seconds: 0),
-                      ),
-                    );
-                  },
+                ListTile(
+                    title: Text(
+                      'Automation',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (_, __, ___) => Home(),
+                          transitionDuration: Duration(seconds: 0),
+                        ),
+                      );
+                    }),
+                ExpansionTile(
+                  title: Text(
+                    "Analytics",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  childrenPadding: EdgeInsets.only(left: 60),
+                  children: [
+                    ListTile(
+                      title: Text("Analytics"),
+                    ),
+                    ListTile(
+                      title: Text("Summary"),
+                    ),
+                  ],
                 ),
                 ExpansionTile(
-                  title: Text("Parent Category 2"),
-                  leading: Icon(Icons.person), //add icon
+                  title: Text(
+                    "Search",
+                    style: TextStyle(color: Colors.white),
+                  ),
                   childrenPadding: EdgeInsets.only(left: 60), //children padding
                   children: [
                     ListTile(
@@ -76,31 +97,20 @@ class _NavBarState extends State<NavBar> {
                     ),
                   ],
                 ),
-                ExpansionTile(
-                  title: Text("Parent Category 2"),
-                  leading: Icon(Icons.person), //add icon
-                  childrenPadding: EdgeInsets.only(left: 60), //children padding
-                  children: [
-                    ListTile(
-                      title: Text("Child Category 1"),
+                ListTile(
+                    title: Text(
+                      'Logout',
+                      style: TextStyle(color: Colors.white),
                     ),
-                    ListTile(
-                      title: Text("Child Category 2"),
-                    ),
-                  ],
-                ),
-                NavBarItemRow(
-                  text: 'Logout',
-                  function: () {
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (_, __, ___) => Home(),
-                        transitionDuration: Duration(seconds: 0),
-                      ),
-                    );
-                  },
-                ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (_, __, ___) => Home(),
+                          transitionDuration: Duration(seconds: 0),
+                        ),
+                      );
+                    })
               ],
             )),
         Container(
@@ -116,9 +126,9 @@ class _NavBarState extends State<NavBar> {
                     onPressed: () {
                       if (collapsableHeight == 0.0) {
                         setState(() {
-                          collapsableHeight = 240.0;
+                          collapsableHeight = heigthMenu;
                         });
-                      } else if (collapsableHeight == 240.0) {
+                      } else if (collapsableHeight == heigthMenu) {
                         setState(() {
                           collapsableHeight = 0.0;
                         });
@@ -129,7 +139,7 @@ class _NavBarState extends State<NavBar> {
                   return Row(
                     children: [
                       NavBarItemRow(
-                        text: 'Home',
+                        text: 'Automation',
                         function: () {
                           Navigator.push(
                             context,
@@ -224,6 +234,35 @@ class _NavBarState extends State<NavBar> {
                           },
                           child: Text(
                             "Search",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          )),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      PopupMenuButton(
+                          itemBuilder: (_) {
+                            return [
+                              PopupMenuItem(
+                                  value: "Import Contact",
+                                  child: Text("Import Contact")),
+                            ];
+                          },
+                          onSelected: (i) {
+                            if (i == "Import Contact") {
+                              Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (_, __, ___) =>
+                                      ImportContactSearchPage(),
+                                  transitionDuration: Duration(seconds: 0),
+                                ),
+                              );
+                            }
+                          },
+                          child: Text(
+                            "Contact",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),

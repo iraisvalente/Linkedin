@@ -27,6 +27,7 @@ class _SearchPageState extends State<SearchPage> {
   List<List<dynamic>> listData = [];
   DataTableSource _searchTable = SearchTable([]);
   List<List<dynamic>> head = [];
+  bool valuefirst = false;
 
   Future readCsv() async {
     final File file = File(
@@ -213,6 +214,28 @@ class _SearchPageState extends State<SearchPage> {
                         ),
                       ),
                     ],
+                  ),
+                  Row(
+                    children: <Widget>[
+                      SizedBox(
+                        width: 30,
+                      ),
+                      Text(
+                        'Independent search by field: ',
+                        style: TextStyle(fontSize: 17.0),
+                      ),
+                      Checkbox(
+                        value: valuefirst,
+                        onChanged: (value) {
+                          setState(() {
+                            valuefirst = value!;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 20,
                   ),
                   Container(
                       margin: EdgeInsets.only(left: 35, right: 35),

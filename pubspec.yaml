@@ -40,6 +40,13 @@ dependencies:
   file_picker: ^5.3.1
   csv: ^5.0.2
   shared_preferences: ^2.1.1
+  mysql1: ^0.20.0
+  mysql_utils: ^2.1.1
+  mysql_client: ^0.0.27
+  orm: ^3.1.4
+  mysql_manager: ^1.1.0
+  encryptor: ^0.0.1
+  dart_mysql: ^0.0.1
 
 dev_dependencies:
   flutter_test:
