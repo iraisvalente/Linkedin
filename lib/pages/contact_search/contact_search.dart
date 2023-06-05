@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:intl/intl.dart';
 
 class ImportContactSearchPage extends StatefulWidget {
   const ImportContactSearchPage({super.key});
@@ -87,7 +90,29 @@ class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
                   ),
                   SizedBox(
                       child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      DateTime now = DateTime.now();
+                      String date = DateFormat.d().format(now) +
+                          '-' +
+                          DateFormat.M().format(now) +
+                          '-' +
+                          DateFormat.y().format(now);
+                      String hour = DateFormat.H().format(now) +
+                          '-' +
+                          DateFormat.m().format(now) +
+                          '-' +
+                          DateFormat.s().format(now);
+                      Directory currentDir = Directory.current;
+                      final Directory appDocDirFolder = Directory(
+                          '${currentDir.path}/LinkedIn/${'$date-$hour'}');
+                      await appDocDirFolder.create(recursive: true);
+                      File('${appDocDirFolder.path}/$fileName')
+                          .create(recursive: true);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('File imported successfully')),
+                      );
+                    },
                     child: const Text('Import'),
                   )),
                 ],
