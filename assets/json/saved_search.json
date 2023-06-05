@@ -6,5 +6,13 @@
         "company": "soa",
         "position": "dev",
         "connection": "15 Jan 2023"
+    }},
+    {"name": "Other example", "note": "searching example", "connection": {
+        "first_name": "Uriel",
+        "last_name": "Carmona",
+        "email": "carmona@email.com",
+        "company": "soa",
+        "position": "dev",
+        "connection": "15 Jan 2023"
     }}
 ]
