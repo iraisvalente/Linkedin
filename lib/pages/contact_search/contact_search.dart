@@ -1,15 +1,19 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:intl/intl.dart';
 
-class ImportSearchPage extends StatefulWidget {
-  const ImportSearchPage({super.key});
+class ImportContactSearchPage extends StatefulWidget {
+  const ImportContactSearchPage({super.key});
 
   @override
-  State<ImportSearchPage> createState() => _ImportSearchPageState();
+  State<ImportContactSearchPage> createState() =>
+      _ImportContactSearchPageState();
 }
 
-class _ImportSearchPageState extends State<ImportSearchPage> {
+class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
   String fileName = "No file chosen";
 
   @override
@@ -25,7 +29,7 @@ class _ImportSearchPageState extends State<ImportSearchPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Import Search",
+                    "Import Contacts",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
                   ),
                   SizedBox(
@@ -86,7 +90,29 @@ class _ImportSearchPageState extends State<ImportSearchPage> {
                   ),
                   SizedBox(
                       child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      DateTime now = DateTime.now();
+                      String date = DateFormat.d().format(now) +
+                          '-' +
+                          DateFormat.M().format(now) +
+                          '-' +
+                          DateFormat.y().format(now);
+                      String hour = DateFormat.H().format(now) +
+                          '-' +
+                          DateFormat.m().format(now) +
+                          '-' +
+                          DateFormat.s().format(now);
+                      Directory currentDir = Directory.current;
+                      final Directory appDocDirFolder = Directory(
+                          '${currentDir.path}/LinkedIn/${'$date-$hour'}');
+                      await appDocDirFolder.create(recursive: true);
+                      File('${appDocDirFolder.path}/$fileName')
+                          .create(recursive: true);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('File imported successfully')),
+                      );
+                    },
                     child: const Text('Import'),
                   )),
                 ],

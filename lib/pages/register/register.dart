@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:project/db/sqlite_service.dart';
-import 'package:project/pages/home.dart';
+import 'package:project/pages/home/home.dart';
 import 'package:project/models/user.dart';
+import 'package:project/pages/login/login.dart';
 import 'package:project/widgets/navbar_init.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -25,9 +27,14 @@ class _RegisterState extends State<Register> {
   // sqlite
   late SqliteService _sqliteService;
 
+  void saveCredentials(String email, String password) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('email', email);
+    await prefs.setString('password', password);
+  }
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _sqliteService = SqliteService();
   }
@@ -174,11 +181,15 @@ class _RegisterState extends State<Register> {
                                 await _sqliteService
                                     .createUser(user)
                                     .then((value) {
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (BuildContext context) =>
-                                              Home()));
+                                  if (value == BigInt.one) {
+                                    saveCredentials(emailController.text,
+                                        passwordController.text);
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                Home()));
+                                  }
                                 });
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(

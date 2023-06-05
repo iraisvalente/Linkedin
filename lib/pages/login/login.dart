@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:project/db/sqlite_service.dart';
-import 'package:project/pages/home.dart';
+import 'package:project/pages/home/home.dart';
 import 'package:project/widgets/navbar_init.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -17,6 +18,12 @@ class _LoginState extends State<Login> {
 
   // sqlite
   late SqliteService _sqliteService;
+
+  void saveCredentials(String email, String password) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('email', email);
+    await prefs.setString('password', password);
+  }
 
   @override
   void initState() {
@@ -81,6 +88,8 @@ class _LoginState extends State<Login> {
                                 .login(emailController.text,
                                     passwordController.text)
                                 .then((value) {
+                              saveCredentials(emailController.text,
+                                  passwordController.text);
                               Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(

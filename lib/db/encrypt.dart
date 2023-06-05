@@ -1,11 +1,10 @@
 import 'package:encrypt/encrypt.dart';
 
-class EncryptData{
+class EncryptData {
   static Encrypted? encrypted;
   static var decrypted;
 
-
-  static String encryptAES(plainText){
+  static String encryptAES(plainText) {
     final key = Key.fromUtf8('my 32 length key................');
     final iv = IV.fromLength(16);
     final encrypter = Encrypter(AES(key));
@@ -13,7 +12,7 @@ class EncryptData{
     return encrypted!.base64;
   }
 
-  static String decryptAES(plainText){
+  static String decryptAES(plainText) {
     final key = Key.fromUtf8('my 32 length key................');
     final iv = IV.fromLength(16);
     final encrypter = Encrypter(AES(key));

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:project/pages/analytics/analytics_page.dart';
+import 'package:project/pages/contact_search/contact_search.dart';
 import 'package:project/pages/import_search/import_search_page.dart';
+import 'package:project/pages/login/login.dart';
 import 'package:project/pages/saved_search/saved_search_page.dart';
 import 'package:project/pages/search/search_page.dart';
 import 'package:project/pages/summary/summary_page.dart';
-import 'package:project/pages/home.dart';
+import 'package:project/pages/home/home.dart';
 import 'package:project/widgets/navbar_button.dart';
 import 'package:project/widgets/navbar_item.dart';
 
@@ -17,12 +19,13 @@ class NavBar extends StatefulWidget {
 
 class _NavBarState extends State<NavBar> {
   double collapsableHeight = 0.0;
+  double heigthMenu = 50.0 * 4;
 
   @override
   Widget build(BuildContext context) {
     List<Widget> navBarItems = [
-      NavBarItem(
-        text: 'Home',
+      NavBarItemRow(
+        text: 'Automation',
         function: () {
           Navigator.push(
             context,
@@ -42,18 +45,74 @@ class _NavBarState extends State<NavBar> {
           color: Colors.white,
         ),
         AnimatedContainer(
-          margin: EdgeInsets.only(top: 79.0),
-          duration: Duration(milliseconds: 375),
-          curve: Curves.ease,
-          height: (width < 800.0) ? collapsableHeight : 0.0,
-          width: double.infinity,
-          color: Color(0xff121212),
-          child: SingleChildScrollView(
-            child: Column(
-              children: navBarItems,
-            ),
-          ),
-        ),
+            margin: EdgeInsets.only(top: 79.0),
+            duration: Duration(milliseconds: 375),
+            curve: Curves.ease,
+            height: (width < 800.0) ? collapsableHeight : 0.0,
+            width: double.infinity,
+            color: Colors.blue.shade900,
+            child: ListView(
+              children: [
+                ListTile(
+                    title: Text(
+                      'Automation',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (_, __, ___) => Home(),
+                          transitionDuration: Duration(seconds: 0),
+                        ),
+                      );
+                    }),
+                ExpansionTile(
+                  title: Text(
+                    "Analytics",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  childrenPadding: EdgeInsets.only(left: 60),
+                  children: [
+                    ListTile(
+                      title: Text("Analytics"),
+                    ),
+                    ListTile(
+                      title: Text("Summary"),
+                    ),
+                  ],
+                ),
+                ExpansionTile(
+                  title: Text(
+                    "Search",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  childrenPadding: EdgeInsets.only(left: 60), //children padding
+                  children: [
+                    ListTile(
+                      title: Text("Child Category 1"),
+                    ),
+                    ListTile(
+                      title: Text("Child Category 2"),
+                    ),
+                  ],
+                ),
+                ListTile(
+                    title: Text(
+                      'Logout',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (_, __, ___) => Home(),
+                          transitionDuration: Duration(seconds: 0),
+                        ),
+                      );
+                    })
+              ],
+            )),
         Container(
           color: Colors.blue.shade900,
           height: 80.0,
@@ -67,9 +126,9 @@ class _NavBarState extends State<NavBar> {
                     onPressed: () {
                       if (collapsableHeight == 0.0) {
                         setState(() {
-                          collapsableHeight = 240.0;
+                          collapsableHeight = heigthMenu;
                         });
-                      } else if (collapsableHeight == 240.0) {
+                      } else if (collapsableHeight == heigthMenu) {
                         setState(() {
                           collapsableHeight = 0.0;
                         });
@@ -79,8 +138,8 @@ class _NavBarState extends State<NavBar> {
                 } else {
                   return Row(
                     children: [
-                      NavBarItem(
-                        text: 'Home',
+                      NavBarItemRow(
+                        text: 'Automation',
                         function: () {
                           Navigator.push(
                             context,
@@ -178,7 +237,51 @@ class _NavBarState extends State<NavBar> {
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),
-                          ))
+                          )),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      PopupMenuButton(
+                          itemBuilder: (_) {
+                            return [
+                              PopupMenuItem(
+                                  value: "Import Contact",
+                                  child: Text("Import Contact")),
+                            ];
+                          },
+                          onSelected: (i) {
+                            if (i == "Import Contact") {
+                              Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (_, __, ___) =>
+                                      ImportContactSearchPage(),
+                                  transitionDuration: Duration(seconds: 0),
+                                ),
+                              );
+                            }
+                          },
+                          child: Text(
+                            "Contact",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          )),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      NavBarItemRow(
+                        text: 'Logout',
+                        function: () {
+                          Navigator.pushReplacement(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (_, __, ___) => Login(),
+                              transitionDuration: Duration(seconds: 0),
+                            ),
+                          );
+                        },
+                      )
                     ],
                   );
                 }

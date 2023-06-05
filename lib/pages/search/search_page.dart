@@ -1,4 +1,12 @@
+import 'dart:io';
+
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:project/db/sqlite_service.dart';
+import 'package:project/models/connection.dart';
+import 'package:project/models/saved_search.dart';
+import 'package:project/service/json_service.dart';
 import 'package:project/widgets/navbar_inside.dart';
 
 class SearchPage extends StatefulWidget {
@@ -16,19 +24,23 @@ class _SearchPageState extends State<SearchPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController companyController = TextEditingController();
   TextEditingController positionController = TextEditingController();
+  TextEditingController connectedOnController = TextEditingController();
   TextEditingController searchName = TextEditingController();
   TextEditingController searchNote = TextEditingController();
-  String? codeDialog;
-  String? valueText;
-  String dropdownvalue = 'Item 1';
 
-  var items = [
-    'Item 1',
-    'Item 2',
-    'Item 3',
-    'Item 4',
-    'Item 5',
-  ];
+  List<Connection>? listData = [];
+  DataTableSource _searchTable = SearchTable([]);
+  List<List<dynamic>> head = [];
+  bool valuefirst = false;
+  late SqliteService _sqliteService;
+
+  Future<void> allConnections() async {
+    listData = await _sqliteService.allConnections();
+    print(listData);
+    setState(() {
+      _searchTable = SearchTable(listData!);
+    });
+  }
 
   Future<void> _displayTextInputDialog(BuildContext context) async {
     return showDialog(
@@ -44,7 +56,7 @@ class _SearchPageState extends State<SearchPage> {
                   Expanded(
                     child: TextField(
                       controller: searchName,
-                      decoration: const InputDecoration(hintText: "Name"),
+                      decoration: const InputDecoration(hintText: 'Name'),
                     ),
                   ),
                   Expanded(
@@ -52,7 +64,7 @@ class _SearchPageState extends State<SearchPage> {
                       keyboardType: TextInputType.multiline,
                       maxLines: null,
                       controller: searchNote,
-                      decoration: const InputDecoration(hintText: "Note"),
+                      decoration: const InputDecoration(hintText: 'Note'),
                     ),
                   )
                 ],
@@ -75,7 +87,40 @@ class _SearchPageState extends State<SearchPage> {
                 color: Colors.blue,
                 textColor: Colors.white,
                 child: const Text('OK'),
-                onPressed: () {
+                onPressed: () async {
+                  List<SavedSearch> searches = [];
+                  Directory currentDir = Directory.current;
+                  var jsonResponse = await JsonService().readJson(
+                      '${currentDir.path}/assets/json/saved_search.json');
+                  if (jsonResponse != []) {
+                    for (var search in jsonResponse) {
+                      searches.add(SavedSearch(
+                          search['name'],
+                          search['note'],
+                          Connection(
+                              search['connection']['first_name'],
+                              search['connection']['last_name'],
+                              search['connection']['email'],
+                              search['connection']['company'],
+                              search['connection']['position'],
+                              search['connection']['connection'])));
+                    }
+                  }
+
+                  searches.add(SavedSearch(
+                      searchName.text,
+                      searchNote.text,
+                      Connection(
+                          firstnameController.text,
+                          lastnameController.text,
+                          emailController.text,
+                          companyController.text,
+                          positionController.text,
+                          connectedOnController.text)));
+                  JsonService().updateJson(
+                      '${currentDir.path}/assets/json/saved_search.json',
+                      searches);
+
                   setState(() {
                     searchName.text = '';
                     searchNote.text = '';
@@ -86,6 +131,13 @@ class _SearchPageState extends State<SearchPage> {
             ],
           );
         });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _sqliteService = SqliteService();
+    allConnections();
   }
 
   @override
@@ -101,7 +153,7 @@ class _SearchPageState extends State<SearchPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Search Contacts",
+                    'Search Contacts',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
                   ),
                   SizedBox(
@@ -116,13 +168,7 @@ class _SearchPageState extends State<SearchPage> {
                             controller: firstnameController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
-                                labelText: "Firstname"),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your firstname';
-                              }
-                              return null;
-                            },
+                                labelText: 'Firstname'),
                           ),
                         ),
                       ),
@@ -133,13 +179,7 @@ class _SearchPageState extends State<SearchPage> {
                             controller: lastnameController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
-                                labelText: "Lastname"),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your lastname';
-                              }
-                              return null;
-                            },
+                                labelText: 'Lastname'),
                           ),
                         ),
                       )
@@ -154,13 +194,7 @@ class _SearchPageState extends State<SearchPage> {
                             controller: emailController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
-                                labelText: "Email"),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
-                              }
-                              return null;
-                            },
+                                labelText: 'Email'),
                           ),
                         ),
                       ),
@@ -171,13 +205,7 @@ class _SearchPageState extends State<SearchPage> {
                             controller: companyController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
-                                labelText: "Company"),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your company';
-                              }
-                              return null;
-                            },
+                                labelText: 'Company'),
                           ),
                         ),
                       )
@@ -192,34 +220,30 @@ class _SearchPageState extends State<SearchPage> {
                             controller: positionController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
-                                labelText: "Position"),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your position';
-                              }
-                              return null;
-                            },
+                                labelText: 'Position'),
                           ),
                         ),
                       ),
                       Expanded(
                         child: Container(
                           padding: EdgeInsets.all(15),
-                          child: DropdownButtonFormField(
+                          child: TextFormField(
+                            controller: connectedOnController,
                             decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                            ),
-                            value: dropdownvalue,
-                            isExpanded: true,
-                            items: items.map((String items) {
-                              return DropdownMenuItem(
-                                value: items,
-                                child: Text(items),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
+                                border: OutlineInputBorder(),
+                                labelText: 'Connected On'),
+                            onTap: () async {
+                              DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate:
+                                      DateTime.now(), //get today's date
+                                  firstDate: DateTime
+                                      .now(), //DateTime.now() - not to allow to choose before today.
+                                  lastDate: DateTime(2101));
+                              String date =
+                                  DateFormat('d MMM y').format(pickedDate!);
                               setState(() {
-                                dropdownvalue = newValue!;
+                                connectedOnController.text = date;
                               });
                             },
                           ),
@@ -227,89 +251,112 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                     ],
                   ),
+                  Row(
+                    children: <Widget>[
+                      SizedBox(
+                        width: 30,
+                      ),
+                      Text(
+                        'Independent search by field: ',
+                        style: TextStyle(fontSize: 17.0),
+                      ),
+                      Checkbox(
+                        value: valuefirst,
+                        onChanged: (value) {
+                          setState(() {
+                            valuefirst = value!;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
                   Container(
                       margin: EdgeInsets.only(left: 35, right: 35),
                       child: ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            try {} catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text(
-                                        'There was a problem adding a user, please try again')),
-                              );
-                            }
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Please fill input')),
-                            );
-                          }
-                        },
+                        onPressed: () async {},
                         child: const Text('Search'),
                       )),
                   SizedBox(
                     height: 20,
                   ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.90,
-                    child: DataTable(columns: [
-                      DataColumn(
-                        label: Text('First name'),
-                      ),
-                      DataColumn(
-                        label: Text('Last name'),
-                      ),
-                      DataColumn(
-                        label: Text('Email'),
-                      ),
-                      DataColumn(
-                        label: Text('Company'),
-                      ),
-                      DataColumn(
-                        label: Text('Position'),
-                      ),
-                      DataColumn(
-                        label: Text('Count of connections'),
-                      ),
-                    ], rows: [
-                      DataRow(cells: [
-                        DataCell(Text("Alex")),
-                        DataCell(Text("Anderson")),
-                        DataCell(Text("anderson_axle@email.com")),
-                        DataCell(Text("Example")),
-                        DataCell(Text("Dev")),
-                        DataCell(Text("1")),
-                      ]),
-                    ]),
+                  Text(
+                    'Company Analysis',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
                   ),
-                  SizedBox(height: 20),
-                  Container(
-                    margin: EdgeInsets.only(left: 35, right: 35),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                            child: ElevatedButton(
-                          onPressed: () {
-                            _displayTextInputDialog(context);
-                          },
-                          child: const Text('Toggle save search'),
-                        )),
-                        SizedBox(width: 35),
-                        SizedBox(
-                            child: ElevatedButton(
-                          onPressed: () {},
-                          child: const Text('Export selected'),
-                        )),
-                      ],
-                    ),
-                  )
+                  SizedBox(
+                    height: 30,
+                  ),
+                  PaginatedDataTable(
+                    source: _searchTable,
+                    columns: [
+                      DataColumn(label: Text('First Name')),
+                      DataColumn(label: Text('Last Name')),
+                      DataColumn(label: Text('Email Address')),
+                      DataColumn(label: Text('Company')),
+                      DataColumn(label: Text('Position')),
+                      DataColumn(label: Text('Connected On')),
+                    ],
+                    columnSpacing: 100,
+                    horizontalMargin: 10,
+                    rowsPerPage: 8,
+                    showCheckboxColumn: false,
+                  ),
                 ],
               ),
             ),
+            Container(
+              margin: EdgeInsets.only(left: 35, right: 35),
+              child: Row(
+                children: [
+                  SizedBox(
+                      child: ElevatedButton(
+                    onPressed: () {
+                      _displayTextInputDialog(context);
+                    },
+                    child: const Text('Toggle save search'),
+                  )),
+                  SizedBox(width: 10),
+                  SizedBox(
+                      child: ElevatedButton(
+                    onPressed: () {},
+                    child: const Text('Export selected'),
+                  )),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            )
           ],
         ),
       ),
     );
+  }
+}
+
+class SearchTable extends DataTableSource {
+  late List<Connection> listData;
+
+  SearchTable(this.listData);
+
+  @override
+  bool get isRowCountApproximate => false;
+  @override
+  int get rowCount => listData.length;
+  @override
+  int get selectedRowCount => 0;
+  @override
+  DataRow getRow(int index) {
+    return DataRow(cells: [
+      DataCell(Text(listData[index].firstname.toString())),
+      DataCell(Text(listData[index].lastname)),
+      DataCell(Text(listData[index].email.toString())),
+      DataCell(Text(listData[index].company.toString())),
+      DataCell(Text(listData[index].position.toString())),
+      DataCell(Text(listData[index].connection.toString())),
+    ]);
   }
 }
