@@ -2,8 +2,11 @@ import 'dart:io';
 
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:project/db/sqlite_service.dart';
 import 'package:project/models/connection.dart';
+import 'package:project/models/saved_search.dart';
+import 'package:project/service/json_service.dart';
 import 'package:project/widgets/navbar_inside.dart';
 
 class SearchPage extends StatefulWidget {
@@ -21,11 +24,10 @@ class _SearchPageState extends State<SearchPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController companyController = TextEditingController();
   TextEditingController positionController = TextEditingController();
-  TextEditingController dateController = TextEditingController();
+  TextEditingController connectedOnController = TextEditingController();
   TextEditingController searchName = TextEditingController();
   TextEditingController searchNote = TextEditingController();
 
-  Directory currentDir = Directory.current;
   List<Connection>? listData = [];
   DataTableSource _searchTable = SearchTable([]);
   List<List<dynamic>> head = [];
@@ -54,7 +56,7 @@ class _SearchPageState extends State<SearchPage> {
                   Expanded(
                     child: TextField(
                       controller: searchName,
-                      decoration: const InputDecoration(hintText: "Name"),
+                      decoration: const InputDecoration(hintText: 'Name'),
                     ),
                   ),
                   Expanded(
@@ -62,7 +64,7 @@ class _SearchPageState extends State<SearchPage> {
                       keyboardType: TextInputType.multiline,
                       maxLines: null,
                       controller: searchNote,
-                      decoration: const InputDecoration(hintText: "Note"),
+                      decoration: const InputDecoration(hintText: 'Note'),
                     ),
                   )
                 ],
@@ -85,7 +87,40 @@ class _SearchPageState extends State<SearchPage> {
                 color: Colors.blue,
                 textColor: Colors.white,
                 child: const Text('OK'),
-                onPressed: () {
+                onPressed: () async {
+                  List<SavedSearch> searches = [];
+                  Directory currentDir = Directory.current;
+                  var jsonResponse = await JsonService().readJson(
+                      '${currentDir.path}/assets/json/saved_search.json');
+                  if (jsonResponse != []) {
+                    for (var search in jsonResponse) {
+                      searches.add(SavedSearch(
+                          search['name'],
+                          search['note'],
+                          Connection(
+                              search['connection']['first_name'],
+                              search['connection']['last_name'],
+                              search['connection']['email'],
+                              search['connection']['company'],
+                              search['connection']['position'],
+                              search['connection']['connection'])));
+                    }
+                  }
+
+                  searches.add(SavedSearch(
+                      searchName.text,
+                      searchNote.text,
+                      Connection(
+                          firstnameController.text,
+                          lastnameController.text,
+                          emailController.text,
+                          companyController.text,
+                          positionController.text,
+                          connectedOnController.text)));
+                  JsonService().updateJson(
+                      '${currentDir.path}/assets/json/saved_search.json',
+                      searches);
+
                   setState(() {
                     searchName.text = '';
                     searchNote.text = '';
@@ -118,7 +153,7 @@ class _SearchPageState extends State<SearchPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Search Contacts",
+                    'Search Contacts',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
                   ),
                   SizedBox(
@@ -133,7 +168,7 @@ class _SearchPageState extends State<SearchPage> {
                             controller: firstnameController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
-                                labelText: "Firstname"),
+                                labelText: 'Firstname'),
                           ),
                         ),
                       ),
@@ -144,7 +179,7 @@ class _SearchPageState extends State<SearchPage> {
                             controller: lastnameController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
-                                labelText: "Lastname"),
+                                labelText: 'Lastname'),
                           ),
                         ),
                       )
@@ -159,7 +194,7 @@ class _SearchPageState extends State<SearchPage> {
                             controller: emailController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
-                                labelText: "Email"),
+                                labelText: 'Email'),
                           ),
                         ),
                       ),
@@ -170,7 +205,7 @@ class _SearchPageState extends State<SearchPage> {
                             controller: companyController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
-                                labelText: "Company"),
+                                labelText: 'Company'),
                           ),
                         ),
                       )
@@ -185,7 +220,7 @@ class _SearchPageState extends State<SearchPage> {
                             controller: positionController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
-                                labelText: "Position"),
+                                labelText: 'Position'),
                           ),
                         ),
                       ),
@@ -193,10 +228,10 @@ class _SearchPageState extends State<SearchPage> {
                         child: Container(
                           padding: EdgeInsets.all(15),
                           child: TextFormField(
-                            controller: dateController,
+                            controller: connectedOnController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
-                                labelText: "Connected On"),
+                                labelText: 'Connected On'),
                             onTap: () async {
                               DateTime? pickedDate = await showDatePicker(
                                   context: context,
@@ -205,8 +240,10 @@ class _SearchPageState extends State<SearchPage> {
                                   firstDate: DateTime
                                       .now(), //DateTime.now() - not to allow to choose before today.
                                   lastDate: DateTime(2101));
+                              String date =
+                                  DateFormat('d MMM y').format(pickedDate!);
                               setState(() {
-                                dateController.text = pickedDate.toString();
+                                connectedOnController.text = date;
                               });
                             },
                           ),
@@ -246,7 +283,7 @@ class _SearchPageState extends State<SearchPage> {
                     height: 20,
                   ),
                   Text(
-                    "Company Analysis",
+                    'Company Analysis',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
                   ),
                   SizedBox(
