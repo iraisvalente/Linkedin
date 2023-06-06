@@ -50,3 +50,26 @@ Future<List<Connection>?> connections() async {
     throw Exception('Failed to load album');
   }
 }
+
+Future<List<Connection>?> connectionsFilter(String filter, String value) async {
+  List<Connection>? connections = [];
+  final response = await http
+      .get(Uri.parse('http://127.0.0.1:8000/connections/$filter/$value'));
+
+  if (response.statusCode == 200) {
+    var responseJson = json.decode(response.body);
+    for (final response in responseJson) {
+      connections.add(Connection(
+          response['First_Name']!,
+          response['Last_Name']!,
+          response['Email_Address']!,
+          response['Company']!,
+          response['Position']!,
+          response['Connection']!));
+    }
+    print(connections.length);
+    return connections;
+  } else {
+    throw Exception('Failed to load album');
+  }
+}

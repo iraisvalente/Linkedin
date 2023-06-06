@@ -37,8 +37,8 @@ class _SearchPageState extends State<SearchPage> {
   List<bool> disable = [true, true, true, true, true, true];
 
   Future<void> allConnections() async {
-    conn = connections();
-    await conn.then((value) {
+    await connections().then((value) {
+      listData = [];
       listData = value;
     });
     setState(() {
@@ -78,6 +78,67 @@ class _SearchPageState extends State<SearchPage> {
           disable = [false, false, false, false, false, true];
         });
       }
+    }
+  }
+
+  filters() async {
+    if (firstnameController.text.isNotEmpty) {
+      await connectionsFilter('firstname', firstnameController.text)
+          .then((value) {
+        listData = [];
+        listData = value;
+      });
+      setState(() {
+        _searchTable = SearchTable(listData!);
+      });
+    }
+    if (lastnameController.text.isNotEmpty) {
+      await connectionsFilter('lastname', lastnameController.text)
+          .then((value) {
+        listData = [];
+        listData = value;
+      });
+      setState(() {
+        _searchTable = SearchTable(listData!);
+      });
+    }
+    if (emailController.text.isNotEmpty) {
+      await connectionsFilter('email', emailController.text).then((value) {
+        listData = [];
+        listData = value;
+      });
+      setState(() {
+        _searchTable = SearchTable(listData!);
+      });
+    }
+    if (companyController.text.isNotEmpty) {
+      await connectionsFilter('company', companyController.text).then((value) {
+        listData = [];
+        listData = value;
+      });
+      setState(() {
+        _searchTable = SearchTable(listData!);
+      });
+    }
+    if (positionController.text.isNotEmpty) {
+      await connectionsFilter('position', positionController.text)
+          .then((value) {
+        listData = [];
+        listData = value;
+      });
+      setState(() {
+        _searchTable = SearchTable(listData!);
+      });
+    }
+    if (connectedOnController.text.isNotEmpty) {
+      await connectionsFilter('connection', connectedOnController.text)
+          .then((value) {
+        listData = [];
+        listData = value;
+      });
+      setState(() {
+        _searchTable = SearchTable(listData!);
+      });
     }
   }
 
@@ -280,7 +341,7 @@ class _SearchPageState extends State<SearchPage> {
                               DateTime? pickedDate = await showDatePicker(
                                   context: context,
                                   initialDate: DateTime.now(),
-                                  firstDate: DateTime.now(),
+                                  firstDate: DateTime(2000, 1),
                                   lastDate: DateTime(2101));
                               String date =
                                   DateFormat('d-MMM-yy').format(pickedDate!);
@@ -326,12 +387,42 @@ class _SearchPageState extends State<SearchPage> {
                   SizedBox(
                     height: 20,
                   ),
-                  Container(
-                      margin: EdgeInsets.only(left: 35, right: 35),
-                      child: ElevatedButton(
-                        onPressed: () async {},
-                        child: const Text('Search'),
-                      )),
+                  Row(
+                    children: [
+                      Container(
+                          margin: EdgeInsets.only(left: 35, right: 35),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              filters();
+                            },
+                            child: const Text('Search'),
+                          )),
+                      Container(
+                          margin: EdgeInsets.only(left: 35, right: 35),
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.resolveWith((states) {
+                                if (states.contains(MaterialState.pressed)) {
+                                  return Colors.grey.shade400;
+                                }
+                                return Colors.grey.shade300;
+                              }),
+                              foregroundColor:
+                                  MaterialStateProperty.resolveWith((states) {
+                                if (states.contains(MaterialState.pressed)) {
+                                  return Colors.white;
+                                }
+                                return Colors.black54;
+                              }),
+                            ),
+                            onPressed: () async {
+                              allConnections();
+                            },
+                            child: const Text('Reset search'),
+                          ))
+                    ],
+                  ),
                   SizedBox(
                     height: 20,
                   ),
