@@ -126,22 +126,30 @@ class _HomeState extends State<Home> {
                             if (_formKey.currentState!.validate()) {
                               print(emailController.text.toString());
                               print(passwordController.text.toString());
+<<<<<<< Updated upstream
                               var result = await Process.run("python", [
                                 "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
                                 emailController.text.toString(),
                                 passwordController.text.toString(),
                                 "download"
                               ]);
+=======
+                              var result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",emailController.text.toString(),passwordController.text.toString(),"choice"]);
+>>>>>>> Stashed changes
                               print(result.stdout);
                               result = await Process.run("python", [
                                 "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
                                 "extract"
                               ]);
                               print(result.stdout);
+<<<<<<< Updated upstream
                               result = await Process.run("python", [
                                 "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
                                 "update"
                               ]);
+=======
+                              result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","append"]);
+>>>>>>> Stashed changes
                               print(result.stdout);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
