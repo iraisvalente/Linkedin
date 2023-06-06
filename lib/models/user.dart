@@ -22,12 +22,12 @@ class User {
 
   Map<String, dynamic> toMap() {
     var map = Map<String, dynamic>();
-    map['first_name'] = firstname;
-    map['last_name'] = lastname;
-    map['email'] = email;
-    map['company'] = company;
-    map['position'] = position;
-    map['password'] = password;
+    map['First_Name'] = firstname;
+    map['Last_Name'] = lastname;
+    map['Email_Address'] = email;
+    map['Company'] = company;
+    map['Position'] = position;
+    map['Password_user'] = password;
     return map;
   }
 }

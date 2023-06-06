@@ -4,6 +4,8 @@ import 'package:project/pages/home/home.dart';
 import 'package:project/widgets/navbar_init.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:project/service/http/user.dart';
+
 class Login extends StatefulWidget {
   const Login({super.key});
 
@@ -15,9 +17,7 @@ class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-
-  // sqlite
-  late SqliteService _sqliteService;
+  late Future log;
 
   void saveCredentials(String email, String password) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -29,7 +29,6 @@ class _LoginState extends State<Login> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _sqliteService = SqliteService();
   }
 
   @override
@@ -84,10 +83,10 @@ class _LoginState extends State<Login> {
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
                           try {
-                            await _sqliteService
-                                .login(emailController.text,
-                                    passwordController.text)
-                                .then((value) {
+                            log = login(
+                                emailController.text, passwordController.text);
+                            print(await log);
+                            await log.then((value) {
                               saveCredentials(emailController.text,
                                   passwordController.text);
                               Navigator.pushReplacement(

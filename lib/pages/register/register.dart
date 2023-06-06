@@ -6,6 +6,8 @@ import 'package:project/pages/login/login.dart';
 import 'package:project/widgets/navbar_init.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:project/service/http/user.dart';
+
 class Register extends StatefulWidget {
   const Register({super.key});
 
@@ -23,9 +25,7 @@ class _RegisterState extends State<Register> {
   TextEditingController positionController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
-
-  // sqlite
-  late SqliteService _sqliteService;
+  late Future reg;
 
   void saveCredentials(String email, String password) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -36,7 +36,6 @@ class _RegisterState extends State<Register> {
   @override
   void initState() {
     super.initState();
-    _sqliteService = SqliteService();
   }
 
   @override
@@ -178,18 +177,15 @@ class _RegisterState extends State<Register> {
                                     companyController.text,
                                     positionController.text,
                                     passwordController.text);
-                                await _sqliteService
-                                    .createUser(user)
-                                    .then((value) {
-                                  if (value == BigInt.one) {
-                                    saveCredentials(emailController.text,
-                                        passwordController.text);
-                                    Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (BuildContext context) =>
-                                                Home()));
-                                  }
+                                reg = register(user);
+                                await reg.then((value) {
+                                  saveCredentials(emailController.text,
+                                      passwordController.text);
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              Home()));
                                 });
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
