@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:csv/csv.dart';
@@ -79,6 +80,16 @@ class _SearchPageState extends State<SearchPage> {
         });
       }
     }
+  }
+
+  allFilters(Connection connection) async {
+    await connectionsAllFilters(connection).then((value) {
+      listData = [];
+      listData = json.decode(value!.body);
+    });
+    setState(() {
+      _searchTable = SearchTable(listData!);
+    });
   }
 
   filters() async {
@@ -243,238 +254,290 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            NavBar(),
-            Container(
-              margin: EdgeInsets.all(35),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Search Contacts',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.all(15),
-                          child: TextFormField(
-                            enabled: disable[0],
-                            controller: firstnameController,
-                            decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Firstname'),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.all(15),
-                          child: TextFormField(
-                            enabled: disable[1],
-                            controller: lastnameController,
-                            decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Lastname'),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.all(15),
-                          child: TextFormField(
-                            enabled: disable[2],
-                            controller: emailController,
-                            decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Email'),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.all(15),
-                          child: TextFormField(
-                            enabled: disable[3],
-                            controller: companyController,
-                            decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Company'),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.all(15),
-                          child: TextFormField(
-                            enabled: disable[4],
-                            controller: positionController,
-                            decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Position'),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.all(15),
-                          child: TextFormField(
-                            enabled: disable[5],
-                            controller: connectedOnController,
-                            decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Connected On'),
-                            onTap: () async {
-                              DateTime? pickedDate = await showDatePicker(
-                                  context: context,
-                                  initialDate: DateTime.now(),
-                                  firstDate: DateTime(2000, 1),
-                                  lastDate: DateTime(2101));
-                              String date =
-                                  DateFormat('d-MMM-yy').format(pickedDate!);
-                              setState(() {
-                                connectedOnController.text = date;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: <Widget>[
-                      SizedBox(
-                        width: 30,
-                      ),
-                      Text(
-                        'Independent search by field: ',
-                        style: TextStyle(fontSize: 17.0),
-                      ),
-                      Checkbox(
-                        value: valuefirst,
-                        onChanged: (value) {
-                          setState(() {
-                            print(value!);
-                            valuefirst = value!;
-                            independentSearch();
-                            if (valuefirst == false) {
-                              disable = [true, true, true, true, true, true];
-                              firstnameController.text = "";
-                              lastnameController.text = "";
-                              emailController.text = "";
-                              companyController.text = "";
-                              positionController.text = "";
-                              connectedOnController.text = "";
-                            }
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                          margin: EdgeInsets.only(left: 35, right: 35),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              filters();
-                            },
-                            child: const Text('Search'),
-                          )),
-                      Container(
-                          margin: EdgeInsets.only(left: 35, right: 35),
-                          child: ElevatedButton(
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.resolveWith((states) {
-                                if (states.contains(MaterialState.pressed)) {
-                                  return Colors.grey.shade400;
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              NavBar(),
+              Container(
+                margin: EdgeInsets.all(35),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Search Contacts',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.all(15),
+                            child: TextFormField(
+                              enabled: disable[0],
+                              controller: firstnameController,
+                              decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Firstname'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter the firstname';
                                 }
-                                return Colors.grey.shade300;
-                              }),
-                              foregroundColor:
-                                  MaterialStateProperty.resolveWith((states) {
-                                if (states.contains(MaterialState.pressed)) {
-                                  return Colors.white;
-                                }
-                                return Colors.black54;
-                              }),
+                                return null;
+                              },
                             ),
-                            onPressed: () async {
-                              allConnections();
-                            },
-                            child: const Text('Reset search'),
-                          ))
-                    ],
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Text(
-                    'Company Analysis',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  PaginatedDataTable(
-                    source: _searchTable,
-                    columns: [
-                      DataColumn(label: Text('First Name')),
-                      DataColumn(label: Text('Last Name')),
-                      DataColumn(label: Text('Email Address')),
-                      DataColumn(label: Text('Company')),
-                      DataColumn(label: Text('Position')),
-                      DataColumn(label: Text('Connected On')),
-                    ],
-                    columnSpacing: 100,
-                    horizontalMargin: 10,
-                    rowsPerPage: 8,
-                    showCheckboxColumn: false,
-                  ),
-                ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.all(15),
+                            child: TextFormField(
+                              enabled: disable[1],
+                              controller: lastnameController,
+                              decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Lastname'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter the lastname';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.all(15),
+                            child: TextFormField(
+                              enabled: disable[2],
+                              controller: emailController,
+                              decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Email'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter the email';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.all(15),
+                            child: TextFormField(
+                              enabled: disable[3],
+                              controller: companyController,
+                              decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Company'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter the company';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.all(15),
+                            child: TextFormField(
+                              enabled: disable[4],
+                              controller: positionController,
+                              decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Position'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter the position';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.all(15),
+                            child: TextFormField(
+                              enabled: disable[5],
+                              controller: connectedOnController,
+                              decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Connected On'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter the date';
+                                }
+                                return null;
+                              },
+                              onTap: () async {
+                                DateTime? pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(2000, 1),
+                                    lastDate: DateTime(2101));
+                                String date =
+                                    DateFormat('d-MMM-yy').format(pickedDate!);
+                                setState(() {
+                                  connectedOnController.text = date;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: <Widget>[
+                        SizedBox(
+                          width: 30,
+                        ),
+                        Text(
+                          'Independent search by field: ',
+                          style: TextStyle(fontSize: 17.0),
+                        ),
+                        Checkbox(
+                          value: valuefirst,
+                          onChanged: (value) {
+                            setState(() {
+                              valuefirst = value!;
+                              independentSearch();
+                              if (valuefirst == false) {
+                                disable = [true, true, true, true, true, true];
+                                firstnameController.text = "";
+                                lastnameController.text = "";
+                                emailController.text = "";
+                                companyController.text = "";
+                                positionController.text = "";
+                                connectedOnController.text = "";
+                              }
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      children: [
+                        Container(
+                            margin: EdgeInsets.only(left: 35, right: 35),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  allFilters(Connection(
+                                      firstnameController.text,
+                                      lastnameController.text,
+                                      emailController.text,
+                                      companyController.text,
+                                      positionController.text,
+                                      connectedOnController.text));
+                                } else {
+                                  filters();
+
+                                  _formKey.currentState!.reset();
+                                }
+                              },
+                              child: const Text('Search'),
+                            )),
+                        Container(
+                            margin: EdgeInsets.only(left: 35, right: 35),
+                            child: ElevatedButton(
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.resolveWith((states) {
+                                  if (states.contains(MaterialState.pressed)) {
+                                    return Colors.grey.shade400;
+                                  }
+                                  return Colors.grey.shade300;
+                                }),
+                                foregroundColor:
+                                    MaterialStateProperty.resolveWith((states) {
+                                  if (states.contains(MaterialState.pressed)) {
+                                    return Colors.white;
+                                  }
+                                  return Colors.black54;
+                                }),
+                              ),
+                              onPressed: () async {
+                                allConnections();
+                              },
+                              child: const Text('Reset search'),
+                            ))
+                      ],
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Text(
+                      'Company Analysis',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    PaginatedDataTable(
+                      source: _searchTable,
+                      columns: [
+                        DataColumn(label: Text('First Name')),
+                        DataColumn(label: Text('Last Name')),
+                        DataColumn(label: Text('Email Address')),
+                        DataColumn(label: Text('Company')),
+                        DataColumn(label: Text('Position')),
+                        DataColumn(label: Text('Connected On')),
+                      ],
+                      columnSpacing: 100,
+                      horizontalMargin: 10,
+                      rowsPerPage: 8,
+                      showCheckboxColumn: false,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Container(
-              margin: EdgeInsets.only(left: 35, right: 35),
-              child: Row(
-                children: [
-                  SizedBox(
-                      child: ElevatedButton(
-                    onPressed: () {
-                      _displayTextInputDialog(context);
-                    },
-                    child: const Text('Toggle save search'),
-                  )),
-                  SizedBox(width: 10),
-                  SizedBox(
-                      child: ElevatedButton(
-                    onPressed: () {},
-                    child: const Text('Export selected'),
-                  )),
-                ],
+              Container(
+                margin: EdgeInsets.only(left: 35, right: 35),
+                child: Row(
+                  children: [
+                    SizedBox(
+                        child: ElevatedButton(
+                      onPressed: () {
+                        _displayTextInputDialog(context);
+                      },
+                      child: const Text('Toggle save search'),
+                    )),
+                    SizedBox(width: 10),
+                    SizedBox(
+                        child: ElevatedButton(
+                      onPressed: () {},
+                      child: const Text('Export selected'),
+                    )),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(
-              height: 20,
-            )
-          ],
+              SizedBox(
+                height: 20,
+              )
+            ],
+          ),
         ),
       ),
     );

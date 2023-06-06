@@ -18,7 +18,6 @@ Future<http.Response?> login(String email, String password) async {
 }
 
 Future<http.Response?> register(User user) async {
-  print(user.toMap());
   return http.post(
     Uri.parse('http://127.0.0.1:8000/users/'),
     headers: <String, String>{
@@ -49,6 +48,16 @@ Future<List<Connection>?> connections() async {
   } else {
     throw Exception('Failed to load album');
   }
+}
+
+Future<http.Response?> connectionsAllFilters(Connection connection) async {
+  return http.post(
+    Uri.parse('http://127.0.0.1:8000/connections'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(connection.toMap()),
+  );
 }
 
 Future<List<Connection>?> connectionsFilter(String filter, String value) async {
