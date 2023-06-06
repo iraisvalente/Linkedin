@@ -1,10 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:project/db/sqlite_service.dart';
 import 'package:project/models/connection.dart';
 import 'package:project/models/saved_search.dart';
 import 'package:project/service/http/user.dart';
@@ -12,7 +10,11 @@ import 'package:project/service/json_service.dart';
 import 'package:project/widgets/navbar_inside.dart';
 
 class SearchPage extends StatefulWidget {
-  SearchPage({super.key});
+  final String? name;
+  final String? note;
+  final Connection? connection;
+
+  const SearchPage({super.key, this.name, this.note, this.connection});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -248,6 +250,14 @@ class _SearchPageState extends State<SearchPage> {
   void initState() {
     super.initState();
     allConnections();
+    if (widget.connection != null) {
+      firstnameController.text = widget.connection!.firstname;
+      lastnameController.text = widget.connection!.lastname;
+      emailController.text = widget.connection!.email;
+      companyController.text = widget.connection!.company;
+      positionController.text = widget.connection!.position;
+      connectedOnController.text = widget.connection!.connection;
+    }
   }
 
   @override

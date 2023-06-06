@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:project/models/connection.dart';
 import 'package:project/models/saved_search.dart';
+import 'package:project/pages/search/search_page.dart';
 import 'package:project/service/json_service.dart';
 import 'package:project/widgets/navbar_inside.dart';
 
@@ -48,7 +49,20 @@ class _SavedSearchPageState extends State<SavedSearchPage> {
         DataCell(Text(searches[i].note)),
         DataCell(Row(
           children: [
-            ElevatedButton(onPressed: () {}, child: Text("Re-run search")),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (_, __, ___) => SearchPage(
+                          name: searches[i].name,
+                          note: searches[i].note,
+                          connection: searches[i].connection),
+                      transitionDuration: Duration(seconds: 0),
+                    ),
+                  );
+                },
+                child: Text("Re-run search")),
             SizedBox(
               width: 30,
             ),
