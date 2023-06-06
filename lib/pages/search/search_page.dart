@@ -34,15 +34,51 @@ class _SearchPageState extends State<SearchPage> {
   List<List<dynamic>> head = [];
   bool valuefirst = false;
   late Future conn;
+  List<bool> disable = [true, true, true, true, true, true];
+
   Future<void> allConnections() async {
     conn = connections();
     await conn.then((value) {
       listData = value;
     });
-    print(listData);
     setState(() {
       _searchTable = SearchTable(listData!);
     });
+  }
+
+  independentSearch() {
+    if (valuefirst == true) {
+      if (firstnameController.text.isNotEmpty) {
+        setState(() {
+          disable = [true, false, false, false, false, false];
+        });
+      }
+      if (lastnameController.text.isNotEmpty) {
+        setState(() {
+          disable = [false, true, false, false, false, false];
+        });
+      }
+      if (emailController.text.isNotEmpty) {
+        setState(() {
+          disable = [false, false, true, false, false, false];
+        });
+      }
+      if (companyController.text.isNotEmpty) {
+        setState(() {
+          disable = [false, false, false, true, false, false];
+        });
+      }
+      if (positionController.text.isNotEmpty) {
+        setState(() {
+          disable = [false, false, false, false, true, false];
+        });
+      }
+      if (connectedOnController.text.isNotEmpty) {
+        setState(() {
+          disable = [false, false, false, false, false, true];
+        });
+      }
+    }
   }
 
   Future<void> _displayTextInputDialog(BuildContext context) async {
@@ -167,6 +203,7 @@ class _SearchPageState extends State<SearchPage> {
                         child: Container(
                           padding: EdgeInsets.all(15),
                           child: TextFormField(
+                            enabled: disable[0],
                             controller: firstnameController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
@@ -178,6 +215,7 @@ class _SearchPageState extends State<SearchPage> {
                         child: Container(
                           padding: EdgeInsets.all(15),
                           child: TextFormField(
+                            enabled: disable[1],
                             controller: lastnameController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
@@ -193,6 +231,7 @@ class _SearchPageState extends State<SearchPage> {
                         child: Container(
                           padding: EdgeInsets.all(15),
                           child: TextFormField(
+                            enabled: disable[2],
                             controller: emailController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
@@ -204,6 +243,7 @@ class _SearchPageState extends State<SearchPage> {
                         child: Container(
                           padding: EdgeInsets.all(15),
                           child: TextFormField(
+                            enabled: disable[3],
                             controller: companyController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
@@ -219,6 +259,7 @@ class _SearchPageState extends State<SearchPage> {
                         child: Container(
                           padding: EdgeInsets.all(15),
                           child: TextFormField(
+                            enabled: disable[4],
                             controller: positionController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
@@ -230,6 +271,7 @@ class _SearchPageState extends State<SearchPage> {
                         child: Container(
                           padding: EdgeInsets.all(15),
                           child: TextFormField(
+                            enabled: disable[5],
                             controller: connectedOnController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
@@ -264,7 +306,18 @@ class _SearchPageState extends State<SearchPage> {
                         value: valuefirst,
                         onChanged: (value) {
                           setState(() {
+                            print(value!);
                             valuefirst = value!;
+                            independentSearch();
+                            if (valuefirst == false) {
+                              disable = [true, true, true, true, true, true];
+                              firstnameController.text = "";
+                              lastnameController.text = "";
+                              emailController.text = "";
+                              companyController.text = "";
+                              positionController.text = "";
+                              connectedOnController.text = "";
+                            }
                           });
                         },
                       ),
