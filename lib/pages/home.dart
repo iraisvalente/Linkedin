@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'dart:io';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -13,6 +15,20 @@ class _HomeState extends State<Home> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+
+  void getCredentials() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('email')!);
+    print(prefs.getString('password')!);
+    emailController.text = prefs.getString('email')!;
+    passwordController.text = prefs.getString('password')!;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getCredentials();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,14 +89,17 @@ class _HomeState extends State<Home> {
                             return Size(150, 40);
                           })),
                           onPressed: () async {
-                            if (_formKey.currentState!.validate())
-                            {
+                            if (_formKey.currentState!.validate()) {
                               print(emailController.text.toString());
                               print(passwordController.text.toString());
-                              var result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",emailController.text.toString(),passwordController.text.toString(),"choice"]);
+                              var result = await Process.run("python", [
+                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                emailController.text.toString(),
+                                passwordController.text.toString(),
+                                "choice"
+                              ]);
                               print(result.stdout);
-                            }
-                            else {
+                            } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content: Text('Please fill input')),
@@ -107,11 +126,22 @@ class _HomeState extends State<Home> {
                             if (_formKey.currentState!.validate()) {
                               print(emailController.text.toString());
                               print(passwordController.text.toString());
-                              var result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",emailController.text.toString(),passwordController.text.toString(),"download"]);
+                              var result = await Process.run("python", [
+                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                emailController.text.toString(),
+                                passwordController.text.toString(),
+                                "download"
+                              ]);
                               print(result.stdout);
-                              result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","extract"]);
+                              result = await Process.run("python", [
+                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                "extract"
+                              ]);
                               print(result.stdout);
-                              result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","update"]);
+                              result = await Process.run("python", [
+                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                "update"
+                              ]);
                               print(result.stdout);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -125,66 +155,66 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                     //Padding(
-        //  padding: const EdgeInsets.symmetric(
-      //                 horizontal: 8, vertical: 16.0),
-      //              child: Center(
-      //                child: ElevatedButton(
-        //                  style: ButtonStyle(minimumSize:
-        //                    MaterialStateProperty.resolveWith((states) {
-        //                  if (states.contains(MaterialState.disabled)) {
-    //                    return Size(100, 40);
-        //                      }
-    //                  return Size(150, 40);
-      //                    })),
-        //                  onPressed: () async {
-        //                  if (_formKey.currentState!.validate()) {
-        //                    print(emailController.text.toString());
-        //                    print(passwordController.text.toString());
+                    //  padding: const EdgeInsets.symmetric(
+                    //                 horizontal: 8, vertical: 16.0),
+                    //              child: Center(
+                    //                child: ElevatedButton(
+                    //                  style: ButtonStyle(minimumSize:
+                    //                    MaterialStateProperty.resolveWith((states) {
+                    //                  if (states.contains(MaterialState.disabled)) {
+                    //                    return Size(100, 40);
+                    //                      }
+                    //                  return Size(150, 40);
+                    //                    })),
+                    //                  onPressed: () async {
+                    //                  if (_formKey.currentState!.validate()) {
+                    //                    print(emailController.text.toString());
+                    //                    print(passwordController.text.toString());
 
-    //                        } else {
-    //                        ScaffoldMessenger.of(context).showSnackBar(
-    //                          const SnackBar(
-    //                              content: Text('Please fill input')),
-    //                        );
-    //                      }
-    //                    },
-    //                    child: const Text('Extract File'),
-    //                  ),
-    //                ),
-    //              ),
-    //              Padding(
-    //                padding: const EdgeInsets.symmetric(
-    //                    horizontal: 8, vertical: 16.0),
-    //                child: Center(
-    //                  child: ElevatedButton(
-    //                    style: ButtonStyle(minimumSize:
-    //                        MaterialStateProperty.resolveWith((states) {
-    //                      if (states.contains(MaterialState.disabled)) {
-    //                        return Size(100, 40);
-    //                      }
-    //                      return Size(150, 40);
-    //                    })),
-    //                    onPressed: () async {
-    //                      if (_formKey.currentState!.validate()) {
-    //                        print(emailController.text.toString());
-    //                        print(passwordController.text.toString());
+                    //                        } else {
+                    //                        ScaffoldMessenger.of(context).showSnackBar(
+                    //                          const SnackBar(
+                    //                              content: Text('Please fill input')),
+                    //                        );
+                    //                      }
+                    //                    },
+                    //                    child: const Text('Extract File'),
+                    //                  ),
+                    //                ),
+                    //              ),
+                    //              Padding(
+                    //                padding: const EdgeInsets.symmetric(
+                    //                    horizontal: 8, vertical: 16.0),
+                    //                child: Center(
+                    //                  child: ElevatedButton(
+                    //                    style: ButtonStyle(minimumSize:
+                    //                        MaterialStateProperty.resolveWith((states) {
+                    //                      if (states.contains(MaterialState.disabled)) {
+                    //                        return Size(100, 40);
+                    //                      }
+                    //                      return Size(150, 40);
+                    //                    })),
+                    //                    onPressed: () async {
+                    //                      if (_formKey.currentState!.validate()) {
+                    //                        print(emailController.text.toString());
+                    //                        print(passwordController.text.toString());
 
-    //                      } else {
-    //                        ScaffoldMessenger.of(context).showSnackBar(
-    //                          const SnackBar(
-    //                              content: Text('Please fill input')),
-    //                        );
-    //                      }
-    //                    },
-    //                    child: const Text('Update Database'),
-      //                ),
-      //            ),
+                    //                      } else {
+                    //                        ScaffoldMessenger.of(context).showSnackBar(
+                    //                          const SnackBar(
+                    //                              content: Text('Please fill input')),
+                    //                        );
+                    //                      }
+                    //                    },
+                    //                    child: const Text('Update Database'),
+                    //                ),
+                    //            ),
                     //           )
-               ],
-             ),
-           ],
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
         ),
       ],
     ));

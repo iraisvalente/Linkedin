@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:project/db/sqlite_service.dart';
 import 'package:project/models/connection.dart';
 import 'package:project/models/saved_search.dart';
+import 'package:project/service/http/user.dart';
 import 'package:project/service/json_service.dart';
 import 'package:project/widgets/navbar_inside.dart';
 
@@ -32,10 +33,12 @@ class _SearchPageState extends State<SearchPage> {
   DataTableSource _searchTable = SearchTable([]);
   List<List<dynamic>> head = [];
   bool valuefirst = false;
-  late SqliteService _sqliteService;
-
+  late Future conn;
   Future<void> allConnections() async {
-    listData = await _sqliteService.allConnections();
+    conn = connections();
+    await conn.then((value) {
+      listData = value;
+    });
     print(listData);
     setState(() {
       _searchTable = SearchTable(listData!);
@@ -136,7 +139,6 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    _sqliteService = SqliteService();
     allConnections();
   }
 
@@ -235,13 +237,11 @@ class _SearchPageState extends State<SearchPage> {
                             onTap: () async {
                               DateTime? pickedDate = await showDatePicker(
                                   context: context,
-                                  initialDate:
-                                      DateTime.now(), //get today's date
-                                  firstDate: DateTime
-                                      .now(), //DateTime.now() - not to allow to choose before today.
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime.now(),
                                   lastDate: DateTime(2101));
                               String date =
-                                  DateFormat('d MMM y').format(pickedDate!);
+                                  DateFormat('d-MMM-yy').format(pickedDate!);
                               setState(() {
                                 connectedOnController.text = date;
                               });
