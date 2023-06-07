@@ -145,6 +145,15 @@ class _HomeState extends State<Home> {
                                   "download"
                                 ]);
                                 print(result.stdout);
+                                result = await Process.run(
+                                    "python", [script, "extract"]);
+                                print(result.stdout);
+                                result = await Process.run("python", [
+                                  script,
+                                  "append",
+                                  emailController.text.toString()
+                                ]);
+                                print(result.stdout);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(

@@ -284,6 +284,7 @@ class _NavBarState extends State<NavBar> {
                             ];
                           },
                           onSelected: (i) {
+                            /*
                             if (i == "Look for company info") {
                               Navigator.push(
                                 context,
@@ -293,7 +294,8 @@ class _NavBarState extends State<NavBar> {
                                   transitionDuration: Duration(seconds: 0),
                                 ),
                               );
-                            } else {
+                            }*/
+                            if (i == "Company position") {
                               Navigator.push(
                                 context,
                                 PageRouteBuilder(

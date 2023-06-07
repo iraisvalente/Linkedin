@@ -16,8 +16,20 @@ import pathlib
 import mysql.connector
 import shutil
 
-cnx = mysql.connector.connect(user='root', password='',host='127.0.0.1',database='linkedin')
+try:
+    cnx = mysql.connector.connect(user='root', password='',host='127.0.0.1',database='linkedin')
+    print("Connected to DB")
+except mysql.connector.Error as err:
+  if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+    print("Something is wrong with your user name or password")
+  elif err.errno == errorcode.ER_BAD_DB_ERROR:
+    print("Database does not exist")
+  else:
+    print(err)
 
+###Verify
+####https://www.linkedin.com/uas/login-submit
+###incorrect password or user
 
 #ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT_DIR=pathlib.Path().resolve()
@@ -26,8 +38,8 @@ home = str(Path.home())
 downloads = f'{home}\\Downloads'
 unzip_path = os.path.join(ROOT_DIR, "unzip")
 os.makedirs(unzip_path, exist_ok=True)
-con = sqlite3.connect(f"{ROOT_DIR}\\linkedin.db")
-cur = con.cursor()
+#con = sqlite3.connect(f"{ROOT_DIR}\\linkedin.db")
+
 
 #cur.execute("CREATE TABLE if not exists linkedin(First_Name TEXT,Last_Name TEXT ,Email_Address TEXT,Company TEXT,Position TEXT)")
 
@@ -79,32 +91,40 @@ def extract():
                 print(f"{downloads}\\{file}")
                 with zipfile.ZipFile(f"{downloads}\\{file}", 'r') as unzipper:
                     unzipper.extractall(f"{unzip_path}\\{file.split('.zip')[0]}")
-                    print(f"Copied to f{unzip_path}\\{file.split('.zip')[0]}")
+                    print(f"Copied to {unzip_path}\\{file.split('.zip')[0]}")
 
 
 def append(connection):
     print("append")
-    for dirname, dirs, files in os.walk(unzip_path):
+    for dir_name, dirs, files in os.walk(unzip_path):
         print(f"verifying {dir_name}")
         for file_name in files:
             print(f"verifying {file_name}")
-            if file_name=="Connections.cvs":
-                for line in lines:
-                    csv_file = pd.read_csv(f"{unzip_path}\\{dir_name}\\{file_name}",skiprows=4)
-                    for index, row in csv_file.iterrows(): 
-                        FirstName=row["First Name"].replace("'s","s").replace("'S","S").strip()
-                        LastName=row["Last Name"].replace("'s","s").replace("'S","S").strip()	
-                        EmailAddress=row["Email Address].replace("'s","s").replace("'S","S").strip()
-                        Company=row["Company"].replace("'s","s").replace("'S","S").strip()
-                        CompanyPosition=row["Company Position"].replace("'s","s").replace("'S","S").strip()	
-                        SOAConnection=connection
-                        statement="Select * from connections where First_Name = '{FirstName}' and Last_Name = '{LastName}' and  Company = '{Company}'"
-                        query=cur.execute(statement)
-                        fetched= query.fetchall()
+            if file_name=="Connections.csv":
+                cur = cnx.cursor()
+                print("Running connections")            
+                csv_file = pd.read_csv(f"{dir_name}\\{file_name}",skiprows=3,encoding='utf-8-sig')
+                for index, row in csv_file.iterrows():
+                    FirstName=str(row["First Name"]).replace("'s","s").replace("'S","S").strip()
+                    LastName=str(row["Last Name"]).replace("'s","s").replace("'S","S").strip()	
+                    EmailAddress=str(row["Email Address"]).replace("'s","s").replace("'S","S").strip()
+                    Company=str(row["Company"]).replace("'s","s").replace("'S","S").strip()
+                    CompanyPosition=str(row["Position"]).replace("'s","s").replace("'S","S").strip()	
+                    SOAConnection=connection
+                    #print(FirstName,LastName,EmailAddress,Company,CompanyPosition)
+                    statement=f"Select * from connections where First_Name = '{FirstName.upper()}' and Last_Name = '{LastName.upper()}' and  Company = '{Company.upper()}'"
+                    #print(statement)
+                    try:
+                        cur.execute(statement)
+                        fetched= cur.fetchall()
                         if len(fetched) == 0:
-                            statement="Insert into connections Values('{FirstName}','{LastName}','{EmailAddress}','{Company}','{CompanyPosition}','{SOAConnection}')"
+                            statement=f"Insert into connections Values('{FirstName.upper()}','{LastName.upper()}','{EmailAddress.upper()}','{Company.upper()}','{CompanyPosition.upper()}','{SOAConnection.upper()}')"
+                            #print(statement)
                             cur.execute(statement)
-                cnx.commit()
+                    except:
+                        print("Error Ocurrs")
+                cur.close
+            cnx.commit()
 
                         
 
