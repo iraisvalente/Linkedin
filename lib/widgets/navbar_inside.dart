@@ -275,9 +275,10 @@ class _NavBarState extends State<NavBar> {
                       PopupMenuButton(
                           itemBuilder: (_) {
                             return [
+                              /*
                               PopupMenuItem(
                                   value: "Look for company info",
-                                  child: Text("Look for company info")),
+                                  child: Text("Look for company info")),*/
                               PopupMenuItem(
                                   value: "Company position",
                                   child: Text("Company position")),

@@ -1,6 +1,6 @@
 class Company {
   final String company;
-  final int count;
+  final int? count;
 
   Company(this.company, this.count);
 

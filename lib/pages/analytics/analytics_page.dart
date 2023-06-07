@@ -1,12 +1,60 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:project/models/company.dart';
+import 'package:project/models/position.dart';
+import 'package:project/service/http/analytics.dart';
 import 'package:project/widgets/navbar_inside.dart';
 
-class AnalyticsPage extends StatelessWidget {
+class AnalyticsPage extends StatefulWidget {
   AnalyticsPage({super.key});
+
+  @override
+  State<AnalyticsPage> createState() => _AnalyticsPageState();
+}
+
+class _AnalyticsPageState extends State<AnalyticsPage> {
   final DataTableSource _dataCompanyAnalytics = CompanyAnalyticsTable();
   final DataTableSource _dataContactsTable = ContactsTable();
+  List<Position>? listPositions = [];
+  List<Company>? listCompanies = [];
+
+  Future<void> commonPositions() async {
+    await positions(false).then((value) {
+      setState(() {
+        listPositions = [];
+        listPositions = value;
+        print(listPositions!.length);
+      });
+    });
+  }
+
+  Future<void> commonCompanies() async {
+    await companies(false).then((value) {
+      setState(() {
+        listCompanies = [];
+        listCompanies = value;
+      });
+    });
+  }
+
+  List<DataColumn> columns() {
+    List<DataColumn> columns = [];
+    columns.add(DataColumn(label: Text("Company")));
+    for (int i = 0; i < listPositions!.length; i++) {
+      columns.add(
+        DataColumn(label: Text(listPositions![i].position)),
+      );
+    }
+    return columns;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    commonPositions();
+    commonCompanies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,9 +62,9 @@ class AnalyticsPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            NavBar(),
+            const NavBar(),
             Container(
-              margin: EdgeInsets.all(35),
+              margin: const EdgeInsets.all(35),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -29,18 +77,7 @@ class AnalyticsPage extends StatelessWidget {
                   ),
                   PaginatedDataTable(
                     source: _dataCompanyAnalytics,
-                    columns: const [
-                      DataColumn(label: Text('Company')),
-                      DataColumn(label: Text('BOD')),
-                      DataColumn(label: Text('CFO')),
-                      DataColumn(label: Text('CAD')),
-                      DataColumn(label: Text('CONTROLLER')),
-                      DataColumn(label: Text('SEC')),
-                      DataColumn(label: Text('REPORTING')),
-                      DataColumn(label: Text('INTERNAL AUDIT')),
-                      DataColumn(label: Text('ACCOUNTING')),
-                      DataColumn(label: Text('FINANCE')),
-                    ],
+                    columns: columns(),
                     columnSpacing: 100,
                     horizontalMargin: 10,
                     rowsPerPage: 8,
@@ -81,42 +118,15 @@ class AnalyticsPage extends StatelessWidget {
 }
 
 class CompanyAnalyticsTable extends DataTableSource {
-  // Generate some made-up data
-  final List<Map<String, dynamic>> _data = List.generate(
-      20,
-      (index) => {
-            'company': 'company',
-            'bod': '0',
-            'cfo': '0',
-            'cad': '0',
-            'controller': '0',
-            'sec': '0',
-            'reporting': '0',
-            'internal audit': '0',
-            'accounting': '0',
-            'finance': '0',
-          });
-
   @override
   bool get isRowCountApproximate => false;
   @override
-  int get rowCount => _data.length;
+  int get rowCount => 0;
   @override
   int get selectedRowCount => 0;
   @override
   DataRow getRow(int index) {
-    return DataRow(cells: [
-      DataCell(Text(_data[index]['company'].toString())),
-      DataCell(Text(_data[index]['bod'])),
-      DataCell(Text(_data[index]['cfo'].toString())),
-      DataCell(Text(_data[index]['cad'].toString())),
-      DataCell(Text(_data[index]['controller'].toString())),
-      DataCell(Text(_data[index]['sec'].toString())),
-      DataCell(Text(_data[index]['reporting'].toString())),
-      DataCell(Text(_data[index]['internal audit'].toString())),
-      DataCell(Text(_data[index]['accounting'].toString())),
-      DataCell(Text(_data[index]['finance'].toString())),
-    ]);
+    return DataRow(cells: []);
   }
 }
 

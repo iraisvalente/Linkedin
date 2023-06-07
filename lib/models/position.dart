@@ -1,6 +1,6 @@
 class Position {
   final String position;
-  final int count;
+  final int? count;
 
   Position(this.position, this.count);
 

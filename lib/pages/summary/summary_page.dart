@@ -17,21 +17,21 @@ class _SummaryPageState extends State<SummaryPage> {
   ScrollController controllerCompanyAnalytics = ScrollController();
   TextEditingController companyController = TextEditingController();
 
-  List<Position>? listPosotions = [];
+  List<Position>? listPositions = [];
   List<Connection>? listConnections = [];
   List<Company>? listCompanies = [];
 
   Future<void> commonPositions() async {
-    await positions().then((value) {
+    await positions(true).then((value) {
       setState(() {
-        listPosotions = [];
-        listPosotions = value;
+        listPositions = [];
+        listPositions = value;
       });
     });
   }
 
   Future<void> commonCompanies() async {
-    await companies().then((value) {
+    await companies(true).then((value) {
       setState(() {
         listCompanies = [];
         listCompanies = value;
@@ -50,10 +50,10 @@ class _SummaryPageState extends State<SummaryPage> {
 
   Widget positionsTable() {
     List<DataRow> rows = [];
-    for (int i = 0; i < listPosotions!.length; i++) {
+    for (int i = 0; i < listPositions!.length; i++) {
       rows.add(DataRow(cells: [
-        DataCell(Text(listPosotions![i].position)),
-        DataCell(Text(listPosotions![i].count.toString())),
+        DataCell(Text(listPositions![i].position)),
+        DataCell(Text(listPositions![i].count.toString())),
       ]));
     }
 

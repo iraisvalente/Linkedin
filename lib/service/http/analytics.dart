@@ -23,37 +23,69 @@ Future<List<Connection>?> connections() async {
   }
 }
 
-Future<List<Company>?> companies() async {
+Future<List<Company>?> companies(bool count) async {
   List<Company>? companies = [];
-  final response =
-      await http.get(Uri.parse('http://127.0.0.1:8000/common_companies/'));
-
-  if (response.statusCode == 200) {
-    var responseJson = json.decode(response.body);
-    print(responseJson);
-    for (final response in responseJson) {
-      companies
-          .add(Company(response['Company']!, int.parse(response['Count']!)));
+  final response;
+  if (count) {
+    response =
+        await http.get(Uri.parse('http://127.0.0.1:8000/common_companies/'));
+    if (response.statusCode == 200) {
+      var responseJson = json.decode(response.body);
+      for (final response in responseJson) {
+        companies
+            .add(Company(response['Company']!, int.parse(response['Count'])));
+      }
+      return companies;
+    } else {
+      throw Exception('Failed to load album');
     }
-    return companies;
   } else {
-    throw Exception('Failed to load album');
+    response =
+        await http.get(Uri.parse('http://127.0.0.1:8000/all_companies/'));
+    if (response.statusCode == 200) {
+      var responseJson = json.decode(response.body);
+      for (final response in responseJson) {
+        companies.add(Company(response['Company']!, null));
+      }
+      return companies;
+    } else {
+      throw Exception('Failed to load album');
+    }
   }
 }
 
-Future<List<Position>?> positions() async {
+Future<List<Position>?> positions(bool count) async {
   List<Position>? positions = [];
-  final response =
-      await http.get(Uri.parse('http://127.0.0.1:8000/common_positions/'));
+  final response;
+  if (count) {
+    response =
+        await http.get(Uri.parse('http://127.0.0.1:8000/common_positions/'));
+    if (response.statusCode == 200) {
+      var responseJson = json.decode(response.body);
+      print(responseJson);
 
-  if (response.statusCode == 200) {
-    var responseJson = json.decode(response.body);
-    for (final response in responseJson) {
-      positions
-          .add(Position(response['Position']!, int.parse(response['Count']!)));
+      for (final response in responseJson) {
+        positions.add(
+            Position(response['Position']!, int.parse(response['Count']!)));
+      }
+      return positions;
+    } else {
+      throw Exception('Failed to load album');
     }
-    return positions;
   } else {
-    throw Exception('Failed to load album');
+    response =
+        await http.get(Uri.parse('http://127.0.0.1:8000/all_positions/'));
+
+    if (response.statusCode == 200) {
+      var responseJson = json.decode(response.body);
+      print(responseJson);
+
+      for (final response in responseJson) {
+        positions.add(Position(response['Position']!, null));
+      }
+      return positions;
+    } else {
+      throw Exception('Failed to load album');
+    }
   }
 }
