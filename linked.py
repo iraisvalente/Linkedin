@@ -111,15 +111,15 @@ def append(connection):
                     Company=str(row["Company"]).replace("'s","s").replace("'S","S").strip()
                     CompanyPosition=str(row["Position"]).replace("'s","s").replace("'S","S").strip()	
                     SOAConnection=connection
-                    print(FirstName,LastName,EmailAddress,Company,CompanyPosition)
+                    #print(FirstName,LastName,EmailAddress,Company,CompanyPosition)
                     statement=f"Select * from connections where First_Name = '{FirstName.upper()}' and Last_Name = '{LastName.upper()}' and  Company = '{Company.upper()}'"
-                    print(statement)
+                    #print(statement)
                     try:
                         cur.execute(statement)
                         fetched= cur.fetchall()
                         if len(fetched) == 0:
                             statement=f"Insert into connections Values('{FirstName.upper()}','{LastName.upper()}','{EmailAddress.upper()}','{Company.upper()}','{CompanyPosition.upper()}','{SOAConnection.upper()}')"
-                            print(statement)
+                            #print(statement)
                             cur.execute(statement)
                     except:
                         print("Error Ocurrs")

@@ -6,19 +6,28 @@ import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 
 class ImportContactSearchPage extends StatefulWidget {
-  const ImportContactSearchPage({super.key});
+
+  ImportContactSearchPage({super.key});
+
 
   @override
   State<ImportContactSearchPage> createState() =>
       _ImportContactSearchPageState();
+
 }
 
 class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
   String fileName = "No file chosen";
   String path = "";
+  Directory current = Directory.current;
+  String conecction = "aroa@soaprojects.com";
+
+
 
   @override
   Widget build(BuildContext context) {
+    String script= current.absolute.uri.toString().split("file:///")[1]+"linked.py";
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -112,6 +121,11 @@ class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
                       //    .create(recursive: true);
                       var  result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","Copy",path]);
                       print(fileName);
+                      print(result.stdout);
+                      result = await Process.run("python", [
+                        script,
+                        "append",conecction
+                      ]);
                       print(result.stdout);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
