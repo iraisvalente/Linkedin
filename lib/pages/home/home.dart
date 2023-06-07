@@ -134,7 +134,7 @@ class _HomeState extends State<Home> {
                                 print(emailController.text.toString());
                                 print(passwordController.text.toString());
                                 var result = await Process.run("python", [
-                                  "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                  "C:\Users\artur\Projects\LinkedIn\\linked.py",
                                   emailController.text.toString(),
                                   passwordController.text.toString(),
                                   "download"
