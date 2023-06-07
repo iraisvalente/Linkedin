@@ -126,30 +126,30 @@ class _HomeState extends State<Home> {
                             if (_formKey.currentState!.validate()) {
                               print(emailController.text.toString());
                               print(passwordController.text.toString());
-<<<<<<< Updated upstream
+
                               var result = await Process.run("python", [
                                 "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
                                 emailController.text.toString(),
                                 passwordController.text.toString(),
                                 "download"
                               ]);
-=======
-                              var result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",emailController.text.toString(),passwordController.text.toString(),"choice"]);
->>>>>>> Stashed changes
+
+                              result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",emailController.text.toString(),passwordController.text.toString(),"choice"]);
+
                               print(result.stdout);
                               result = await Process.run("python", [
                                 "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
                                 "extract"
                               ]);
                               print(result.stdout);
-<<<<<<< Updated upstream
+
                               result = await Process.run("python", [
                                 "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
-                                "update"
+                                "append",emailController.text.toString()
                               ]);
-=======
-                              result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","append"]);
->>>>>>> Stashed changes
+
+                              result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","append",emailController.text.toString()]);
+
                               print(result.stdout);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -162,6 +162,70 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 16.0),
+                      child: Center(
+                        child: ElevatedButton(
+                          style: ButtonStyle(minimumSize:
+                          MaterialStateProperty.resolveWith((states) {
+                            if (states.contains(MaterialState.disabled)) {
+                              return Size(100, 40);
+                            }
+                            return Size(150, 40);
+                          })),
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              print(emailController.text.toString());
+                              print(passwordController.text.toString());
+                              var result = await Process.run("python", [
+                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                "extract"
+                              ]);
+                              print(result.stdout);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Please fill input')),
+                              );
+                            }
+                          },
+                          child: const Text('Extract File'),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 16.0),
+                      child: Center(
+                        child: ElevatedButton(
+                          style: ButtonStyle(minimumSize:
+                          MaterialStateProperty.resolveWith((states) {
+                            if (states.contains(MaterialState.disabled)) {
+                              return Size(100, 40);
+                            }
+                            return Size(150, 40);
+                          })),
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              print(emailController.text.toString());
+                              print(passwordController.text.toString());
+                              var result = await Process.run("python", [
+                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                "append",emailController.text.toString()
+                              ]);
+                              print(result.stdout);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Please fill input')),
+                              );
+                            }
+                          },
+                          child: const Text('Update Database'),
+                        ),
+                      ),
+                    )
                     //Padding(
                     //  padding: const EdgeInsets.symmetric(
                     //                 horizontal: 8, vertical: 16.0),

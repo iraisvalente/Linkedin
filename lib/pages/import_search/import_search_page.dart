@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:file_picker/file_picker.dart';
@@ -11,6 +13,7 @@ class ImportSearchPage extends StatefulWidget {
 
 class _ImportSearchPageState extends State<ImportSearchPage> {
   String fileName = "No file chosen";
+  String path = "";
 
   @override
   Widget build(BuildContext context) {
@@ -67,8 +70,10 @@ class _ImportSearchPageState extends State<ImportSearchPage> {
                             'xltx'
                           ]);
                       if (picked != null) {
+                        path= picked.files.first.path.toString();
+                        fileName = picked.files.first.name;
                         setState(() {
-                          fileName = picked.files.first.name;
+                          fileName=fileName;
                         });
                       }
                     },
@@ -86,7 +91,11 @@ class _ImportSearchPageState extends State<ImportSearchPage> {
                   ),
                   SizedBox(
                       child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      //var  result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","Copy",fileName]);
+                      //print(fileName);
+                      //print(result.stdout);
+                    },
                     child: const Text('Import'),
                   )),
                 ],

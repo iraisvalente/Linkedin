@@ -15,6 +15,7 @@ class ImportContactSearchPage extends StatefulWidget {
 
 class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
   String fileName = "No file chosen";
+  String path = "";
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +72,7 @@ class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
                             'xltx'
                           ]);
                       if (picked != null) {
+                        path = picked.files.first.path.toString();
                         setState(() {
                           fileName = picked.files.first.name;
                         });
@@ -91,23 +93,26 @@ class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
                   SizedBox(
                       child: ElevatedButton(
                     onPressed: () async {
-                      DateTime now = DateTime.now();
-                      String date = DateFormat.d().format(now) +
-                          '-' +
-                          DateFormat.M().format(now) +
-                          '-' +
-                          DateFormat.y().format(now);
-                      String hour = DateFormat.H().format(now) +
-                          '-' +
-                          DateFormat.m().format(now) +
-                          '-' +
-                          DateFormat.s().format(now);
-                      Directory currentDir = Directory.current;
-                      final Directory appDocDirFolder = Directory(
-                          '${currentDir.path}/LinkedIn/${'$date-$hour'}');
-                      await appDocDirFolder.create(recursive: true);
-                      File('${appDocDirFolder.path}/$fileName')
-                          .create(recursive: true);
+                      //DateTime now = DateTime.now();
+                      //String date = DateFormat.d().format(now) +
+                      //    '-' +
+                      //    DateFormat.M().format(now) +
+                      //    '-' +
+                      //    DateFormat.y().format(now);
+                      //String hour = DateFormat.H().format(now) +
+                      //    '-' +
+                      //    DateFormat.m().format(now) +
+                      //    '-' +
+                      //    DateFormat.s().format(now);
+                      //Directory currentDir = Directory.current;
+                      //final Directory appDocDirFolder = Directory(
+                      //    '${currentDir.path}/LinkedIn/${'$date-$hour'}');
+                      //await appDocDirFolder.create(recursive: true);
+                      //File('${appDocDirFolder.path}/$fileName')
+                      //    .create(recursive: true);
+                      var  result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","Copy",path]);
+                      print(fileName);
+                      print(result.stdout);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                             content: Text('File imported successfully')),

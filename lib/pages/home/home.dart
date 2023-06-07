@@ -201,7 +201,7 @@ class _HomeState extends State<Home> {
                                 print(passwordController.text.toString());
                                 var result = await Process.run("python", [
                                   "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
-                                  "update"
+                                  "update",emailController.text.toString()
                                 ]);
                                 print(result.stdout);
                               } else {
