@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:project/models/connection.dart';
 import 'package:project/models/saved_search.dart';
-import 'package:project/service/http/user.dart';
+import 'package:project/service/http/connection.dart';
 import 'package:project/service/json_service.dart';
 import 'package:project/widgets/navbar_inside.dart';
 

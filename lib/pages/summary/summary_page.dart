@@ -1,12 +1,118 @@
 import 'package:flutter/material.dart';
+import 'package:project/models/company.dart';
+import 'package:project/models/connection.dart';
+import 'package:project/models/position.dart';
+import 'package:project/service/http/analytics.dart';
 import 'package:project/widgets/navbar_inside.dart';
 
-class SummaryPage extends StatelessWidget {
+class SummaryPage extends StatefulWidget {
   SummaryPage({super.key});
 
+  @override
+  State<SummaryPage> createState() => _SummaryPageState();
+}
+
+class _SummaryPageState extends State<SummaryPage> {
   ScrollController controllerAnalyticsSummary = ScrollController();
   ScrollController controllerCompanyAnalytics = ScrollController();
   TextEditingController companyController = TextEditingController();
+
+  List<Position>? listPosotions = [];
+  List<Connection>? listConnections = [];
+  List<Company>? listCompanies = [];
+
+  Future<void> commonPositions() async {
+    await positions().then((value) {
+      setState(() {
+        listPosotions = [];
+        listPosotions = value;
+      });
+    });
+  }
+
+  Future<void> commonCompanies() async {
+    await companies().then((value) {
+      setState(() {
+        listCompanies = [];
+        listCompanies = value;
+      });
+    });
+  }
+
+  Future<void> commonConnections() async {
+    await connections().then((value) {
+      setState(() {
+        listConnections = [];
+        listConnections = value;
+      });
+    });
+  }
+
+  Widget positionsTable() {
+    List<DataRow> rows = [];
+    for (int i = 0; i < listPosotions!.length; i++) {
+      rows.add(DataRow(cells: [
+        DataCell(Text(listPosotions![i].position)),
+        DataCell(Text(listPosotions![i].count.toString())),
+      ]));
+    }
+
+    return DataTable(columns: const [
+      DataColumn(
+        label: Text('SOA Connection'),
+      ),
+      DataColumn(
+        label: Text('Count'),
+      ),
+    ], rows: rows);
+  }
+
+  Widget companiesTable() {
+    List<DataRow> rows = [];
+    for (int i = 0; i < listCompanies!.length; i++) {
+      rows.add(DataRow(cells: [
+        DataCell(Text(listCompanies![i].company)),
+        DataCell(Text(listCompanies![i].count.toString())),
+      ]));
+    }
+
+    return DataTable(columns: const [
+      DataColumn(
+        label: Text('SOA Connection'),
+      ),
+      DataColumn(
+        label: Text('Count'),
+      ),
+    ], rows: rows);
+  }
+
+  Widget connectionsTable() {
+    List<DataRow> rows = [];
+    for (int i = 0; i < listConnections!.length; i++) {
+      rows.add(DataRow(cells: [
+        DataCell(Text(listConnections![i].connection)),
+        DataCell(Text(listConnections![i].count.toString())),
+      ]));
+    }
+
+    return DataTable(columns: const [
+      DataColumn(
+        label: Text('SOA Connection'),
+      ),
+      DataColumn(
+        label: Text('Count'),
+      ),
+    ], rows: rows);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    commonPositions();
+    commonCompanies();
+    commonConnections();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,35 +148,7 @@ class SummaryPage extends StatelessWidget {
                                   style: TextStyle(color: Colors.black54),
                                 )),
                               ),
-                              DataTable(columns: [
-                                DataColumn(
-                                  label: Text('Position'),
-                                ),
-                                DataColumn(
-                                  label: Text('Count'),
-                                ),
-                              ], rows: [
-                                DataRow(cells: [
-                                  DataCell(Text("Director")),
-                                  DataCell(Text("15")),
-                                ]),
-                                DataRow(cells: [
-                                  DataCell(Text("Partner")),
-                                  DataCell(Text("10")),
-                                ]),
-                                DataRow(cells: [
-                                  DataCell(Text("Principal")),
-                                  DataCell(Text("9")),
-                                ]),
-                                DataRow(cells: [
-                                  DataCell(Text("CFO")),
-                                  DataCell(Text("8")),
-                                ]),
-                                DataRow(cells: [
-                                  DataCell(Text("Internal Audit")),
-                                  DataCell(Text("7")),
-                                ]),
-                              ]),
+                              positionsTable()
                             ],
                           ),
                         ),
@@ -90,35 +168,7 @@ class SummaryPage extends StatelessWidget {
                                   style: TextStyle(color: Colors.black54),
                                 )),
                               ),
-                              DataTable(columns: [
-                                DataColumn(
-                                  label: Text('Company'),
-                                ),
-                                DataColumn(
-                                  label: Text('Count'),
-                                ),
-                              ], rows: [
-                                DataRow(cells: [
-                                  DataCell(Text("Google")),
-                                  DataCell(Text("40")),
-                                ]),
-                                DataRow(cells: [
-                                  DataCell(Text("SOAProjects, Inc")),
-                                  DataCell(Text("35")),
-                                ]),
-                                DataRow(cells: [
-                                  DataCell(Text("EY")),
-                                  DataCell(Text("34")),
-                                ]),
-                                DataRow(cells: [
-                                  DataCell(Text("BOK Financial")),
-                                  DataCell(Text("30")),
-                                ]),
-                                DataRow(cells: [
-                                  DataCell(Text("Twitter")),
-                                  DataCell(Text("28")),
-                                ]),
-                              ]),
+                              companiesTable()
                             ],
                           ),
                         ),
@@ -138,35 +188,7 @@ class SummaryPage extends StatelessWidget {
                                   style: TextStyle(color: Colors.black54),
                                 )),
                               ),
-                              DataTable(columns: [
-                                DataColumn(
-                                  label: Text('SOA Connection'),
-                                ),
-                                DataColumn(
-                                  label: Text('Count'),
-                                ),
-                              ], rows: [
-                                DataRow(cells: [
-                                  DataCell(Text("Daniel Robert")),
-                                  DataCell(Text("3")),
-                                ]),
-                                DataRow(cells: [
-                                  DataCell(Text("Miguel Martin")),
-                                  DataCell(Text("1")),
-                                ]),
-                                DataRow(cells: [
-                                  DataCell(Text("Sheldon Stone")),
-                                  DataCell(Text("5")),
-                                ]),
-                                DataRow(cells: [
-                                  DataCell(Text("Leonard Allen")),
-                                  DataCell(Text("1")),
-                                ]),
-                                DataRow(cells: [
-                                  DataCell(Text("Roger Cooper")),
-                                  DataCell(Text("4")),
-                                ]),
-                              ]),
+                              connectionsTable()
                             ],
                           ),
                         ),
