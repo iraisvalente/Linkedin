@@ -15,6 +15,7 @@ class _HomeState extends State<Home> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  Directory current = Directory.current;
 
   void getCredentials() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -32,6 +33,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    String script= current.absolute.uri.toString()+"linked.py";
     return Scaffold(
         body: Column(
       children: [
@@ -92,8 +94,9 @@ class _HomeState extends State<Home> {
                             if (_formKey.currentState!.validate()) {
                               print(emailController.text.toString());
                               print(passwordController.text.toString());
+                              print(script);
                               var result = await Process.run("python", [
-                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                               script,
                                 emailController.text.toString(),
                                 passwordController.text.toString(),
                                 "choice"
@@ -126,9 +129,9 @@ class _HomeState extends State<Home> {
                             if (_formKey.currentState!.validate()) {
                               print(emailController.text.toString());
                               print(passwordController.text.toString());
-
+                              print(script);
                               var result = await Process.run("python", [
-                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                script,
                                 emailController.text.toString(),
                                 passwordController.text.toString(),
                                 "download"
@@ -138,17 +141,17 @@ class _HomeState extends State<Home> {
 
                               print(result.stdout);
                               result = await Process.run("python", [
-                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                script,
                                 "extract"
                               ]);
                               print(result.stdout);
 
                               result = await Process.run("python", [
-                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                script,
                                 "append",emailController.text.toString()
                               ]);
 
-                              result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","append",emailController.text.toString()]);
+                              result = await Process.run("python", [script,"append",emailController.text.toString()]);
 
                               print(result.stdout);
                             } else {
@@ -178,8 +181,9 @@ class _HomeState extends State<Home> {
                             if (_formKey.currentState!.validate()) {
                               print(emailController.text.toString());
                               print(passwordController.text.toString());
+                              print(script);
                               var result = await Process.run("python", [
-                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                script,
                                 "extract"
                               ]);
                               print(result.stdout);
@@ -210,8 +214,9 @@ class _HomeState extends State<Home> {
                             if (_formKey.currentState!.validate()) {
                               print(emailController.text.toString());
                               print(passwordController.text.toString());
+                              print(script);
                               var result = await Process.run("python", [
-                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                script,
                                 "append",emailController.text.toString()
                               ]);
                               print(result.stdout);

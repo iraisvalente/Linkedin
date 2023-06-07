@@ -15,6 +15,8 @@ class _HomeState extends State<Home> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  Directory current = Directory.current;
+
 
   void getCredentials() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -29,10 +31,12 @@ class _HomeState extends State<Home> {
     // TODO: implement initState
     super.initState();
     getCredentials();
+
   }
 
   @override
   Widget build(BuildContext context) {
+    String script= current.absolute.uri.toString()+"linked.py";
     return Scaffold(
         body: SingleChildScrollView(
       child: Column(
@@ -49,7 +53,7 @@ class _HomeState extends State<Home> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 16),
                       child: Text(
-                          'The following credentials most be from your LinkedIn account')),
+                          'The following credentials must be from your LinkedIn account')),
                   Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
@@ -99,10 +103,9 @@ class _HomeState extends State<Home> {
                               if (_formKey.currentState!.validate()) {
                                 print(emailController.text.toString());
                                 print(passwordController.text.toString());
+                                print(script);
                                 var result = await Process.run("python", [
-                                  "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
-                                  emailController.text.toString(),
-                                  passwordController.text.toString(),
+                                  script,emailController.text.toString(),passwordController.text.toString(),
                                   "choice"
                                 ]);
                                 print(result.stdout);
@@ -133,8 +136,11 @@ class _HomeState extends State<Home> {
                               if (_formKey.currentState!.validate()) {
                                 print(emailController.text.toString());
                                 print(passwordController.text.toString());
+                                print(script);
+
+
                                 var result = await Process.run("python", [
-                                  "C:\Users\artur\Projects\LinkedIn\\linked.py",
+                                  script,
                                   emailController.text.toString(),
                                   passwordController.text.toString(),
                                   "download"
@@ -168,9 +174,9 @@ class _HomeState extends State<Home> {
                                 print(emailController.text.toString());
                                 print(passwordController.text.toString());
                                 var result = await Process.run("python", [
-                                  "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
-                                  "extract"
-                                ]);
+                                  script,
+                                  "extract"]
+                                );
                                 print(result.stdout);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -199,8 +205,9 @@ class _HomeState extends State<Home> {
                               if (_formKey.currentState!.validate()) {
                                 print(emailController.text.toString());
                                 print(passwordController.text.toString());
+                                print(script);
                                 var result = await Process.run("python", [
-                                  "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                  script,
                                   "update",emailController.text.toString()
                                 ]);
                                 print(result.stdout);
