@@ -136,7 +136,7 @@ class _SummaryPageState extends State<SummaryPage> {
                       Expanded(
                           child: Container(
                         alignment: Alignment.center,
-                        height: MediaQuery.of(context).size.height * 0.30,
+                        height: MediaQuery.of(context).size.height * 0.50,
                         child: SingleChildScrollView(
                           child: Column(
                             children: [
@@ -156,7 +156,7 @@ class _SummaryPageState extends State<SummaryPage> {
                       Expanded(
                           child: Container(
                         alignment: Alignment.center,
-                        height: MediaQuery.of(context).size.height * 0.30,
+                        height: MediaQuery.of(context).size.height * 0.50,
                         child: SingleChildScrollView(
                           child: Column(
                             children: [
@@ -176,7 +176,7 @@ class _SummaryPageState extends State<SummaryPage> {
                       Expanded(
                           child: Container(
                         alignment: Alignment.center,
-                        height: MediaQuery.of(context).size.height * 0.30,
+                        height: MediaQuery.of(context).size.height * 0.50,
                         child: SingleChildScrollView(
                           child: Column(
                             children: [

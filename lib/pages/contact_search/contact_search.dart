@@ -110,7 +110,11 @@ class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
                       //await appDocDirFolder.create(recursive: true);
                       //File('${appDocDirFolder.path}/$fileName')
                       //    .create(recursive: true);
-                      var  result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","Copy",path]);
+                      var result = await Process.run("python", [
+                        "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                        "Copy",
+                        path
+                      ]);
                       print(fileName);
                       print(result.stdout);
                       ScaffoldMessenger.of(context).showSnackBar(

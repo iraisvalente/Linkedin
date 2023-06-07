@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:file_picker/file_picker.dart';
@@ -70,10 +68,10 @@ class _ImportSearchPageState extends State<ImportSearchPage> {
                             'xltx'
                           ]);
                       if (picked != null) {
-                        path= picked.files.first.path.toString();
+                        path = picked.files.first.path.toString();
                         fileName = picked.files.first.name;
                         setState(() {
-                          fileName=fileName;
+                          fileName = fileName;
                         });
                       }
                     },

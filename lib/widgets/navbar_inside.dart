@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project/pages/analytics/analytics_page.dart';
+import 'package:project/pages/company_info/company_info_page.dart';
+import 'package:project/pages/company_position/company_position_page.dart';
 import 'package:project/pages/contact_search/contact_search.dart';
 import 'package:project/pages/import_search/import_search_page.dart';
 import 'package:project/pages/login/login.dart';
@@ -263,6 +265,47 @@ class _NavBarState extends State<NavBar> {
                           },
                           child: Text(
                             "Contact",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          )),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      PopupMenuButton(
+                          itemBuilder: (_) {
+                            return [
+                              PopupMenuItem(
+                                  value: "Look for company info",
+                                  child: Text("Look for company info")),
+                              PopupMenuItem(
+                                  value: "Company position",
+                                  child: Text("Company position")),
+                            ];
+                          },
+                          onSelected: (i) {
+                            if (i == "Look for company info") {
+                              Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (_, __, ___) =>
+                                      CompanyInfoPage(),
+                                  transitionDuration: Duration(seconds: 0),
+                                ),
+                              );
+                            } else {
+                              Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (_, __, ___) =>
+                                      CompanyPositionPage(),
+                                  transitionDuration: Duration(seconds: 0),
+                                ),
+                              );
+                            }
+                          },
+                          child: Text(
+                            "Company info",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),

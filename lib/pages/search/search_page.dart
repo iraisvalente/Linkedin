@@ -462,7 +462,6 @@ class _SearchPageState extends State<SearchPage> {
                                       connectedOnController.text));
                                 } else {
                                   filters();
-
                                   _formKey.currentState!.reset();
                                 }
                               },

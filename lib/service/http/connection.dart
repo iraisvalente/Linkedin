@@ -22,7 +22,7 @@ Future<List<Connection>?> connections() async {
     print(connections.length);
     return connections;
   } else {
-    throw Exception('Failed to load album');
+    throw Exception('Failed to load connections');
   }
 }
 

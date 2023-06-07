@@ -33,7 +33,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    String script= current.absolute.uri.toString()+"linked.py";
+    String script = current.absolute.uri.toString() + "linked.py";
     return Scaffold(
         body: Column(
       children: [
@@ -96,7 +96,7 @@ class _HomeState extends State<Home> {
                               print(passwordController.text.toString());
                               print(script);
                               var result = await Process.run("python", [
-                               script,
+                                script,
                                 emailController.text.toString(),
                                 passwordController.text.toString(),
                                 "choice"
@@ -137,21 +137,29 @@ class _HomeState extends State<Home> {
                                 "download"
                               ]);
 
-                              result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",emailController.text.toString(),passwordController.text.toString(),"choice"]);
-
-                              print(result.stdout);
                               result = await Process.run("python", [
-                                script,
-                                "extract"
-                              ]);
-                              print(result.stdout);
-
-                              result = await Process.run("python", [
-                                script,
-                                "append",emailController.text.toString()
+                                "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                                emailController.text.toString(),
+                                passwordController.text.toString(),
+                                "choice"
                               ]);
 
-                              result = await Process.run("python", [script,"append",emailController.text.toString()]);
+                              print(result.stdout);
+                              result = await Process.run(
+                                  "python", [script, "extract"]);
+                              print(result.stdout);
+
+                              result = await Process.run("python", [
+                                script,
+                                "append",
+                                emailController.text.toString()
+                              ]);
+
+                              result = await Process.run("python", [
+                                script,
+                                "append",
+                                emailController.text.toString()
+                              ]);
 
                               print(result.stdout);
                             } else {
@@ -171,7 +179,7 @@ class _HomeState extends State<Home> {
                       child: Center(
                         child: ElevatedButton(
                           style: ButtonStyle(minimumSize:
-                          MaterialStateProperty.resolveWith((states) {
+                              MaterialStateProperty.resolveWith((states) {
                             if (states.contains(MaterialState.disabled)) {
                               return Size(100, 40);
                             }
@@ -182,10 +190,8 @@ class _HomeState extends State<Home> {
                               print(emailController.text.toString());
                               print(passwordController.text.toString());
                               print(script);
-                              var result = await Process.run("python", [
-                                script,
-                                "extract"
-                              ]);
+                              var result = await Process.run(
+                                  "python", [script, "extract"]);
                               print(result.stdout);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -204,7 +210,7 @@ class _HomeState extends State<Home> {
                       child: Center(
                         child: ElevatedButton(
                           style: ButtonStyle(minimumSize:
-                          MaterialStateProperty.resolveWith((states) {
+                              MaterialStateProperty.resolveWith((states) {
                             if (states.contains(MaterialState.disabled)) {
                               return Size(100, 40);
                             }
@@ -217,7 +223,8 @@ class _HomeState extends State<Home> {
                               print(script);
                               var result = await Process.run("python", [
                                 script,
-                                "append",emailController.text.toString()
+                                "append",
+                                emailController.text.toString()
                               ]);
                               print(result.stdout);
                             } else {

@@ -17,7 +17,6 @@ class _HomeState extends State<Home> {
   TextEditingController passwordController = TextEditingController();
   Directory current = Directory.current;
 
-
   void getCredentials() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     print(prefs.getString('email')!);
@@ -31,12 +30,11 @@ class _HomeState extends State<Home> {
     // TODO: implement initState
     super.initState();
     getCredentials();
-
   }
 
   @override
   Widget build(BuildContext context) {
-    String script= current.absolute.uri.toString()+"linked.py";
+    String script = current.absolute.uri.toString() + "linked.py";
     return Scaffold(
         body: SingleChildScrollView(
       child: Column(
@@ -105,7 +103,9 @@ class _HomeState extends State<Home> {
                                 print(passwordController.text.toString());
                                 print(script);
                                 var result = await Process.run("python", [
-                                  script,emailController.text.toString(),passwordController.text.toString(),
+                                  script,
+                                  emailController.text.toString(),
+                                  passwordController.text.toString(),
                                   "choice"
                                 ]);
                                 print(result.stdout);
@@ -137,7 +137,6 @@ class _HomeState extends State<Home> {
                                 print(emailController.text.toString());
                                 print(passwordController.text.toString());
                                 print(script);
-
 
                                 var result = await Process.run("python", [
                                   script,
@@ -173,10 +172,8 @@ class _HomeState extends State<Home> {
                               if (_formKey.currentState!.validate()) {
                                 print(emailController.text.toString());
                                 print(passwordController.text.toString());
-                                var result = await Process.run("python", [
-                                  script,
-                                  "extract"]
-                                );
+                                var result = await Process.run(
+                                    "python", [script, "extract"]);
                                 print(result.stdout);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -208,7 +205,8 @@ class _HomeState extends State<Home> {
                                 print(script);
                                 var result = await Process.run("python", [
                                   script,
-                                  "update",emailController.text.toString()
+                                  "update",
+                                  emailController.text.toString()
                                 ]);
                                 print(result.stdout);
                               } else {
