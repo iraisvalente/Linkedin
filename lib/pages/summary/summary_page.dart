@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project/models/company.dart';
 import 'package:project/models/connection.dart';
+import 'package:project/models/count.dart';
 import 'package:project/models/position.dart';
 import 'package:project/service/http/analytics.dart';
 import 'package:project/widgets/navbar_inside.dart';
@@ -20,6 +21,11 @@ class _SummaryPageState extends State<SummaryPage> {
   List<Position>? listPositions = [];
   List<Connection>? listConnections = [];
   List<Company>? listCompanies = [];
+  late Count varUniqueNames;
+  late Count varUniqueCompanies;
+  late Count varUniquePositions;
+
+  bool loading = true;
 
   Future<void> commonPositions() async {
     await positions(true).then((value) {
@@ -45,6 +51,43 @@ class _SummaryPageState extends State<SummaryPage> {
         listConnections = [];
         listConnections = value;
       });
+    });
+  }
+
+  Future<Count> namesCount() async {
+    late Count names;
+    await uniqueNames().then((value) {
+      names = value;
+    });
+    return names;
+  }
+
+  Future<Count> companiesCount() async {
+    late Count companies;
+    await uniqueCompanies().then((value) {
+      companies = value;
+    });
+    return companies;
+  }
+
+  Future<Count> positionsCount() async {
+    late Count positions;
+    await uniquePositions().then((value) {
+      positions = value;
+    });
+    return positions;
+  }
+
+  initApiCalls() async {
+    commonPositions();
+    commonCompanies();
+    commonConnections();
+    varUniqueNames = await namesCount();
+    varUniqueCompanies = await companiesCount();
+    varUniquePositions = await positionsCount();
+
+    setState(() {
+      loading = false;
     });
   }
 
@@ -109,13 +152,18 @@ class _SummaryPageState extends State<SummaryPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    commonPositions();
-    commonCompanies();
-    commonConnections();
+    initApiCalls();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (loading == true) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -233,17 +281,15 @@ class _SummaryPageState extends State<SummaryPage> {
                                   ),
                                   DataColumn(
                                     label: Text('UNIQUE POSITIONS'),
-                                  ),
-                                  DataColumn(
-                                    label:
-                                        Text('CONTACTS ADDED (LAST 30 DAYS)'),
-                                  ),
+                                  )
                                 ], rows: [
                                   DataRow(cells: [
-                                    DataCell(Text("466")),
-                                    DataCell(Text("320")),
-                                    DataCell(Text("426")),
-                                    DataCell(Text("477")),
+                                    DataCell(
+                                        Text(varUniqueNames.count.toString())),
+                                    DataCell(Text(
+                                        varUniqueCompanies.count.toString())),
+                                    DataCell(Text(
+                                        varUniquePositions.count.toString())),
                                   ]),
                                 ]),
                               ],

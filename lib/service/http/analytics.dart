@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:project/models/company.dart';
 import 'package:project/models/company_positions.dart';
 import 'package:project/models/connection.dart';
+import 'package:project/models/count.dart';
 import 'package:project/models/position.dart';
 
 Future<List<Connection>?> connections() async {
@@ -114,6 +115,45 @@ Future<List<Position>> companyPositions(String company) async {
       companyPositions.add(Position.fromJson(jsonDecode(response.body)[i]));
     }
     return companyPositions;
+  } else {
+    throw Exception('Failed to load list of company positions');
+  }
+}
+
+Future<Count> uniqueNames() async {
+  Count count;
+  final response =
+      await http.get(Uri.parse('http://127.0.0.1:8000/unique_names/'));
+
+  if (response.statusCode == 200) {
+    count = Count.fromJson(jsonDecode(response.body));
+    return count;
+  } else {
+    throw Exception('Failed to load list of company positions');
+  }
+}
+
+Future<Count> uniqueCompanies() async {
+  Count count;
+  final response =
+      await http.get(Uri.parse('http://127.0.0.1:8000/unique_companies/'));
+
+  if (response.statusCode == 200) {
+    count = Count.fromJson(jsonDecode(response.body));
+    return count;
+  } else {
+    throw Exception('Failed to load list of company positions');
+  }
+}
+
+Future<Count> uniquePositions() async {
+  Count count;
+  final response =
+      await http.get(Uri.parse('http://127.0.0.1:8000/unique_positions/'));
+
+  if (response.statusCode == 200) {
+    count = Count.fromJson(jsonDecode(response.body));
+    return count;
   } else {
     throw Exception('Failed to load list of company positions');
   }

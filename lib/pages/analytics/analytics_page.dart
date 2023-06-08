@@ -68,8 +68,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   @override
   Widget build(BuildContext context) {
     if (loading == true) {
-      return SingleChildScrollView(
-        child: Center(
+      return Scaffold(
+        body: Center(
           child: CircularProgressIndicator(),
         ),
       );
