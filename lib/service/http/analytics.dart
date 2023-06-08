@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:project/models/company.dart';
+import 'package:project/models/company_positions.dart';
 import 'package:project/models/connection.dart';
 import 'package:project/models/position.dart';
 
@@ -12,7 +13,6 @@ Future<List<Connection>?> connections() async {
 
   if (response.statusCode == 200) {
     var responseJson = json.decode(response.body);
-    print(responseJson);
     for (final response in responseJson) {
       connections.add(Connection.commonConnection(
           response['Connection']!, int.parse(response['Count']!)));
@@ -65,8 +65,7 @@ Future<List<Position>?> positions(bool count) async {
       print(responseJson);
 
       for (final response in responseJson) {
-        positions.add(
-            Position(response['Position']!, int.parse(response['Count']!)));
+        positions.add(Position(response['Position']!, response['Count']!));
       }
       return positions;
     } else {
@@ -78,8 +77,6 @@ Future<List<Position>?> positions(bool count) async {
 
     if (response.statusCode == 200) {
       var responseJson = json.decode(response.body);
-      print(responseJson);
-
       for (final response in responseJson) {
         positions.add(Position(response['Position']!, null));
       }
@@ -87,5 +84,37 @@ Future<List<Position>?> positions(bool count) async {
     } else {
       throw Exception('Failed to load album');
     }
+  }
+}
+
+Future<List<CompanyPositions>> companiesPositions() async {
+  List<CompanyPositions> companyPositions = [];
+  final response =
+      await http.get(Uri.parse('http://127.0.0.1:8000/company_positions/'));
+
+  if (response.statusCode == 200) {
+    for (int i = 0; i < jsonDecode(response.body).length; i++) {
+      companyPositions
+          .add(CompanyPositions.fromMap(jsonDecode(response.body)[i]));
+    }
+    return companyPositions;
+  } else {
+    throw Exception('Failed to load list of company positions');
+  }
+}
+
+Future<List<Position>> companyPositions(String company) async {
+  List<Position> companyPositions = [];
+  final response = await http
+      .get(Uri.parse('http://127.0.0.1:8000/company_positions/"$company"'));
+
+  if (response.statusCode == 200) {
+    for (int i = 0; i < jsonDecode(response.body).length; i++) {
+      print(jsonDecode(response.body)[i]);
+      companyPositions.add(Position.fromJson(jsonDecode(response.body)[i]));
+    }
+    return companyPositions;
+  } else {
+    throw Exception('Failed to load list of company positions');
   }
 }
