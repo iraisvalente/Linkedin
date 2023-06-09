@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project/pages/home.dart';
+import 'package:project/pages/home/home.dart';
 import 'package:project/widgets/navbar_init.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

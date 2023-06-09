@@ -50,11 +50,7 @@ dependencies:
   path_provider: ^2.0.15
   intl: ^0.18.1
   http: ^0.13.6
-  autocomplete_textfield: ^2.0.1
-  flutter_textfield_autocomplete: ^1.0.2
-  easy_autocomplete: ^1.6.0
-  flutter_autocomplete_label: ^1.0.0
-  flutter_async_autocomplete: ^0.1.1
+  webview_universal: ^0.0.4
 
 dev_dependencies:
   flutter_test:

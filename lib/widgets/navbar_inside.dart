@@ -275,17 +275,15 @@ class _NavBarState extends State<NavBar> {
                       PopupMenuButton(
                           itemBuilder: (_) {
                             return [
-                              /*
                               PopupMenuItem(
                                   value: "Look for company info",
-                                  child: Text("Look for company info")),*/
+                                  child: Text("Look for company info")),
                               PopupMenuItem(
                                   value: "Company position",
                                   child: Text("Company position")),
                             ];
                           },
                           onSelected: (i) {
-                            /*
                             if (i == "Look for company info") {
                               Navigator.push(
                                 context,
@@ -295,7 +293,7 @@ class _NavBarState extends State<NavBar> {
                                   transitionDuration: Duration(seconds: 0),
                                 ),
                               );
-                            }*/
+                            }
                             if (i == "Company position") {
                               Navigator.push(
                                 context,
