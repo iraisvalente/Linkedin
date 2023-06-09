@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project/widgets/navbar_inside.dart';
+import 'dart:io';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,7 +15,7 @@ class _HomeState extends State<Home> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  //Directory current = Directory.current;
+  Directory current = Directory.current;
 
   void getCredentials() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -26,13 +27,14 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
     getCredentials();
   }
 
   @override
   Widget build(BuildContext context) {
-    //String script = current.absolute.uri.toString() + "linked.py";
+    String script = current.absolute.uri.toString() + "linked.py";
     return Scaffold(
         body: SingleChildScrollView(
       child: Column(
@@ -99,8 +101,7 @@ class _HomeState extends State<Home> {
                               if (_formKey.currentState!.validate()) {
                                 print(emailController.text.toString());
                                 print(passwordController.text.toString());
-                                //print(script);
-                                /*
+                                print(script);
                                 var result = await Process.run("python", [
                                   script,
                                   emailController.text.toString(),
@@ -112,7 +113,7 @@ class _HomeState extends State<Home> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content: Text('Please fill input')),
-                                );*/
+                                );
                               }
                             },
                             child: const Text('Start Process'),
@@ -135,8 +136,8 @@ class _HomeState extends State<Home> {
                               if (_formKey.currentState!.validate()) {
                                 print(emailController.text.toString());
                                 print(passwordController.text.toString());
-                                //print(script);
-                                /*
+                                print(script);
+
                                 var result = await Process.run("python", [
                                   script,
                                   emailController.text.toString(),
@@ -157,7 +158,7 @@ class _HomeState extends State<Home> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content: Text('Please fill input')),
-                                );*/
+                                );
                               }
                             },
                             child: const Text('Download Data'),
@@ -180,7 +181,6 @@ class _HomeState extends State<Home> {
                               if (_formKey.currentState!.validate()) {
                                 print(emailController.text.toString());
                                 print(passwordController.text.toString());
-                                /*
                                 var result = await Process.run(
                                     "python", [script, "extract"]);
                                 print(result.stdout);
@@ -188,7 +188,7 @@ class _HomeState extends State<Home> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content: Text('Please fill input')),
-                                );*/
+                                );
                               }
                             },
                             child: const Text('Extract File'),
@@ -211,8 +211,7 @@ class _HomeState extends State<Home> {
                               if (_formKey.currentState!.validate()) {
                                 print(emailController.text.toString());
                                 print(passwordController.text.toString());
-                                //print(script);
-                                /*
+                                print(script);
                                 var result = await Process.run("python", [
                                   script,
                                   "update",
@@ -223,7 +222,7 @@ class _HomeState extends State<Home> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content: Text('Please fill input')),
-                                );*/
+                                );
                               }
                             },
                             child: const Text('Update Database'),
