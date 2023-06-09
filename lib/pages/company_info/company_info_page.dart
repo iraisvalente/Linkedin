@@ -37,23 +37,22 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                     ),
                   ),
                   SizedBox(width: 40),
-                  Container(
-                      height: 40,
-                      width: 100,
-                      child: Expanded(
-                        child: ElevatedButton(
-                            onPressed: () {
-                              String replacedText =
-                                  search.text.replaceAll(" ", "+");
-                              webViewController.init(
-                                context: context,
-                                setState: setState,
-                                uri: Uri.parse(
-                                    "https://google.com/search?q=$replacedText"),
-                              );
-                            },
-                            child: Text('Search')),
-                      )),
+                  SizedBox(
+                    height: 40,
+                    width: 100,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          String replacedText =
+                              search.text.replaceAll(" ", "+");
+                          webViewController.init(
+                            context: context,
+                            setState: setState,
+                            uri: Uri.parse(
+                                "https://google.com/search?q=$replacedText"),
+                          );
+                        },
+                        child: Text('Search')),
+                  ),
                 ],
               ),
             ),

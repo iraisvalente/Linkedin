@@ -256,7 +256,7 @@ class _SearchPageState extends State<SearchPage> {
       emailController.text = widget.connection!.email;
       companyController.text = widget.connection!.company;
       positionController.text = widget.connection!.position;
-      connectedOnController.text = widget.connection!.connection;
+      connectedOnController.text = widget.connection!.connection!;
     }
   }
 

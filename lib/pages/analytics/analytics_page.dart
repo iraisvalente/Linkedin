@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:project/models/company.dart';
 import 'package:project/models/company_positions.dart';
+import 'package:project/models/connection.dart';
 import 'package:project/models/position.dart';
 import 'package:project/service/http/analytics.dart';
 import 'package:project/widgets/navbar_inside.dart';
@@ -15,9 +16,10 @@ class AnalyticsPage extends StatefulWidget {
 }
 
 class _AnalyticsPageState extends State<AnalyticsPage> {
-  List<Position> positions = [];
   DataTableSource _dataCompanyAnalytics = CompanyAnalyticsTable([]);
+  DataTableSource _dataConnectionAnalytics = ConnectionsAnalyticsTable([]);
   TextEditingController search = TextEditingController();
+  TextEditingController email = TextEditingController();
   String dropdownvalue = 'Select the company';
   List<String> companiesNames = ['Select the company'];
   bool loading = true;
@@ -51,10 +53,29 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     return positions;
   }
 
-  List<DataColumn> columns() {
+  Future<List<Connection>?> connections(String connection) async {
+    List<Connection> connections = [];
+    await connectionsPerUser(connection).then((value) {
+      connections.addAll(value!);
+    });
+    print(connections.length);
+    return connections;
+  }
+
+  List<DataColumn> columnsCompany() {
     return [
       DataColumn(label: Text('Position')),
       DataColumn(label: Text('Count'))
+    ];
+  }
+
+  List<DataColumn> columnsConnections() {
+    return [
+      DataColumn(label: Text('Firstname')),
+      DataColumn(label: Text('Lastname')),
+      DataColumn(label: Text('Email Addres')),
+      DataColumn(label: Text('Company')),
+      DataColumn(label: Text('Position'))
     ];
   }
 
@@ -93,6 +114,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 ),
                 Row(
                   children: [
+                    SizedBox(width: 40),
                     DropdownButton(
                       value: dropdownvalue,
                       icon: const Icon(Icons.keyboard_arrow_down),
@@ -108,17 +130,21 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         });
                       },
                     ),
-                    ElevatedButton(
-                        onPressed: () async {
-                          print(dropdownvalue);
-                          await positionsPerCompany(dropdownvalue);
-                        },
-                        child: Text('Search'))
+                    SizedBox(width: 20),
+                    SizedBox(
+                        height: 40,
+                        width: 100,
+                        child: ElevatedButton(
+                            onPressed: () async {
+                              print(dropdownvalue);
+                              await positionsPerCompany(dropdownvalue);
+                            },
+                            child: Text('Search')))
                   ],
                 ),
                 PaginatedDataTable(
                   source: _dataCompanyAnalytics,
-                  columns: columns(),
+                  columns: columnsCompany(),
                   columnSpacing: 100,
                   horizontalMargin: 10,
                   rowsPerPage: 5,
@@ -126,6 +152,48 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 ),
                 SizedBox(
                   height: 30,
+                ),
+                Text(
+                  "Contacts",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                Row(
+                  children: [
+                    SizedBox(width: 20),
+                    Expanded(
+                      child: TextField(
+                        controller: email,
+                        decoration:
+                            const InputDecoration(hintText: 'Write an email'),
+                      ),
+                    ),
+                    SizedBox(width: 40),
+                    SizedBox(
+                      height: 40,
+                      width: 100,
+                      child: ElevatedButton(
+                          onPressed: () async {
+                            List<Connection>? data =
+                                await connections(email.text);
+                            setState(() {
+                              _dataConnectionAnalytics =
+                                  ConnectionsAnalyticsTable(data!);
+                            });
+                          },
+                          child: Text('Search')),
+                    ),
+                  ],
+                ),
+                PaginatedDataTable(
+                  source: _dataConnectionAnalytics,
+                  columns: columnsConnections(),
+                  columnSpacing: 100,
+                  horizontalMargin: 10,
+                  rowsPerPage: 5,
+                  showCheckboxColumn: false,
                 ),
               ],
             ),
@@ -154,6 +222,31 @@ class CompanyAnalyticsTable extends DataTableSource {
     return DataRow(cells: [
       DataCell(Text(table[index].position)),
       DataCell(Text(table[index].count.toString()))
+    ]);
+  }
+}
+
+class ConnectionsAnalyticsTable extends DataTableSource {
+  final List<Connection> table;
+  ConnectionsAnalyticsTable(this.table) {
+    print('using table');
+    print(this.table.length);
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+  @override
+  int get rowCount => table.length;
+  @override
+  int get selectedRowCount => 0;
+  @override
+  DataRow getRow(int index) {
+    return DataRow(cells: [
+      DataCell(Text(table[index].firstname)),
+      DataCell(Text(table[index].lastname)),
+      DataCell(Text(table[index].email)),
+      DataCell(Text(table[index].company)),
+      DataCell(Text(table[index].position))
     ]);
   }
 }

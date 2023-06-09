@@ -133,7 +133,7 @@ class _SummaryPageState extends State<SummaryPage> {
     List<DataRow> rows = [];
     for (int i = 0; i < listConnections!.length; i++) {
       rows.add(DataRow(cells: [
-        DataCell(Text(listConnections![i].connection)),
+        DataCell(Text(listConnections![i].connection!)),
         DataCell(Text(listConnections![i].count.toString())),
       ]));
     }

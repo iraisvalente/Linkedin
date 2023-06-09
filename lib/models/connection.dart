@@ -4,7 +4,7 @@ class Connection {
   String email = "";
   String company = "";
   String position = "";
-  String connection = "";
+  String? connection;
   int? count;
 
   Connection(this.firstname, this.lastname, this.email, this.company,
@@ -19,6 +19,14 @@ class Connection {
     company = obj['company'];
     position = obj['position'];
     connection = obj['connection'];
+  }
+
+  Connection.fromMapEmail(dynamic obj) {
+    firstname = obj['First_Name'];
+    lastname = obj['Last_Name'];
+    email = obj['Email_Address'];
+    company = obj['Company'];
+    position = obj['Position'];
   }
 
   Connection.commonConnectionFromMap(dynamic obj) {

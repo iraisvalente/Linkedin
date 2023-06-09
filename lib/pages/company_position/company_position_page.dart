@@ -17,10 +17,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
   List<String> _positions = [];
 
   void _addRow() {
-    // Built in Flutter Method.
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below.
       _rowList.add(DataRow(cells: <DataCell>[
         DataCell(
             TextFormField(
