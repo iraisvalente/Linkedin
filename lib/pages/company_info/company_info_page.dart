@@ -16,11 +16,6 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
   @override
   void initState() {
     super.initState();
-    webViewController.init(
-      context: context,
-      setState: setState,
-      uri: Uri.parse("https://google.com"),
-    );
   }
 
   @override
@@ -47,18 +42,30 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                       width: 100,
                       child: Expanded(
                         child: ElevatedButton(
-                            onPressed: () {}, child: Text('Search')),
+                            onPressed: () {
+                              String replacedText =
+                                  search.text.replaceAll(" ", "+");
+                              webViewController.init(
+                                context: context,
+                                setState: setState,
+                                uri: Uri.parse(
+                                    "https://google.com/search?q=$replacedText"),
+                              );
+                            },
+                            child: Text('Search')),
                       )),
                 ],
               ),
             ),
-            Container(
-              height: MediaQuery.of(context).size.height * 0.7,
-              width: MediaQuery.of(context).size.width * 0.7,
-              child: WebView(
-                controller: webViewController,
-              ),
-            ),
+            search.text == ''
+                ? SizedBox(
+                    height: MediaQuery.of(context).size.height * 5,
+                    width: MediaQuery.of(context).size.width,
+                    child: WebView(
+                      controller: webViewController,
+                    ),
+                  )
+                : Container()
           ],
         ),
       ),

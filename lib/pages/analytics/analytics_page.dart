@@ -127,10 +127,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 SizedBox(
                   height: 30,
                 ),
-                Text(
-                  "Contacts",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
-                ),
               ],
             ),
           )
