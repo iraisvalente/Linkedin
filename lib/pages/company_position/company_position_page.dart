@@ -14,22 +14,26 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
   String path = "";
 
   List<DataRow> _rowList = [];
-  List<String> _positions = [];
 
   void _addRow() {
+    int index = _rowList.length;
     setState(() {
       _rowList.add(DataRow(cells: <DataCell>[
         DataCell(
-            TextFormField(
-              initialValue: '',
-              keyboardType: TextInputType.text,
-              onFieldSubmitted: (val) {
-                print('onSubmited $val');
-                _positions.add(val);
-              },
-            ),
-            showEditIcon: true)
+          TextFormField(initialValue: '', keyboardType: TextInputType.text),
+        ),
+        DataCell(Icon(Icons.delete), onTap: () {
+          _deleteRow(index);
+        }),
       ]));
+    });
+  }
+
+  void _deleteRow(int index) {
+    _rowList.removeAt(index);
+    setState(() {
+      print(index);
+      _rowList;
     });
   }
 
@@ -128,10 +132,18 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   Spacer(),
                   Column(
                     children: [
-                      Container(
-                        child: DataTable(columns: [
-                          DataColumn(label: Text('Position')),
-                        ], rows: _rowList),
+                      SizedBox(
+                        width: 300,
+                        height: 300,
+                        child: SingleChildScrollView(
+                          child: DataTable(columns: [
+                            DataColumn(label: Text('Position')),
+                            DataColumn(label: Text('')),
+                          ], rows: _rowList),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
                       ),
                       ElevatedButton(
                           onPressed: _addRow, child: Text('Add position')),
@@ -139,7 +151,13 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   ),
                 ],
               ),
-            )
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            DataTable(columns: [
+              DataColumn(label: Text('CSV Table')),
+            ], rows: []),
           ],
         ),
       ),
