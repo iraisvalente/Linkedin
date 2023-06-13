@@ -17,7 +17,7 @@ import mysql.connector
 import shutil
 
 try:
-    cnx = mysql.connector.connect(user='root', password='',host='127.0.0.1',database='linkedin')
+    cnx = mysql.connector.connect(user='root', password='Aiver!2023!',host='127.0.0.1',database='linkedin')
     print("Connected to DB")
 except mysql.connector.Error as err:
   if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
@@ -111,20 +111,25 @@ def append(connection):
                     Company=str(row["Company"]).replace("'s","s").replace("'S","S").strip()
                     CompanyPosition=str(row["Position"]).replace("'s","s").replace("'S","S").strip()	
                     SOAConnection=connection
-                    #print(FirstName,LastName,EmailAddress,Company,CompanyPosition)
-                    statement=f"Select * from connections where First_Name = '{FirstName.upper()}' and Last_Name = '{LastName.upper()}' and  Company = '{Company.upper()}'"
-                    #print(statement)
+                    try:
+                        print(f'{LastName.upper()}')
+                        print(FirstName,LastName,EmailAddress,Company,CompanyPosition)
+                        statement=f"Select * from connections where First_Name = '{FirstName.upper()}' and Last_Name = '{LastName.upper()}' and  Company = '{Company.upper()}'"
+                        print(statement)
+                    except:
+                        print("Cannot print")
                     try:
                         cur.execute(statement)
                         fetched= cur.fetchall()
                         if len(fetched) == 0:
                             statement=f"Insert into connections Values('{FirstName.upper()}','{LastName.upper()}','{EmailAddress.upper()}','{Company.upper()}','{CompanyPosition.upper()}','{SOAConnection.upper()}')"
-                            #print(statement)
+                            print(statement)
                             cur.execute(statement)
                     except:
                         print("Error Ocurrs")
-                cur.close
-            cnx.commit()
+                cur.close()
+    cnx.commit()
+    print("commited")
 
                         
 

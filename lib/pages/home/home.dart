@@ -101,7 +101,7 @@ class _HomeState extends State<Home> {
                               if (_formKey.currentState!.validate()) {
                                 print(emailController.text.toString());
                                 print(passwordController.text.toString());
-                                //print(script);
+                                print(script);
 
                                 var result = await Process.run("python", [
                                   script,
@@ -143,7 +143,7 @@ class _HomeState extends State<Home> {
                                   script,
                                   emailController.text.toString(),
                                   passwordController.text.toString(),
-                                  "download"
+                                  "download",
                                 ]);
                                 print(result.stdout);
                                 result = await Process.run(
