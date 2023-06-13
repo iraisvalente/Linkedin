@@ -62,7 +62,7 @@ Future<List<Connection>?> connectionsFilter(String filter, String value) async {
 Future<List<Connection>?> searchConnection(String company) async {
   List<Connection>? connections = [];
   final response =
-      await http.get(Uri.parse('http://127.0.0.1:8000/connections/"$company"'));
+      await http.get(Uri.parse('http://127.0.0.1:8000/connections/$company'));
   print(response.body);
 
   if (response.statusCode == 200) {

@@ -90,7 +90,8 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                     child: ElevatedButton(
                         onPressed: () async {
                           print('WORK IN PROGRESS');
-                          String conc = '${company.text}+${position.text}';
+                          String concatSearch =
+                              '${company.text}+${position.text}';
                           print(company.text);
                           print(position.text);
                           print(script);
@@ -102,7 +103,7 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                             print('DONE');
                             print(result.stdout.toString());
                           }
-                          conc = result.stdout.toString();
+                          String conc = result.stdout.toString();
                           String search = conc;
                           connections(company.text);
                           String replacedText = search.replaceAll(" ", "+");
@@ -110,14 +111,16 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                             context: context,
                             setState: setState,
                             uri: Uri.parse(
-                                "https://google.com/search?q=$replacedText"),
+                                "https://google.com/search?q=$concatSearch"),
                           );
                           webViewLinkedinController.init(
                             context: context,
                             setState: setState,
                             uri: Uri.parse(
-                                "https://google.com/search?q=$replacedText+linkedin"),
+                                "https://google.com/search?q=$concatSearch+linkedin"),
                           );
+                          print(
+                              "https://google.com/search?q=$concatSearch+linkedin");
                         },
                         child: Text('Search')),
                   ),
