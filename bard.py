@@ -4,6 +4,7 @@ cookie="XQj3ga9d6fRsB_ynfX32NCZ3CV5QW1BTM2Jd-C9knYVfYsxw7bNsrsx4GUSEsWX9eCw48Q."
 
 from bardapi import Bard
 
+print(f"{sys.argv[1]}  {sys.argv[2]}")
 token = cookie
 question = f"{sys.argv[1]}  {sys.argv[2]}"
 bard = Bard(token=token)

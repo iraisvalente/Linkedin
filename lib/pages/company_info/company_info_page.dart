@@ -14,11 +14,12 @@ class CompanyInfoPage extends StatefulWidget {
 class _CompanyInfoPageState extends State<CompanyInfoPage> {
   TextEditingController company = TextEditingController();
   TextEditingController position = TextEditingController();
-  WebViewController webViewController = WebViewController();
+  WebViewController webViewSearchController = WebViewController();
+  WebViewController webViewLinkedinController = WebViewController();
   List<Connection>? listData = [];
 
   Future<void> connections(String company, String position) async {
-    await searchConnection(company, position).then((value) {
+    await searchConnection(company).then((value) {
       listData = [];
       listData = value;
     });
@@ -82,11 +83,17 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                           connections(company.text, position.text);
                           String search = '${company.text}+${position.text}';
                           String replacedText = search.replaceAll(" ", "+");
-                          webViewController.init(
+                          webViewSearchController.init(
                             context: context,
                             setState: setState,
                             uri: Uri.parse(
                                 "https://google.com/search?q=$replacedText"),
+                          );
+                          webViewLinkedinController.init(
+                            context: context,
+                            setState: setState,
+                            uri: Uri.parse(
+                                "https://google.com/search?q=$replacedText+linkedin"),
                           );
                         },
                         child: Text('Search')),
@@ -107,7 +114,16 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                     height: MediaQuery.of(context).size.height * 5,
                     width: MediaQuery.of(context).size.width,
                     child: WebView(
-                      controller: webViewController,
+                      controller: webViewSearchController,
+                    ),
+                  )
+                : Container(),
+            company.text == '' && position.text == ''
+                ? SizedBox(
+                    height: MediaQuery.of(context).size.height * 5,
+                    width: MediaQuery.of(context).size.width,
+                    child: WebView(
+                      controller: webViewLinkedinController,
                     ),
                   )
                 : Container()
