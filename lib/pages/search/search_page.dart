@@ -15,8 +15,10 @@ class SearchPage extends StatefulWidget {
   final String? name;
   final String? note;
   final Connection? connection;
+  final bool? search;
 
-  const SearchPage({super.key, this.name, this.note, this.connection});
+  const SearchPage(
+      {super.key, this.name, this.note, this.connection, this.search});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -49,41 +51,6 @@ class _SearchPageState extends State<SearchPage> {
     setState(() {
       _searchTable = SearchTable(listData!);
     });
-  }
-
-  independentSearch() {
-    if (valuefirst == true) {
-      if (firstnameController.text.isNotEmpty) {
-        setState(() {
-          disable = [true, false, false, false, false, false];
-        });
-      }
-      if (lastnameController.text.isNotEmpty) {
-        setState(() {
-          disable = [false, true, false, false, false, false];
-        });
-      }
-      if (emailController.text.isNotEmpty) {
-        setState(() {
-          disable = [false, false, true, false, false, false];
-        });
-      }
-      if (companyController.text.isNotEmpty) {
-        setState(() {
-          disable = [false, false, false, true, false, false];
-        });
-      }
-      if (positionController.text.isNotEmpty) {
-        setState(() {
-          disable = [false, false, false, false, true, false];
-        });
-      }
-      if (connectedOnController.text.isNotEmpty) {
-        setState(() {
-          disable = [false, false, false, false, false, true];
-        });
-      }
-    }
   }
 
   allFilters(Connection connection) async {
@@ -168,6 +135,7 @@ class _SearchPageState extends State<SearchPage> {
                       searches.add(SavedSearch(
                           search['name'],
                           search['note'],
+                          search['search'],
                           Connection(
                               search['connection']['first_name'],
                               search['connection']['last_name'],
@@ -181,6 +149,7 @@ class _SearchPageState extends State<SearchPage> {
                   searches.add(SavedSearch(
                       searchName.text,
                       searchNote.text,
+                      valuefirst,
                       Connection(
                           firstnameController.text,
                           lastnameController.text,
@@ -215,6 +184,19 @@ class _SearchPageState extends State<SearchPage> {
       companyController.text = widget.connection!.company;
       positionController.text = widget.connection!.position;
       connectedOnController.text = widget.connection!.connection!;
+      print(widget.search);
+      if (widget.search == false) {
+        allFilters(Connection(
+            firstnameController.text,
+            lastnameController.text,
+            emailController.text,
+            companyController.text,
+            positionController.text,
+            connectedOnController.text));
+      } else {
+        valuefirst = widget.search!;
+        filters();
+      }
     }
   }
 
@@ -374,16 +356,6 @@ class _SearchPageState extends State<SearchPage> {
                           onChanged: (value) {
                             setState(() {
                               valuefirst = value!;
-                              independentSearch();
-                              if (valuefirst == false) {
-                                disable = [true, true, true, true, true, true];
-                                firstnameController.text = "";
-                                lastnameController.text = "";
-                                emailController.text = "";
-                                companyController.text = "";
-                                positionController.text = "";
-                                connectedOnController.text = "";
-                              }
                             });
                           },
                         ),
