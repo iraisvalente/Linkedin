@@ -4,13 +4,12 @@ cookie="XQj3ga9d6fRsB_ynfX32NCZ3CV5QW1BTM2Jd-C9knYVfYsxw7bNsrsx4GUSEsWX9eCw48Q."
 
 from bardapi import Bard
 
-print(f"{sys.argv[1]}  {sys.argv[2]}")
 token = cookie
 question = f"{sys.argv[1]}  {sys.argv[2]}"
 bard = Bard(token=token)
 answer= bard.get_answer(question)['content']
 if "Error" in answer:
-    sys.exit(1)
+    print(f"{sys.argv[1]}  {sys.argv[2]}")
 answer_list=answer.split(".")
 correct_answer= [x for x in answer_list if f"{sys.argv[1].upper()}" in x.upper() and  f"{sys.argv[2].upper()}" in x.upper() and  "IS" in x.upper()]
 complete_answer = ''.join(correct_answer)

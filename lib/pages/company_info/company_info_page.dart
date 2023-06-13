@@ -9,6 +9,7 @@ import 'package:project/service/http/connection.dart';
 class CompanyInfoPage extends StatefulWidget {
   const CompanyInfoPage({super.key});
 
+
   @override
   State<CompanyInfoPage> createState() => _CompanyInfoPageState();
 }
@@ -54,6 +55,8 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
   @override
   Widget build(BuildContext context) {
     String script = current.absolute.uri.toString() + "bard.py";
+    script = script.split("file:///")[1];
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -82,32 +85,40 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                   SizedBox(
                     height: 40,
                     width: 100,
+
                     child: ElevatedButton(
                         onPressed: () async {
                           print(script);
+                          print(company.text);
+                          print(position.text);
+                          String conc = '${company.text}+${position.text}';
                           connections(company.text, position.text);
-                          String search = '${company.text}+${position.text}';
+                          var result = await Process.run("python", [
+                            script,
+                            company.text,
+                            position.text
+                          ]);
+                          if (result.exitCode != 0) {
+                              print("Erorr en bard");
+                          } else {
+                              print(result.stdout.toString());
+                          }
+                          conc = result.stdout.toString();
+                          String search = conc;
                           String replacedText = search.replaceAll(" ", "+");
                           webViewSearchController.init(
-                            context: context,
-                            setState: setState,
-                            uri: Uri.parse(
-                                "https://google.com/search?q=$replacedText"),
+                          context: context,
+                          setState: setState,
+                          uri: Uri.parse(
+                          "https://google.com/search?q=$replacedText"),
                           );
                           webViewLinkedinController.init(
-                            context: context,
-                            setState: setState,
-                            uri: Uri.parse(
-                                "https://google.com/search?q=$replacedText+linkedin"),
+                          context: context,
+                          setState: setState,
+                          uri: Uri.parse(
+                          "https://google.com/search?q=$replacedText+linkedin"),
                           );
-                          var result = await Process.run(
-                              "python", [script, company.text, position.text]);
-                          if (result.exitCode != 0) {
-                            print("Erorr en bard");
-                          } else {
-                            print(result.stdout.toString());
-                          }
-                        },
+                                            },
                         child: Text('Search')),
                   ),
                 ],

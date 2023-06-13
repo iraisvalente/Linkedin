@@ -59,6 +59,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
   @override
   Widget build(BuildContext context) {
     String script = current.absolute.uri.toString() + "linked.py";
+    script = script.split("file:///")[1];
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
