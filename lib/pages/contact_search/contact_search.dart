@@ -120,10 +120,12 @@ class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
                       //File('${appDocDirFolder.path}/$fileName')
                       //    .create(recursive: true);
                       var result = await Process.run("python", [
-                        "C:\\Users\\artur\\Projects\\LinkedIn\\linked.py",
+                        script,
                         "Copy",
                         path
                       ]);
+                      print(script);
+                      print(path);
                       print(fileName);
                       print(result.stdout);
                       result = await Process.run("python", [

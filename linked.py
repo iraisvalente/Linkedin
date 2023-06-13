@@ -129,12 +129,16 @@ def append(connection):
                         
 
 def Copy(src):
+    print("Copy")
     name=src.split("\\")[-1]
+    print(name)
+    print(src)
     shutil.copyfile(src,f"{unzip_path}\\{name}")
     print(f"Copied to {unzip_path}")
     
     
 if '__main__':
+    print("on main")
     if len(sys.argv) == 1:
         print(f"Please don't double click on me. Open a terminal and run {sys.argv[0]}")
         print(f"Please try {sys.argv[0]} [user,pass] action\naction= choice, download,extract or append (choice or download require user and pass {{Sequence should be choice,download,extract then append}})") 
@@ -185,6 +189,7 @@ if '__main__':
         if len(sys.argv) < 3:
             print("You need to send the file to copy")
         else:
+            print("trying to copy")
             Copy(connection)
     else:
         print("Action not defined")
