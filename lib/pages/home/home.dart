@@ -34,7 +34,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    String script = current.absolute.uri.toString() + "linked.py";
+    String script = current.absolute.uri.toString() + "bard.py";
     return Scaffold(
         body: SingleChildScrollView(
       child: Column(

@@ -14,7 +14,7 @@ class CompanyPositionPage extends StatefulWidget {
 class _CompanyPositionPageState extends State<CompanyPositionPage> {
   String fileName = "No file chosen";
   String path = "";
-  Directory currentDir = Directory.current;
+  Directory current = Directory.current;
 
   List<DataRow> _rowList = [];
   List<DataRow> rows = [];
@@ -58,6 +58,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
 
   @override
   Widget build(BuildContext context) {
+    String script = current.absolute.uri.toString() + "linked.py";
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -184,11 +185,14 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   for (String company in companies) {
                     for (TextEditingController controller in _controllerList) {
                       print('WORK IN PROCESS');
+                      print(script);
                       var result = await Process.run("python", [
-                        "C:\\Users\\iragu\\workspace\\project\\bard.py",
+                        script,
                         company,
                         controller.text
                       ]);
+                      print(company);
+                      print(controller.text);
                       print('RESULTS');
                       print(result.stdout);
                       List<String> answer = [

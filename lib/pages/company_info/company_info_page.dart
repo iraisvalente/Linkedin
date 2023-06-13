@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import "package:webview_universal/webview_universal.dart";
@@ -16,6 +18,8 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
   TextEditingController position = TextEditingController();
   WebViewController webViewController = WebViewController();
   List<Connection>? listData = [];
+  Directory current = Directory.current;
+
 
   Future<void> connections(String company, String position) async {
     await searchConnection(company, position).then((value) {
@@ -49,6 +53,7 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
 
   @override
   Widget build(BuildContext context) {
+    String script = current.absolute.uri.toString() + "bard.py";
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -78,16 +83,30 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                     height: 40,
                     width: 100,
                     child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          print(script);
+                          var result = await Process.run("python", [
+                            script,
+                            company.text,
+                            position.text
+                          ]);
+                          if (result.exitCode != 0)
+                          {
+                            print("Erorr en bard");
+                          }
+                          else
+                          {
+                          print(result.stdout.toString());
                           connections(company.text, position.text);
                           String search = '${company.text}+${position.text}';
                           String replacedText = search.replaceAll(" ", "+");
                           webViewController.init(
-                            context: context,
-                            setState: setState,
-                            uri: Uri.parse(
-                                "https://google.com/search?q=$replacedText"),
+                          context: context,
+                          setState: setState,
+                          uri: Uri.parse(
+                          "https://google.com/search?q=$replacedText"),
                           );
+                          }
                         },
                         child: Text('Search')),
                   ),
