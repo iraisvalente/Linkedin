@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:file_picker/file_picker.dart';
@@ -12,15 +14,32 @@ class CompanyPositionPage extends StatefulWidget {
 class _CompanyPositionPageState extends State<CompanyPositionPage> {
   String fileName = "No file chosen";
   String path = "";
+  Directory currentDir = Directory.current;
 
   List<DataRow> _rowList = [];
+  List<DataRow> rows = [];
+  List<TextEditingController> _controllerList = [];
+  List<List<String>> _answerContent = [];
+
+  Future readCsv(String path) async {
+    final File file = File(path);
+    String contents = await file.readAsString();
+    List<String> lines = contents.split('\n');
+    lines.removeLast();
+    return lines;
+  }
 
   void _addRow() {
     int index = _rowList.length;
+    TextEditingController controller = TextEditingController();
+    _controllerList.add(controller);
     setState(() {
       _rowList.add(DataRow(cells: <DataCell>[
         DataCell(
-          TextFormField(initialValue: '', keyboardType: TextInputType.text),
+          TextFormField(
+            keyboardType: TextInputType.text,
+            controller: controller,
+          ),
         ),
         DataCell(Icon(Icons.delete), onTap: () {
           _deleteRow(index);
@@ -155,9 +174,46 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
             SizedBox(
               height: 30,
             ),
+            ElevatedButton(
+                onPressed: () async {
+                  setState(() {
+                    rows = [];
+                  });
+                  List<DataCell> cells = [];
+                  List companies = await readCsv(path);
+                  for (String company in companies) {
+                    for (TextEditingController controller in _controllerList) {
+                      print('WORK IN PROCESS');
+                      var result = await Process.run("python", [
+                        "C:\\Users\\iragu\\workspace\\project\\bard.py",
+                        company,
+                        controller.text
+                      ]);
+                      print('RESULTS');
+                      print(result.stdout);
+                      List<String> answer = [
+                        company,
+                        controller.text,
+                        result.stdout
+                      ];
+                      cells.add(DataCell(Text(answer[0])));
+                      cells.add(DataCell(Text(answer[1])));
+                      cells.add(DataCell(Text(answer[2])));
+                      print(cells.length);
+                      rows.add(DataRow(cells: cells));
+                      cells = [];
+                    }
+                  }
+                  setState(() {
+                    rows;
+                  });
+                },
+                child: Text('Submit')),
             DataTable(columns: [
-              DataColumn(label: Text('CSV Table')),
-            ], rows: []),
+              DataColumn(label: Text('Company')),
+              DataColumn(label: Text('Position')),
+              DataColumn(label: Text('Search')),
+            ], rows: rows),
           ],
         ),
       ),
