@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:project/models/connection.dart';
 import 'package:project/models/saved_search.dart';
 import 'package:project/service/http/connection.dart';
@@ -346,7 +348,7 @@ class _SearchPageState extends State<SearchPage> {
                               controller: connectedOnController,
                               decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
-                                  labelText: 'Connected On'),
+                                  labelText: 'Connection'),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter the connection email';
@@ -456,7 +458,7 @@ class _SearchPageState extends State<SearchPage> {
                         DataColumn(label: Text('Email Address')),
                         DataColumn(label: Text('Company')),
                         DataColumn(label: Text('Position')),
-                        DataColumn(label: Text('Connected On')),
+                        DataColumn(label: Text('Connection')),
                       ],
                       columnSpacing: 100,
                       horizontalMargin: 10,
@@ -480,7 +482,36 @@ class _SearchPageState extends State<SearchPage> {
                     SizedBox(width: 10),
                     SizedBox(
                         child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        print(listData!.length);
+                        List<List<dynamic>> rows = [];
+                        rows.add([
+                          "First Name",
+                          "Last Name",
+                          "Email Address",
+                          "Company",
+                          "Position",
+                          "Connection"
+                        ]);
+                        for (Connection connection in listData!) {
+                          rows.add([
+                            connection.firstname,
+                            connection.lastname,
+                            connection.email,
+                            connection.company,
+                            connection.position,
+                            connection.connection
+                          ]);
+                        }
+                        String csv = const ListToCsvConverter().convert(rows);
+                        Directory appDir =
+                            await getApplicationDocumentsDirectory();
+                        String appPath = appDir.path;
+                        print("app_path: $appPath/search_list.csv");
+                        File file = File("$appPath/search_list.csv");
+                        await file.writeAsString(csv);
+                        print("File exported successfully!");
+                      },
                       child: const Text('Export selected'),
                     )),
                   ],

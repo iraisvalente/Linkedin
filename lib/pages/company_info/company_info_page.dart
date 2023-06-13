@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import "package:webview_universal/webview_universal.dart";
 import 'package:project/models/connection.dart';
@@ -19,9 +21,8 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
   WebViewController webViewSearchController = WebViewController();
   WebViewController webViewLinkedinController = WebViewController();
   List<Connection>? listData = [];
-  Directory current = Directory.current;
 
-  Future<void> connections(String company, String position) async {
+  Future<void> connections(String company) async {
     await searchConnection(company).then((value) {
       listData = [];
       listData = value;
@@ -53,7 +54,6 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    String script = current.absolute.uri.toString() + "bard.py";
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -83,9 +83,8 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                     height: 40,
                     width: 100,
                     child: ElevatedButton(
-                        onPressed: () async {
-                          print(script);
-                          connections(company.text, position.text);
+                        onPressed: () {
+                          connections(company.text);
                           String search = '${company.text}+${position.text}';
                           String replacedText = search.replaceAll(" ", "+");
                           webViewSearchController.init(
@@ -100,18 +99,14 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                             uri: Uri.parse(
                                 "https://google.com/search?q=$replacedText+linkedin"),
                           );
-                          var result = await Process.run(
-                              "python", [script, company.text, position.text]);
-                          if (result.exitCode != 0) {
-                            print("Erorr en bard");
-                          } else {
-                            print(result.stdout.toString());
-                          }
                         },
                         child: Text('Search')),
                   ),
                 ],
               ),
+            ),
+            SizedBox(
+              height: 20,
             ),
             DataTable(columns: [
               DataColumn(label: Text('First Name')),
@@ -138,7 +133,41 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                       controller: webViewLinkedinController,
                     ),
                   )
-                : Container()
+                : Container(),
+            SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                print(listData!.length);
+                List<List<dynamic>> rows = [];
+                rows.add([
+                  "First Name",
+                  "Last Name",
+                  "Email Address",
+                  "Company",
+                  "Position",
+                  "Connection"
+                ]);
+                for (Connection connection in listData!) {
+                  rows.add([
+                    connection.firstname,
+                    connection.lastname,
+                    connection.email,
+                    connection.company,
+                    connection.position,
+                    connection.connection
+                  ]);
+                }
+                String csv = const ListToCsvConverter().convert(rows);
+                Directory appDir = await getApplicationDocumentsDirectory();
+                String appPath = appDir.path;
+                File file = File("$appPath/company_info.csv");
+                await file.writeAsString(csv);
+                print("File exported successfully!");
+              },
+              child: Text('Export to CSV'),
+            )
           ],
         ),
       ),
