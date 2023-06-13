@@ -178,11 +178,11 @@ class _SearchPageState extends State<SearchPage> {
     super.initState();
     allConnections();
     if (widget.connection != null) {
-      firstnameController.text = widget.connection!.firstname;
-      lastnameController.text = widget.connection!.lastname;
-      emailController.text = widget.connection!.email;
-      companyController.text = widget.connection!.company;
-      positionController.text = widget.connection!.position;
+      firstnameController.text = widget.connection!.firstname!;
+      lastnameController.text = widget.connection!.lastname!;
+      emailController.text = widget.connection!.email!;
+      companyController.text = widget.connection!.company!;
+      positionController.text = widget.connection!.position!;
       connectedOnController.text = widget.connection!.connection!;
       print(widget.search);
       if (widget.search == false) {
@@ -515,7 +515,7 @@ class SearchTable extends DataTableSource {
   DataRow getRow(int index) {
     return DataRow(cells: [
       DataCell(Text(listData[index].firstname.toString())),
-      DataCell(Text(listData[index].lastname)),
+      DataCell(Text(listData[index].lastname.toString())),
       DataCell(Text(listData[index].email.toString())),
       DataCell(Text(listData[index].company.toString())),
       DataCell(Text(listData[index].position.toString())),

@@ -242,11 +242,11 @@ class ConnectionsAnalyticsTable extends DataTableSource {
   @override
   DataRow getRow(int index) {
     return DataRow(cells: [
-      DataCell(Text(table[index].firstname)),
-      DataCell(Text(table[index].lastname)),
-      DataCell(Text(table[index].email)),
-      DataCell(Text(table[index].company)),
-      DataCell(Text(table[index].position))
+      DataCell(Text(table[index].firstname!)),
+      DataCell(Text(table[index].lastname!)),
+      DataCell(Text(table[index].email!)),
+      DataCell(Text(table[index].company!)),
+      DataCell(Text(table[index].position!))
     ]);
   }
 }

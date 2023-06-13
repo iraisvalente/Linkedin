@@ -92,11 +92,11 @@ Future<List<Connection>?> connection_dependent_search(
       'Content-Type': 'application/json; charset=UTF-8',
     },
     body: jsonEncode(<String, String>{
-      "First_Name": connection.firstname,
-      "Last_Name": connection.lastname,
-      "Email_Address": connection.email,
-      "Company": connection.company,
-      "Position": connection.position,
+      "First_Name": connection.firstname!,
+      "Last_Name": connection.lastname!,
+      "Email_Address": connection.email!,
+      "Company": connection.company!,
+      "Position": connection.position!,
       "Connection": connection.connection!
     }),
   );
@@ -127,11 +127,11 @@ Future<List<Connection>?> connection_independent_search(
       'Content-Type': 'application/json; charset=UTF-8',
     },
     body: jsonEncode(<String, String>{
-      "First_Name": connection.firstname,
-      "Last_Name": connection.lastname,
-      "Email_Address": connection.email,
-      "Company": connection.company,
-      "Position": connection.position,
+      "First_Name": connection.firstname!,
+      "Last_Name": connection.lastname!,
+      "Email_Address": connection.email!,
+      "Company": connection.company!,
+      "Position": connection.position!,
       "Connection": connection.connection!
     }),
   );
@@ -147,6 +147,35 @@ Future<List<Connection>?> connection_independent_search(
           response['Connection']!));
     }
     print(connections.length);
+    return connections;
+  } else {
+    throw Exception('Failed to load connections');
+  }
+}
+
+Future<Connection?> bardConnection(Connection connection) async {
+  Connection? connections;
+  final response = await http.post(
+    Uri.parse('http://127.0.0.1:8000/connections/bard_connection/'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      "First_Name": connection.firstname!,
+      "Last_Name": connection.lastname!,
+      "Company": connection.company!,
+    }),
+  );
+  if (response.statusCode == 200) {
+    var responseJson = json.decode(response.body);
+    print(responseJson);
+    connections = Connection(
+        responseJson['First_Name'],
+        responseJson['Last_Name'],
+        responseJson['Email_Address'],
+        responseJson['Company'],
+        responseJson['Position'],
+        responseJson['Connection']);
     return connections;
   } else {
     throw Exception('Failed to load connections');

@@ -1,9 +1,9 @@
 class Connection {
-  String firstname = "";
-  String lastname = "";
-  String email = "";
-  String company = "";
-  String position = "";
+  String? firstname;
+  String? lastname;
+  String? email;
+  String? company;
+  String? position;
   String? connection;
   int? count;
 
@@ -11,6 +11,8 @@ class Connection {
       this.position, this.connection);
 
   Connection.commonConnection(this.connection, this.count);
+
+  Connection.bardSearch(this.firstname, this.lastname, this.company);
 
   Connection.fromMap(dynamic obj) {
     firstname = obj['firstname'];

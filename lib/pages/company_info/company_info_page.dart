@@ -18,6 +18,7 @@ class CompanyInfoPage extends StatefulWidget {
 class _CompanyInfoPageState extends State<CompanyInfoPage> {
   TextEditingController company = TextEditingController();
   TextEditingController position = TextEditingController();
+  String bardResult = '';
   WebViewController webViewSearchController = WebViewController();
   WebViewController webViewLinkedinController = WebViewController();
   List<Connection>? listData = [];
@@ -33,15 +34,86 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
     });
   }
 
+  Future<Connection?> connection(
+      String firstname, String lastname, String company) async {
+    Connection? connection;
+    await bardConnection(Connection.bardSearch(firstname, lastname, company))
+        .then((value) {
+      connection = value;
+    });
+    return connection;
+  }
+
+  void bardSearch() async {
+    String script = current.absolute.uri.toString() + "bard.py";
+    script = script.split("file:///")[1];
+    print('WORK IN PROGRESS');
+    String conc = '${company.text}+${position.text}';
+    print(company.text);
+    print(position.text);
+    print(script);
+    var result =
+        await Process.run("python", [script, company.text, position.text]);
+    if (result.exitCode != 0) {
+      print("Erorr en bard");
+    } else {
+      print('DONE');
+      print(result.stdout.toString());
+    }
+    conc = result.stdout.toString();
+    bardResult = result.stdout.toString();
+    String search = conc.split("\n")[0];
+    connections(company.text);
+    String replacedText = search.replaceAll(" ", "+");
+    webViewSearchController.init(
+      context: context,
+      setState: setState,
+      uri: Uri.parse("https://google.com/search?q=$replacedText"),
+    );
+    replacedText = search.replaceAll(".", "");
+    webViewLinkedinController.init(
+      context: context,
+      setState: setState,
+      uri: Uri.parse(
+          "https://google.com/search?q=$replacedText+linkedin&btnI=I%27m+Feeling+Lucky&source=hp"),
+    );
+  }
+
+  void alertConnectionFound() async {
+    String fullname = bardResult.split('\n')[0].replaceAll('.', '');
+    String firstname = fullname.split(' ')[0];
+    String lastname = fullname.split(' ')[1];
+    Connection? searchConnection =
+        await connection(firstname, lastname, company.text);
+    if (searchConnection!.firstname != null &&
+        searchConnection.lastname != null) {
+      print('encontrado');
+      showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('Search found in your connections'),
+          content: Text(
+              '${searchConnection.firstname} ${searchConnection.lastname} has been found in your connections'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'OK'),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   List<DataRow> rows() {
     List<DataRow> rowList = [];
     for (int i = 0; i < listData!.length; i++) {
       rowList.add(DataRow(cells: [
-        DataCell(Text(listData![i].firstname)),
-        DataCell(Text(listData![i].lastname)),
-        DataCell(Text(listData![i].email)),
-        DataCell(Text(listData![i].company)),
-        DataCell(Text(listData![i].position)),
+        DataCell(Text(listData![i].firstname!)),
+        DataCell(Text(listData![i].lastname!)),
+        DataCell(Text(listData![i].email!)),
+        DataCell(Text(listData![i].company!)),
+        DataCell(Text(listData![i].position!)),
         DataCell(Text(listData![i].connection!))
       ]));
     }
@@ -55,10 +127,6 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    String script = current.absolute.uri.toString() + "bard.py";
-
-    script = script.split("file:///")[1];
-
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -88,106 +156,89 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                     height: 40,
                     width: 100,
                     child: ElevatedButton(
-                        onPressed: () async {
-                          print('WORK IN PROGRESS');
-                          String conc = '${company.text}+${position.text}';
-                          print(company.text);
-                          print(position.text);
-                          print(script);
-                          var result = await Process.run(
-                              "python", [script, company.text, position.text]);
-                          if (result.exitCode != 0) {
-                            print("Erorr en bard");
-                          } else {
-                            print('DONE');
-                            print(result.stdout.toString());
-                          }
-                          conc = result.stdout.toString();
-                          String search = conc.split("\n")[0];
-                          connections(company.text);
-                          String replacedText = search.replaceAll(" ", "+");
-                          webViewSearchController.init(
-                            context: context,
-                            setState: setState,
-                            uri: Uri.parse(
-                                "https://google.com/search?q=$replacedText"),
-                          );
-                          replacedText = search.replaceAll(".", "");
-                          webViewLinkedinController.init(
-                            context: context,
-                            setState: setState,
-                            uri: Uri.parse(
-                                "https://google.com/search?q=$replacedText+linkedin&btnI=I%27m+Feeling+Lucky&source=hp"),
-                          );
+                        onPressed: () {
+                          bardSearch();
+                          alertConnectionFound();
                         },
                         child: Text('Search')),
                   ),
                 ],
               ),
             ),
-            SizedBox(
-              height: 20,
-            ),
-            DataTable(columns: [
-              DataColumn(label: Text('First Name')),
-              DataColumn(label: Text('Last Name')),
-              DataColumn(label: Text('Email Address')),
-              DataColumn(label: Text('Company')),
-              DataColumn(label: Text('Position')),
-              DataColumn(label: Text('Connection')),
-            ], rows: rows()),
-            company.text == '' && position.text == ''
-                ? SizedBox(
-                    height: MediaQuery.of(context).size.height * 5,
-                    width: MediaQuery.of(context).size.width,
-                    child: WebView(
-                      controller: webViewSearchController,
-                    ),
+            bardResult != ''
+                ? Column(
+                    children: [
+                      SizedBox(
+                        height: 50,
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.2,
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        child: SingleChildScrollView(child: Text(bardResult)),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      DataTable(columns: [
+                        DataColumn(label: Text('First Name')),
+                        DataColumn(label: Text('Last Name')),
+                        DataColumn(label: Text('Email Address')),
+                        DataColumn(label: Text('Company')),
+                        DataColumn(label: Text('Position')),
+                        DataColumn(label: Text('Connection')),
+                      ], rows: rows()),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          print(listData!.length);
+                          List<List<dynamic>> rows = [];
+                          rows.add([
+                            "First Name",
+                            "Last Name",
+                            "Email Address",
+                            "Company",
+                            "Position",
+                            "Connection"
+                          ]);
+                          for (Connection connection in listData!) {
+                            rows.add([
+                              connection.firstname,
+                              connection.lastname,
+                              connection.email,
+                              connection.company,
+                              connection.position,
+                              connection.connection
+                            ]);
+                          }
+                          String csv = const ListToCsvConverter().convert(rows);
+                          Directory appDir =
+                              await getApplicationDocumentsDirectory();
+                          String appPath = appDir.path;
+                          File file = File("$appPath/company_info.csv");
+                          await file.writeAsString(csv);
+                          print("File exported successfully!");
+                        },
+                        child: Text('Export to CSV'),
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 5,
+                        width: MediaQuery.of(context).size.width,
+                        child: WebView(
+                          controller: webViewSearchController,
+                        ),
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 5,
+                        width: MediaQuery.of(context).size.width,
+                        child: WebView(
+                          controller: webViewLinkedinController,
+                        ),
+                      ),
+                    ],
                   )
-                : Container(),
-            company.text == '' && position.text == ''
-                ? SizedBox(
-                    height: MediaQuery.of(context).size.height * 5,
-                    width: MediaQuery.of(context).size.width,
-                    child: WebView(
-                      controller: webViewLinkedinController,
-                    ),
-                  )
-                : Container(),
-            SizedBox(
-              height: 20,
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                print(listData!.length);
-                List<List<dynamic>> rows = [];
-                rows.add([
-                  "First Name",
-                  "Last Name",
-                  "Email Address",
-                  "Company",
-                  "Position",
-                  "Connection"
-                ]);
-                for (Connection connection in listData!) {
-                  rows.add([
-                    connection.firstname,
-                    connection.lastname,
-                    connection.email,
-                    connection.company,
-                    connection.position,
-                    connection.connection
-                  ]);
-                }
-                String csv = const ListToCsvConverter().convert(rows);
-                Directory appDir = await getApplicationDocumentsDirectory();
-                String appPath = appDir.path;
-                File file = File("$appPath/company_info.csv");
-                await file.writeAsString(csv);
-                print("File exported successfully!");
-              },
-              child: Text('Export to CSV'),
-            )
+                : Container()
           ],
         ),
       ),

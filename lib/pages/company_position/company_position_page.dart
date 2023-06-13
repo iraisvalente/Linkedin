@@ -139,15 +139,6 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                       SizedBox(
                         height: 50,
                       ),
-                      SizedBox(
-                          child: ElevatedButton(
-                        onPressed: () async {
-                          //var  result = await Process.run("python", ["C:\\Users\\artur\\Projects\\LinkedIn\\linked.py","Copy",fileName]);
-                          //print(fileName);
-                          //print(result.stdout);
-                        },
-                        child: const Text('Import'),
-                      )),
                     ],
                   ),
                   Spacer(),
