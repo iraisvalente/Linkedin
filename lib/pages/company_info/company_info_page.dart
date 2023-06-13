@@ -11,7 +11,6 @@ import 'package:project/service/http/connection.dart';
 class CompanyInfoPage extends StatefulWidget {
   const CompanyInfoPage({super.key});
 
-
   @override
   State<CompanyInfoPage> createState() => _CompanyInfoPageState();
 }
@@ -23,7 +22,6 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
   WebViewController webViewLinkedinController = WebViewController();
   List<Connection>? listData = [];
   Directory current = Directory.current;
-
 
   Future<void> connections(String company) async {
     await searchConnection(company).then((value) {
@@ -57,7 +55,6 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-
     String script = current.absolute.uri.toString() + "bard.py";
 
     script = script.split("file:///")[1];
@@ -90,29 +87,24 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                   SizedBox(
                     height: 40,
                     width: 100,
-
                     child: ElevatedButton(
                         onPressed: () async {
-                          print(script);
+                          print('WORK IN PROGRESS');
+                          String conc = '${company.text}+${position.text}';
                           print(company.text);
                           print(position.text);
-                          String conc = '${company.text}+${position.text}';
-                          //connections(company.text, position.text);
-                          var result = await Process.run("python", [
-                            script,
-                            company.text,
-                            position.text
-                          ]);
+                          print(script);
+                          var result = await Process.run(
+                              "python", [script, company.text, position.text]);
                           if (result.exitCode != 0) {
                             print("Erorr en bard");
                           } else {
+                            print('DONE');
                             print(result.stdout.toString());
                           }
                           conc = result.stdout.toString();
                           String search = conc;
-
                           connections(company.text);
-                          //String search = '${company.text}+${position.text}';
                           String replacedText = search.replaceAll(" ", "+");
                           webViewSearchController.init(
                             context: context,
@@ -127,9 +119,7 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                                 "https://google.com/search?q=$replacedText+linkedin"),
                           );
                         },
-
-                        child: Text('Search')
-    ),
+                        child: Text('Search')),
                   ),
                 ],
               ),

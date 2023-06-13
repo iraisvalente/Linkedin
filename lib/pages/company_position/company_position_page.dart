@@ -58,7 +58,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
 
   @override
   Widget build(BuildContext context) {
-    String script = current.absolute.uri.toString() + "linked.py";
+    String script = current.absolute.uri.toString() + "bard.py";
     script = script.split("file:///")[1];
     return Scaffold(
       body: SingleChildScrollView(
@@ -186,30 +186,28 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   for (String company in companies) {
                     for (TextEditingController controller in _controllerList) {
                       print('WORK IN PROCESS');
-                      var result = await Process.run("python", [
-                        'C:\\Users\\iragu\\workspace\\project\\bard.py',
-                        company,
-                        controller.text
-                      ]);
+                      print(company);
+                      print(controller.text);
+                      print(script);
+                      var result = await Process.run("python",
+                          [script, company.toString(), controller.text]);
                       if (result.exitCode != 0) {
                         print("Erorr en bard");
+                        print(result.stderr);
                       } else {
-                        print(company);
-                        print(controller.text);
-                        print('RESULTS');
-                        print(result.stdout);
-                        List<String> answer = [
-                          company,
-                          controller.text,
-                          result.stdout
-                        ];
-                        cells.add(DataCell(Text(answer[0])));
-                        cells.add(DataCell(Text(answer[1])));
-                        cells.add(DataCell(Text(answer[2])));
-                        print(cells.length);
-                        rows.add(DataRow(cells: cells));
-                        cells = [];
+                        print('DONE');
+                        print(result.stdout.toString());
                       }
+                      List<String> answer = [
+                        company,
+                        controller.text,
+                        result.exitCode.toString()
+                      ];
+                      cells.add(DataCell(Text(answer[0])));
+                      cells.add(DataCell(Text(answer[1])));
+                      cells.add(DataCell(Text(answer[2])));
+                      rows.add(DataRow(cells: cells));
+                      cells = [];
                     }
                     setState(() {
                       rows;
