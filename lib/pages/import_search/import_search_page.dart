@@ -5,6 +5,7 @@ import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:project/models/connection.dart';
 import 'package:project/models/saved_search.dart';
+import 'package:project/pages/saved_search/saved_search_page.dart';
 import 'package:project/service/json_service.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:file_picker/file_picker.dart';
@@ -147,6 +148,11 @@ class _ImportSearchPageState extends State<ImportSearchPage> {
                       JsonService().updateJson(
                           '${currentDir.path}/assets/json/saved_search.json',
                           searches);
+                      Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder: (_, __, ___) => SavedSearchPage(),
+                          ));
                     },
                     child: const Text('Import'),
                   )),
