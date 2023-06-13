@@ -85,9 +85,9 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   allFilters(Connection connection) async {
-    await connectionsAllFilters(connection).then((value) {
+    await connection_dependent_search(connection).then((value) {
       listData = [];
-      listData = json.decode(value!.body);
+      listData = value;
     });
     setState(() {
       _searchTable = SearchTable(listData!);
@@ -95,64 +95,20 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   filters() async {
-    if (firstnameController.text.isNotEmpty) {
-      await connectionsFilter('firstname', firstnameController.text)
-          .then((value) {
-        listData = [];
-        listData = value;
-      });
-      setState(() {
-        _searchTable = SearchTable(listData!);
-      });
-    }
-    if (lastnameController.text.isNotEmpty) {
-      await connectionsFilter('lastname', lastnameController.text)
-          .then((value) {
-        listData = [];
-        listData = value;
-      });
-      setState(() {
-        _searchTable = SearchTable(listData!);
-      });
-    }
-    if (emailController.text.isNotEmpty) {
-      await connectionsFilter('email', emailController.text).then((value) {
-        listData = [];
-        listData = value;
-      });
-      setState(() {
-        _searchTable = SearchTable(listData!);
-      });
-    }
-    if (companyController.text.isNotEmpty) {
-      await connectionsFilter('company', companyController.text).then((value) {
-        listData = [];
-        listData = value;
-      });
-      setState(() {
-        _searchTable = SearchTable(listData!);
-      });
-    }
-    if (positionController.text.isNotEmpty) {
-      await connectionsFilter('position', positionController.text)
-          .then((value) {
-        listData = [];
-        listData = value;
-      });
-      setState(() {
-        _searchTable = SearchTable(listData!);
-      });
-    }
-    if (connectedOnController.text.isNotEmpty) {
-      await connectionsFilter('connection', connectedOnController.text)
-          .then((value) {
-        listData = [];
-        listData = value;
-      });
-      setState(() {
-        _searchTable = SearchTable(listData!);
-      });
-    }
+    await connection_independent_search(Connection(
+            firstnameController.text,
+            lastnameController.text,
+            emailController.text,
+            companyController.text,
+            positionController.text,
+            connectedOnController.text))
+        .then((value) {
+      listData = [];
+      listData = value;
+    });
+    setState(() {
+      _searchTable = SearchTable(listData!);
+    });
   }
 
   Future<void> _displayTextInputDialog(BuildContext context) async {
@@ -393,21 +349,9 @@ class _SearchPageState extends State<SearchPage> {
                                   labelText: 'Connected On'),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter the date';
+                                  return 'Please enter the connection email';
                                 }
                                 return null;
-                              },
-                              onTap: () async {
-                                DateTime? pickedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: DateTime.now(),
-                                    firstDate: DateTime(2000, 1),
-                                    lastDate: DateTime(2101));
-                                String date =
-                                    DateFormat('d-MMM-yy').format(pickedDate!);
-                                setState(() {
-                                  connectedOnController.text = date;
-                                });
                               },
                             ),
                           ),
@@ -452,7 +396,7 @@ class _SearchPageState extends State<SearchPage> {
                             margin: EdgeInsets.only(left: 35, right: 35),
                             child: ElevatedButton(
                               onPressed: () {
-                                if (_formKey.currentState!.validate()) {
+                                if (valuefirst == false) {
                                   allFilters(Connection(
                                       firstnameController.text,
                                       lastnameController.text,

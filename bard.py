@@ -9,6 +9,8 @@ token = cookie
 question = f"{sys.argv[1]}  {sys.argv[2]}"
 bard = Bard(token=token)
 answer= bard.get_answer(question)['content']
+if "Error" in answer:
+    sys.exit(1)
 answer_list=answer.split(".")
 correct_answer= [x for x in answer_list if f"{sys.argv[1].upper()}" in x.upper() and  f"{sys.argv[2].upper()}" in x.upper() and  "IS" in x.upper()]
 complete_answer = ''.join(correct_answer)

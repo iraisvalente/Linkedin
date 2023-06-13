@@ -82,3 +82,73 @@ Future<List<Connection>?> searchConnection(String company) async {
     throw Exception('Failed to load connections');
   }
 }
+
+Future<List<Connection>?> connection_dependent_search(
+    Connection connection) async {
+  List<Connection>? connections = [];
+  final response = await http.post(
+    Uri.parse('http://127.0.0.1:8000/connection_dependent_search/'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      "First_Name": connection.firstname,
+      "Last_Name": connection.lastname,
+      "Email_Address": connection.email,
+      "Company": connection.company,
+      "Position": connection.position,
+      "Connection": connection.connection!
+    }),
+  );
+  if (response.statusCode == 200) {
+    var responseJson = json.decode(response.body);
+    for (final response in responseJson) {
+      connections.add(Connection(
+          response['First_Name']!,
+          response['Last_Name']!,
+          response['Email_Address']!,
+          response['Company']!,
+          response['Position']!,
+          response['Connection']!));
+    }
+    print(connections.length);
+    return connections;
+  } else {
+    throw Exception('Failed to load connections');
+  }
+}
+
+Future<List<Connection>?> connection_independent_search(
+    Connection connection) async {
+  List<Connection>? connections = [];
+  final response = await http.post(
+    Uri.parse('http://127.0.0.1:8000/connection_independent_search/'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      "First_Name": connection.firstname,
+      "Last_Name": connection.lastname,
+      "Email_Address": connection.email,
+      "Company": connection.company,
+      "Position": connection.position,
+      "Connection": connection.connection!
+    }),
+  );
+  if (response.statusCode == 200) {
+    var responseJson = json.decode(response.body);
+    for (final response in responseJson) {
+      connections.add(Connection(
+          response['First_Name']!,
+          response['Last_Name']!,
+          response['Email_Address']!,
+          response['Company']!,
+          response['Position']!,
+          response['Connection']!));
+    }
+    print(connections.length);
+    return connections;
+  } else {
+    throw Exception('Failed to load connections');
+  }
+}
