@@ -103,7 +103,7 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                             print(result.stdout.toString());
                           }
                           conc = result.stdout.toString();
-                          String search = conc;
+                          String search = conc.split("\n")[0];
                           connections(company.text);
                           String replacedText = search.replaceAll(" ", "+");
                           webViewSearchController.init(
@@ -112,11 +112,12 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                             uri: Uri.parse(
                                 "https://google.com/search?q=$replacedText"),
                           );
+                          replacedText = search.replaceAll(".", "");
                           webViewLinkedinController.init(
                             context: context,
                             setState: setState,
                             uri: Uri.parse(
-                                "https://google.com/search?q=$replacedText+linkedin"),
+                                "https://google.com/search?q=$replacedText+linkedin&btnI=I%27m+Feeling+Lucky&source=hp"),
                           );
                         },
                         child: Text('Search')),
