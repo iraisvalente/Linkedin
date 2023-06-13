@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ class _SavedSearchPageState extends State<SavedSearchPage> {
         searches.add(SavedSearch(
             search['name'],
             search['note'],
+            search['search'],
             Connection(
                 search['connection']['first_name'],
                 search['connection']['last_name'],
@@ -35,7 +37,6 @@ class _SavedSearchPageState extends State<SavedSearchPage> {
                 search['connection']['connection'])));
       }
     }
-    print(searches.length);
     setState(() {
       rows();
     });
@@ -57,6 +58,7 @@ class _SavedSearchPageState extends State<SavedSearchPage> {
                       pageBuilder: (_, __, ___) => SearchPage(
                           name: searches[i].name,
                           note: searches[i].note,
+                          search: searches[i].search,
                           connection: searches[i].connection),
                       transitionDuration: Duration(seconds: 0),
                     ),

@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:project/models/connection.dart';
 import 'package:project/models/saved_search.dart';
 import 'package:project/service/http/connection.dart';
@@ -13,8 +15,10 @@ class SearchPage extends StatefulWidget {
   final String? name;
   final String? note;
   final Connection? connection;
+  final bool? search;
 
-  const SearchPage({super.key, this.name, this.note, this.connection});
+  const SearchPage(
+      {super.key, this.name, this.note, this.connection, this.search});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -47,41 +51,6 @@ class _SearchPageState extends State<SearchPage> {
     setState(() {
       _searchTable = SearchTable(listData!);
     });
-  }
-
-  independentSearch() {
-    if (valuefirst == true) {
-      if (firstnameController.text.isNotEmpty) {
-        setState(() {
-          disable = [true, false, false, false, false, false];
-        });
-      }
-      if (lastnameController.text.isNotEmpty) {
-        setState(() {
-          disable = [false, true, false, false, false, false];
-        });
-      }
-      if (emailController.text.isNotEmpty) {
-        setState(() {
-          disable = [false, false, true, false, false, false];
-        });
-      }
-      if (companyController.text.isNotEmpty) {
-        setState(() {
-          disable = [false, false, false, true, false, false];
-        });
-      }
-      if (positionController.text.isNotEmpty) {
-        setState(() {
-          disable = [false, false, false, false, true, false];
-        });
-      }
-      if (connectedOnController.text.isNotEmpty) {
-        setState(() {
-          disable = [false, false, false, false, false, true];
-        });
-      }
-    }
   }
 
   allFilters(Connection connection) async {
@@ -166,6 +135,7 @@ class _SearchPageState extends State<SearchPage> {
                       searches.add(SavedSearch(
                           search['name'],
                           search['note'],
+                          search['search'],
                           Connection(
                               search['connection']['first_name'],
                               search['connection']['last_name'],
@@ -179,6 +149,7 @@ class _SearchPageState extends State<SearchPage> {
                   searches.add(SavedSearch(
                       searchName.text,
                       searchNote.text,
+                      valuefirst,
                       Connection(
                           firstnameController.text,
                           lastnameController.text,
@@ -213,6 +184,19 @@ class _SearchPageState extends State<SearchPage> {
       companyController.text = widget.connection!.company;
       positionController.text = widget.connection!.position;
       connectedOnController.text = widget.connection!.connection!;
+      print(widget.search);
+      if (widget.search == false) {
+        allFilters(Connection(
+            firstnameController.text,
+            lastnameController.text,
+            emailController.text,
+            companyController.text,
+            positionController.text,
+            connectedOnController.text));
+      } else {
+        valuefirst = widget.search!;
+        filters();
+      }
     }
   }
 
@@ -346,7 +330,7 @@ class _SearchPageState extends State<SearchPage> {
                               controller: connectedOnController,
                               decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
-                                  labelText: 'Connected On'),
+                                  labelText: 'Connection'),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter the connection email';
@@ -372,16 +356,6 @@ class _SearchPageState extends State<SearchPage> {
                           onChanged: (value) {
                             setState(() {
                               valuefirst = value!;
-                              independentSearch();
-                              if (valuefirst == false) {
-                                disable = [true, true, true, true, true, true];
-                                firstnameController.text = "";
-                                lastnameController.text = "";
-                                emailController.text = "";
-                                companyController.text = "";
-                                positionController.text = "";
-                                connectedOnController.text = "";
-                              }
                             });
                           },
                         ),
@@ -456,7 +430,7 @@ class _SearchPageState extends State<SearchPage> {
                         DataColumn(label: Text('Email Address')),
                         DataColumn(label: Text('Company')),
                         DataColumn(label: Text('Position')),
-                        DataColumn(label: Text('Connected On')),
+                        DataColumn(label: Text('Connection')),
                       ],
                       columnSpacing: 100,
                       horizontalMargin: 10,
@@ -480,7 +454,36 @@ class _SearchPageState extends State<SearchPage> {
                     SizedBox(width: 10),
                     SizedBox(
                         child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        print(listData!.length);
+                        List<List<dynamic>> rows = [];
+                        rows.add([
+                          "First Name",
+                          "Last Name",
+                          "Email Address",
+                          "Company",
+                          "Position",
+                          "Connection"
+                        ]);
+                        for (Connection connection in listData!) {
+                          rows.add([
+                            connection.firstname,
+                            connection.lastname,
+                            connection.email,
+                            connection.company,
+                            connection.position,
+                            connection.connection
+                          ]);
+                        }
+                        String csv = const ListToCsvConverter().convert(rows);
+                        Directory appDir =
+                            await getApplicationDocumentsDirectory();
+                        String appPath = appDir.path;
+                        print("app_path: $appPath/search_list.csv");
+                        File file = File("$appPath/search_list.csv");
+                        await file.writeAsString(csv);
+                        print("File exported successfully!");
+                      },
                       child: const Text('Export selected'),
                     )),
                   ],
