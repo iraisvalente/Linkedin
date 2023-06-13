@@ -162,7 +162,7 @@ Future<Count> uniquePositions() async {
 Future<List<Connection>?> connectionsPerUser(String connection) async {
   List<Connection>? connections = [];
   final response = await http
-      .get(Uri.parse('http://127.0.0.1:8000/user_connections/"$connection"'));
+      .get(Uri.parse('http://127.0.0.1:8000/user_connections/$connection'));
 
   if (response.statusCode == 200) {
     var responseJson = json.decode(response.body);
