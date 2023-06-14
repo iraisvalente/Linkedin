@@ -16,6 +16,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
   String path = "";
   Directory current = Directory.current;
 
+  List<dynamic> bardResult = [];
   List<DataRow> _rowList = [];
   List<DataRow> rows = [];
   List<TextEditingController> _controllerList = [];
@@ -177,44 +178,87 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   for (String company in companies) {
                     for (TextEditingController controller in _controllerList) {
                       print('WORK IN PROCESS');
-                      var comp=company.toString().toUpperCase().replaceAll("\n", " ");
-                      comp=comp.toString().toUpperCase().replaceAll(" ", "");
-                      comp=comp.trim();
+                      var comp = company
+                          .toString()
+                          .toUpperCase()
+                          .replaceAll("\n", " ");
+                      comp = comp.toString().toUpperCase().replaceAll(" ", "");
+                      comp = comp.trim();
                       var pos = controller.text.toString().toUpperCase();
                       print(comp);
                       print(pos);
                       print(script);
-                      var result = await Process.run("python",
-                          [script,comp ,pos ]);
+                      var result =
+                          await Process.run("python", [script, comp, pos]);
                       if (result.exitCode != 0) {
                         print("Erorr en bard");
                         print(result.stderr);
                       } else {
                         print('DONE');
                         print(result.stdout.toString());
+                        print(result.stdout.runtimeType);
+                        bardResult.add(result.stdout);
+                        for (var result in bardResult) {
+                          var personName;
+                          print('RESULTADO');
+                          personName = result.split(".")[0].toString();
+                          print(personName);
+                          List<dynamic> listResume =
+                              result.split(".").sublist(1);
+                          print(listResume);
+                          String resume = listResume.join(' ');
+                          print(resume);
+                          if (resume.contains(personName)) {
+                            print('encontrado');
+                            List<String> answer = [
+                              company,
+                              controller.text,
+                              personName,
+                              resume
+                            ];
+                            cells.add(DataCell(Text(answer[0])));
+                            cells.add(DataCell(Text(answer[1])));
+                            cells.add(DataCell(Text(answer[2])));
+                            cells.add(DataCell(Text(answer[3])));
+                            rows.add(DataRow(cells: cells));
+                          } else {
+                            print('no encontrado');
+                            List<String> answer = [
+                              company,
+                              controller.text,
+                              '',
+                              ''
+                            ];
+                            cells.add(DataCell(Text(answer[0])));
+                            cells.add(DataCell(Text(answer[1])));
+                            cells.add(DataCell(Text(answer[2])));
+                            cells.add(DataCell(Text(answer[3])));
+                            rows.add(DataRow(cells: cells));
+                          }
+                          cells = [];
+                        }
+                        bardResult = [];
+                        print(bardResult);
                       }
-                      List<String> answer = [
-                        company,
-                        controller.text,
-                        result.exitCode.toString()
-                      ];
-                      cells.add(DataCell(Text(answer[0])));
-                      cells.add(DataCell(Text(answer[1])));
-                      cells.add(DataCell(Text(answer[2])));
-                      rows.add(DataRow(cells: cells));
-                      cells = [];
+                      setState(() {
+                        rows;
+                      });
                     }
-                    setState(() {
-                      rows;
-                    });
                   }
                 },
                 child: Text('Submit')),
-            DataTable(columns: [
-              DataColumn(label: Text('Company')),
-              DataColumn(label: Text('Position')),
-              DataColumn(label: Text('Search')),
-            ], rows: rows),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: DataTable(columns: [
+                DataColumn(label: Text('Company')),
+                DataColumn(label: Text('Position')),
+                DataColumn(label: Text('Person')),
+                DataColumn(label: Text('Summary')),
+              ], rows: rows, dataRowHeight: 190),
+            ),
+            SizedBox(
+              height: 30,
+            ),
           ],
         ),
       ),
