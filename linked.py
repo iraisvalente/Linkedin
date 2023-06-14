@@ -122,7 +122,7 @@ def append(connection):
                         cur.execute(statement)
                         fetched= cur.fetchall()
                         if len(fetched) == 0:
-                            statement=f"Insert into connections Values('{FirstName.upper()}','{LastName.upper()}','{EmailAddress.upper()}','{Company.upper()}','{CompanyPosition.upper()}','{SOAConnection.upper()}')"
+                            statement=f"Insert into connections (First_Name,Last_Name,Email_Address,Company,Position,Connection) Values('{FirstName.upper()}','{LastName.upper()}','{EmailAddress.upper()}','{Company.upper()}','{CompanyPosition.upper()}','{SOAConnection.upper()}')"
                             print(statement)
                             cur.execute(statement)
                     except:

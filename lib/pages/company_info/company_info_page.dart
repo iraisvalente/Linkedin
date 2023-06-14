@@ -65,7 +65,8 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
     String search = conc.split("\n")[0];
     connections(company.text);
     String replacedText = search.replaceAll(" ", "+");
-    webViewSearchController.init(
+    alertConnectionFound(search);
+    /*webViewSearchController.init(
       context: context,
       setState: setState,
       uri: Uri.parse("https://google.com/search?q=$replacedText"),
@@ -76,13 +77,17 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
       setState: setState,
       uri: Uri.parse(
           "https://google.com/search?q=$replacedText+linkedin&btnI=I%27m+Feeling+Lucky&source=hp"),
-    );
+    );*/
   }
 
-  void alertConnectionFound() async {
-    String fullname = bardResult.split('\n')[0].replaceAll('.', '');
+  void alertConnectionFound(result) async {
+    print("On alert");
+    String fullname = result.split(".")[0].toString().toUpperCase();
     String firstname = fullname.split(' ')[0];
     String lastname = fullname.split(' ')[1];
+    print(firstname);
+    print(lastname);
+    print(company.text);
     Connection? searchConnection =
         await connection(firstname, lastname, company.text);
     if (searchConnection!.firstname != null &&
@@ -158,7 +163,6 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                     child: ElevatedButton(
                         onPressed: () {
                           bardSearch();
-                          alertConnectionFound();
                         },
                         child: Text('Search')),
                   ),
