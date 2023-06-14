@@ -177,11 +177,15 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   for (String company in companies) {
                     for (TextEditingController controller in _controllerList) {
                       print('WORK IN PROCESS');
-                      print(company);
-                      print(controller.text);
+                      var comp=company.toString().toUpperCase().replaceAll("\n", " ");
+                      comp=comp.toString().toUpperCase().replaceAll(" ", "");
+                      comp=comp.trim();
+                      var pos = controller.text.toString().toUpperCase();
+                      print(comp);
+                      print(pos);
                       print(script);
                       var result = await Process.run("python",
-                          [script, company.toString(), controller.text]);
+                          [script,comp ,pos ]);
                       if (result.exitCode != 0) {
                         print("Erorr en bard");
                         print(result.stderr);

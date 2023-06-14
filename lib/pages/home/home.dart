@@ -218,7 +218,7 @@ class _HomeState extends State<Home> {
 
                                 var result = await Process.run("python", [
                                   script,
-                                  "update",
+                                  "append",
                                   emailController.text.toString()
                                 ]);
                                 print(result.stdout);
