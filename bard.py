@@ -24,6 +24,9 @@ try:
 except:
     print(f"{sys.argv[1]}  {sys.argv[2]}")
 else:
-    response=requests.get(f"https://google.com/search?q={sys.argv[1]}+{sys.argv[2]}+linkedin&btnI=I%27m+Feeling+Lucky&source=hp")
-    link=response.text.split('a a <a href="')[1].split('"')[0]
-    print(f"Linked in link: {link}")
+    try:
+        response=requests.get(f"https://google.com/search?q={sys.argv[1]}+{sys.argv[2]}+linkedin&btnI=I%27m+Feeling+Lucky&source=hp")
+        link=response.text.split('a a <a href="')[1].split('"')[0]
+        print(f"Linked in link: {link}")
+    except:
+        pass
