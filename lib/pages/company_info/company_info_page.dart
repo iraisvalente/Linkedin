@@ -34,10 +34,9 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
     });
   }
 
-  Future<Connection?> connection(
-      String firstname, String lastname, String company) async {
+  Future<Connection?> connection(String firstname, String lastname) async {
     Connection? connection;
-    await bardConnection(Connection.bardSearch(firstname, lastname, company))
+    await bardConnection(Connection.bardSearch(firstname, lastname))
         .then((value) {
       connection = value;
     });
@@ -83,8 +82,7 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
     String fullname = bardResult.split('\n')[0].replaceAll('.', '');
     String firstname = fullname.split(' ')[0];
     String lastname = fullname.split(' ')[1];
-    Connection? searchConnection =
-        await connection(firstname, lastname, company.text);
+    Connection? searchConnection = await connection(firstname, lastname);
     if (searchConnection!.firstname != null &&
         searchConnection.lastname != null) {
       print('encontrado');

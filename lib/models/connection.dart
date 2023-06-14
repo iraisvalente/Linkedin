@@ -12,7 +12,7 @@ class Connection {
 
   Connection.commonConnection(this.connection, this.count);
 
-  Connection.bardSearch(this.firstname, this.lastname, this.company);
+  Connection.bardSearch(this.firstname, this.lastname);
 
   Connection.fromMap(dynamic obj) {
     firstname = obj['firstname'];

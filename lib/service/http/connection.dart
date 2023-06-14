@@ -163,7 +163,6 @@ Future<Connection?> bardConnection(Connection connection) async {
     body: jsonEncode(<String, String>{
       "First_Name": connection.firstname!,
       "Last_Name": connection.lastname!,
-      "Company": connection.company!,
     }),
   );
   if (response.statusCode == 200) {
