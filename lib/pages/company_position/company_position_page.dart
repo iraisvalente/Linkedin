@@ -68,39 +68,50 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
       children: [
         ElevatedButton(
             onPressed: () async {
-              List<List<dynamic>> rows = [];
-              rows.add([
-                "First Name",
-                "Last Name",
-                "Email Address",
-                "Company",
-                "Position",
-                "Connection"
-              ]);
-              for (String company in companies) {
-                var comp =
-                    company.toString().toUpperCase().replaceAll("\n", " ");
-                comp = comp.toString().toUpperCase().replaceAll(" ", "");
-                comp = comp.toString().toUpperCase().replaceAll('"', "");
-                comp = comp.trim();
-                List<Connection> conn = await connections(comp);
+              String? outputFile = await FilePicker.platform.saveFile(
+                dialogTitle: 'Select the folder to save the file:',
+                fileName: 'connections_list.csv',
+              );
 
-                for (Connection connection in conn) {
-                  rows.add([
-                    connection.firstname,
-                    connection.lastname,
-                    connection.email,
-                    connection.company,
-                    connection.position,
-                  ]);
+              if (outputFile == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('The file was not exported')),
+                );
+              } else {
+                List<List<dynamic>> rows = [];
+                rows.add([
+                  "First Name",
+                  "Last Name",
+                  "Email Address",
+                  "Company",
+                  "Position",
+                  "Connection"
+                ]);
+                for (String company in companies) {
+                  var comp =
+                      company.toString().toUpperCase().replaceAll("\n", " ");
+                  comp = comp.toString().toUpperCase().replaceAll(" ", "");
+                  comp = comp.toString().toUpperCase().replaceAll('"', "");
+                  comp = comp.trim();
+                  List<Connection> conn = await connections(comp);
+
+                  for (Connection connection in conn) {
+                    rows.add([
+                      connection.firstname,
+                      connection.lastname,
+                      connection.email,
+                      connection.company,
+                      connection.position,
+                    ]);
+                  }
                 }
+                String csv = const ListToCsvConverter().convert(rows);
+                File file = File(outputFile);
+                await file.writeAsString(csv);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('File exported successfully')),
+                );
               }
-              String csv = const ListToCsvConverter().convert(rows);
-              Directory appDir = await getApplicationDocumentsDirectory();
-              String appPath = appDir.path;
-              File file = File("$appPath/connections_list.csv");
-              await file.writeAsString(csv);
-              print("File exported successfully!");
             },
             child: Text('Export CSV')),
         SizedBox(
@@ -382,15 +393,17 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                               cells.add(DataCell(Text(answer[0])));
                               cells.add(DataCell(Text(answer[1])));
                               cells.add(DataCell(Text(answer[2])));
-                              cells.add(DataCell(TextField(
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
+                              cells.add(DataCell(SizedBox(
+                                width: 650,
+                                child: TextField(
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                  ),
+                                  keyboardType: TextInputType.multiline,
+                                  maxLines: 10,
+                                  controller:
+                                      TextEditingController(text: answer[3]),
                                 ),
-                                keyboardType: TextInputType.multiline,
-                                maxLines: 10,
-                                controller:
-                                    TextEditingController(text: answer[3]),
-                                enabled: false,
                               )));
                               cells.add(DataCell(ElevatedButton(
                                   child: Text('Open'),
@@ -472,13 +485,15 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   controller: scrollController,
-                  child: DataTable(columns: [
-                    DataColumn(label: Text('Company')),
-                    DataColumn(label: Text('Position')),
-                    DataColumn(label: Text('Person')),
-                    DataColumn(label: Text('Summary')),
-                    DataColumn(label: Text('Link to LinkedIn')),
-                  ], rows: rows, dataRowHeight: 190),
+                  child: Center(
+                    child: DataTable(columns: [
+                      DataColumn(label: Text('Company')),
+                      DataColumn(label: Text('Position')),
+                      DataColumn(label: Text('Person')),
+                      DataColumn(label: Text('Summary')),
+                      DataColumn(label: Text('Link to LinkedIn')),
+                    ], rows: rows, dataRowHeight: 190),
+                  ),
                 ),
               ),
             ),

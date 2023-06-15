@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:csv/csv.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
@@ -457,34 +458,44 @@ class _SearchPageState extends State<SearchPage> {
                     SizedBox(
                         child: ElevatedButton(
                       onPressed: () async {
-                        print(listData!.length);
-                        List<List<dynamic>> rows = [];
-                        rows.add([
-                          "First Name",
-                          "Last Name",
-                          "Email Address",
-                          "Company",
-                          "Position",
-                          "Connection"
-                        ]);
-                        for (Connection connection in listData!) {
+                        String? outputFile = await FilePicker.platform.saveFile(
+                          dialogTitle: 'Select the folder to save the file:',
+                          fileName: 'search_list.csv',
+                        );
+
+                        if (outputFile == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('The file was not exported')),
+                          );
+                        } else {
+                          List<List<dynamic>> rows = [];
                           rows.add([
-                            connection.firstname,
-                            connection.lastname,
-                            connection.email,
-                            connection.company,
-                            connection.position,
-                            connection.connection
+                            "First Name",
+                            "Last Name",
+                            "Email Address",
+                            "Company",
+                            "Position",
+                            "Connection"
                           ]);
+                          for (Connection connection in listData!) {
+                            rows.add([
+                              connection.firstname,
+                              connection.lastname,
+                              connection.email,
+                              connection.company,
+                              connection.position,
+                              connection.connection
+                            ]);
+                          }
+                          String csv = const ListToCsvConverter().convert(rows);
+                          File file = File(outputFile);
+                          await file.writeAsString(csv);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('File exported successfully')),
+                          );
                         }
-                        String csv = const ListToCsvConverter().convert(rows);
-                        Directory appDir =
-                            await getApplicationDocumentsDirectory();
-                        String appPath = appDir.path;
-                        print("app_path: $appPath/search_list.csv");
-                        File file = File("$appPath/search_list.csv");
-                        await file.writeAsString(csv);
-                        print("File exported successfully!");
                       },
                       child: const Text('Export selected'),
                     )),
