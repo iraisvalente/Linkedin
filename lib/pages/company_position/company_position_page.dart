@@ -225,7 +225,6 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
             ),
             ElevatedButton(
                 onPressed: () async {
-                  /*
                   setState(() {
                     rows = [];
                   });
@@ -249,6 +248,9 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                       if (result.exitCode != 0) {
                         print("Erorr en bard");
                         print(result.stderr);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Search failed')),
+                        );
                       } else {
                         print('DONE');
                         print(result.stdout.toString());
@@ -264,18 +266,23 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                           print(listResume);
                           String resume = listResume.join(' ');
                           print(resume);
+                          String linkedinLink =
+                              'https://www${listResume[listResume.length - 2]}.${listResume.last}';
+                          print(linkedinLink);
                           if (resume.contains(personName)) {
                             print('encontrado');
                             List<String> answer = [
                               company,
                               controller.text,
                               personName,
-                              resume
+                              resume,
+                              linkedinLink
                             ];
                             cells.add(DataCell(Text(answer[0])));
                             cells.add(DataCell(Text(answer[1])));
                             cells.add(DataCell(Text(answer[2])));
                             cells.add(DataCell(Text(answer[3])));
+                            cells.add(DataCell(Text(answer[4])));
                             rows.add(DataRow(cells: cells));
                           } else {
                             print('no encontrado');
@@ -283,12 +290,14 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                               company,
                               controller.text,
                               '',
+                              '',
                               ''
                             ];
                             cells.add(DataCell(Text(answer[0])));
                             cells.add(DataCell(Text(answer[1])));
                             cells.add(DataCell(Text(answer[2])));
                             cells.add(DataCell(Text(answer[3])));
+                            cells.add(DataCell(Text(answer[4])));
                             rows.add(DataRow(cells: cells));
                           }
                           cells = [];
@@ -300,7 +309,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                         rows;
                       });
                     }
-                  }*/
+                  }
                   positions = [];
                   for (TextEditingController controller in _controllerList) {
                     positions.add(controller.text);
@@ -309,6 +318,15 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   updatePosition();
                 },
                 child: Text('Submit')),
+            ElevatedButton(
+                onPressed: () {
+                  for (var result in bardResult) {
+                    var personName;
+                    personName = result.split(".")[0].toString();
+                    List<dynamic> listResume = result.split(".").sublist(1);
+                  }
+                },
+                child: Text('prueba')),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.8,
               child: DataTable(columns: [
@@ -316,6 +334,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                 DataColumn(label: Text('Position')),
                 DataColumn(label: Text('Person')),
                 DataColumn(label: Text('Summary')),
+                DataColumn(label: Text('Link to LinkedIn')),
               ], rows: rows, dataRowHeight: 190),
             ),
             SizedBox(
