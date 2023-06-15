@@ -26,6 +26,7 @@ class _RegisterState extends State<Register> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
   late Future reg;
+  bool checkbox = false;
 
   void saveCredentials(String email, String password) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -163,35 +164,73 @@ class _RegisterState extends State<Register> {
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 8, vertical: 16.0),
+                    child: Row(
+                      children: [
+                        Text(
+                          'By selecting "Register", you are confirming that you have read and agree the Privacy Policy.',
+                          style: TextStyle(
+                              fontSize: 17.0, color: Colors.grey.shade700),
+                        ), //Text
+                        SizedBox(width: 10),
+                        Checkbox(
+                          value: checkbox,
+                          onChanged: (value) {
+                            setState(() {
+                              checkbox = value!;
+                              print(checkbox);
+                            });
+                          },
+                        ), //Checkbox
+                      ], //<Widget>[]
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 16.0),
                     child: Center(
                       child: ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             if (passwordController.text ==
                                 confirmPasswordController.text) {
-                              try {
-                                User user = User(
-                                    firstnameController.text,
-                                    lastnameController.text,
-                                    emailController.text,
-                                    companyController.text,
-                                    positionController.text,
-                                    passwordController.text);
-                                reg = register(user);
-                                await reg.then((value) {
-                                  saveCredentials(emailController.text,
+                              if (checkbox) {
+                                try {
+                                  User user = User(
+                                      firstnameController.text,
+                                      lastnameController.text,
+                                      emailController.text,
+                                      companyController.text,
+                                      positionController.text,
                                       passwordController.text);
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (BuildContext context) =>
-                                              Home()));
-                                });
-                              } catch (e) {
+                                  reg = register(user);
+                                  await reg.then((value) {
+                                    saveCredentials(emailController.text,
+                                        passwordController.text);
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                Home()));
+                                  });
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            'There was a problem adding a user, please try again')),
+                                  );
+                                }
+                              } else {
+                                firstnameController.text = '';
+                                lastnameController.text = '';
+                                emailController.text = '';
+                                companyController.text = '';
+                                positionController.text = '';
+                                passwordController.text = '';
+                                confirmPasswordController.text = '';
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content: Text(
-                                          'There was a problem adding a user, please try again')),
+                                          'To register, you need to accept the Privacy Policy')),
                                 );
                               }
                             } else {
