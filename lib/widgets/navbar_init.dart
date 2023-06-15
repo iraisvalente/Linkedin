@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project/pages/about/about.dart';
 import 'package:project/widgets/navbar_button.dart';
 import 'package:project/widgets/navbar_item.dart';
 import 'package:project/pages/login/login.dart';
@@ -38,6 +39,18 @@ class _NavBarState extends State<NavBar> {
             context,
             PageRouteBuilder(
               pageBuilder: (_, __, ___) => Register(),
+              transitionDuration: Duration(seconds: 0),
+            ),
+          );
+        },
+      ),
+      NavBarItemRow(
+        text: 'About',
+        function: () {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (_, __, ___) => AboutPage(),
               transitionDuration: Duration(seconds: 0),
             ),
           );
