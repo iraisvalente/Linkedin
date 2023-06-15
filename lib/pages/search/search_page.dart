@@ -176,7 +176,6 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    allConnections();
     if (widget.connection != null) {
       firstnameController.text = widget.connection!.firstname!;
       lastnameController.text = widget.connection!.lastname!;
@@ -185,6 +184,7 @@ class _SearchPageState extends State<SearchPage> {
       positionController.text = widget.connection!.position!;
       connectedOnController.text = widget.connection!.connection!;
       print(widget.search);
+
       if (widget.search == false) {
         allFilters(Connection(
             firstnameController.text,
@@ -197,6 +197,8 @@ class _SearchPageState extends State<SearchPage> {
         valuefirst = widget.search!;
         filters();
       }
+    } else {
+      allConnections();
     }
   }
 

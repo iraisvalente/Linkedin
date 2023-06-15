@@ -1,7 +1,4 @@
-Notes:,,,,,
-"When exporting your connection data, you may notice that some of the email addresses are missing. You will only see email addresses for connections who have allowed their connections to see or download their email address using this setting https://www.linkedin.com/psettings/privacy/email. You can learn more here https://www.linkedin.com/help/linkedin/answer/261",,,,,
-,,,,,
-First Name,Last Name,Email Address,Company,Position,Connected On
+First_Name,Last_Name,Email_Address,Company,Position,Connection
 Gayathri,Srinivasa,,Sennovate,Cyber Security Consultant,12-Apr-23
 Uroosa,"Usmani, CPA",,"SOAProjects, Inc",SOX Compliance and Internal Audit,8-Apr-23
 Kayla,Lucia,,Okta,Corporate Sales Development Representative,3-Apr-23
