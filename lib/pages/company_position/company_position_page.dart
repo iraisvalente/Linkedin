@@ -26,6 +26,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
   List<TextEditingController> _controllerList = [];
   List<List<String>> _answerContent = [];
   List<Connection>? listData = [];
+  List<PaginatedDataTable> tables = [];
 
   Future<List<String>> readCsv(String path) async {
     final File file = File(path);
@@ -35,10 +36,35 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
     return lines;
   }
 
-  Future<void> connections(String company) async {
+  Future<List<Connection>> connections(String company) async {
+    List<Connection> connections = [];
     await searchConnection(company).then((value) {
       print(value);
+      connections = [];
+      connections = value!;
     });
+    return connections;
+  }
+
+  List<DataColumn> columns() {
+    return [
+      DataColumn(label: Text('Firstname')),
+      DataColumn(label: Text('Lastname')),
+      DataColumn(label: Text('Email Addres')),
+      DataColumn(label: Text('Company')),
+      DataColumn(label: Text('Position'))
+    ];
+  }
+
+  PaginatedDataTable table(DataTableSource table) {
+    return PaginatedDataTable(
+      source: table,
+      columns: columns(),
+      columnSpacing: 100,
+      horizontalMargin: 10,
+      rowsPerPage: 5,
+      showCheckboxColumn: false,
+    );
   }
 
   void _addRow(String? position) {
@@ -329,18 +355,20 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                 child: Text('Submit')),
             ElevatedButton(
                 onPressed: () async {
+                  tables = [];
                   List<String> companies = await readCsv(path);
                   for (String company in companies) {
                     print(company);
-                    var comp = company
-                        .toString()
-                        .toUpperCase()
-                        .replaceAll("\n", " ");
+                    var comp =
+                        company.toString().toUpperCase().replaceAll("\n", " ");
                     comp = comp.toString().toUpperCase().replaceAll(" ", "");
+                    comp = comp.toString().toUpperCase().replaceAll('"', "");
                     comp = comp.trim();
-                    //var pos = controller.text.toString().toUpperCase();
-
-                    await connections(comp);
+                    List<Connection> conn = await connections(comp);
+                    DataTableSource tableConnection = ConnectionsTable(conn);
+                    setState(() {
+                      tables.add(table(tableConnection));
+                    });
                   }
                 },
                 child: Text('Submit')),
@@ -357,9 +385,37 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
             SizedBox(
               height: 30,
             ),
+            Column(
+              children: tables,
+            )
           ],
         ),
       ),
     );
+  }
+}
+
+class ConnectionsTable extends DataTableSource {
+  final List<Connection> table;
+  ConnectionsTable(this.table) {
+    print('using table');
+    print(this.table.length);
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+  @override
+  int get rowCount => table.length;
+  @override
+  int get selectedRowCount => 0;
+  @override
+  DataRow getRow(int index) {
+    return DataRow(cells: [
+      DataCell(Text(table[index].firstname!)),
+      DataCell(Text(table[index].lastname!)),
+      DataCell(Text(table[index].email!)),
+      DataCell(Text(table[index].company!)),
+      DataCell(Text(table[index].position!))
+    ]);
   }
 }
