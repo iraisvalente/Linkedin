@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:project/models/connection.dart';
 import 'package:project/service/http/connection.dart';
 import 'package:project/service/json_service.dart';
@@ -44,6 +46,66 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
       connections = value!;
     });
     return connections;
+  }
+
+  void createTable() async {
+    List<String> companies = await readCsv(path);
+    for (String company in companies) {
+      var comp = company.toString().toUpperCase().replaceAll("\n", " ");
+      comp = comp.toString().toUpperCase().replaceAll(" ", "");
+      comp = comp.toString().toUpperCase().replaceAll('"', "");
+      comp = comp.trim();
+      List<Connection> conn = await connections(comp);
+      DataTableSource tableConnection = ConnectionsTable(conn);
+      setState(() {
+        tables.add(table(tableConnection));
+      });
+    }
+    tables.add(Column(
+      children: [
+        ElevatedButton(
+            onPressed: () async {
+              List<List<dynamic>> rows = [];
+              rows.add([
+                "First Name",
+                "Last Name",
+                "Email Address",
+                "Company",
+                "Position",
+                "Connection"
+              ]);
+              for (String company in companies) {
+                var comp =
+                    company.toString().toUpperCase().replaceAll("\n", " ");
+                comp = comp.toString().toUpperCase().replaceAll(" ", "");
+                comp = comp.toString().toUpperCase().replaceAll('"', "");
+                comp = comp.trim();
+                List<Connection> conn = await connections(comp);
+
+                for (Connection connection in conn) {
+                  rows.add([
+                    connection.firstname,
+                    connection.lastname,
+                    connection.email,
+                    connection.company,
+                    connection.position,
+                  ]);
+                }
+              }
+              String csv = const ListToCsvConverter().convert(rows);
+              Directory appDir = await getApplicationDocumentsDirectory();
+              String appPath = appDir.path;
+              print("app_path: $appPath/connections_list.csv");
+              File file = File("$appPath/connections_list.csv");
+              await file.writeAsString(csv);
+              print("File exported successfully!");
+            },
+            child: Text('Export CSV')),
+        SizedBox(
+          height: 30,
+        )
+      ],
+    ));
   }
 
   List<DataColumn> columns() {
@@ -272,12 +334,14 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                 onPressed: () async {
                   setState(() {
                     rows = [];
+                    tables = [];
                   });
                   List<DataCell> cells = [];
                   List companies = await readCsv(path);
                   for (String company in companies) {
                     for (TextEditingController controller in _controllerList) {
                       print('WORK IN PROCESS');
+
                       var comp = company
                           .toString()
                           .toUpperCase()
@@ -371,25 +435,6 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                       setState(() {
                         rows;
                       });
-                      tables = [];
-                      List<String> companies = await readCsv(path);
-                      for (String company in companies) {
-                        var comp = company
-                            .toString()
-                            .toUpperCase()
-                            .replaceAll("\n", " ");
-                        comp =
-                            comp.toString().toUpperCase().replaceAll(" ", "");
-                        comp =
-                            comp.toString().toUpperCase().replaceAll('"', "");
-                        comp = comp.trim();
-                        List<Connection> conn = await connections(comp);
-                        DataTableSource tableConnection =
-                            ConnectionsTable(conn);
-                        setState(() {
-                          tables.add(table(tableConnection));
-                        });
-                      }
                     }
                   }
                   positions = [];
@@ -398,6 +443,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   }
                   updatePosition();
                   updatePosition();
+                  createTable();
                 },
                 child: Text('Submit')),
             SizedBox(
