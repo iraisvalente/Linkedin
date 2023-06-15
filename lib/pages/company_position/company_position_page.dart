@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:project/service/json_service.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -19,6 +20,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
   List<dynamic> bardResult = [];
   List<DataRow> _rowList = [];
   List<DataRow> rows = [];
+  List<String> positions = [];
   List<TextEditingController> _controllerList = [];
   List<List<String>> _answerContent = [];
 
@@ -30,31 +32,83 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
     return lines;
   }
 
-  void _addRow() {
-    int index = _rowList.length;
-    TextEditingController controller = TextEditingController();
-    _controllerList.add(controller);
-    setState(() {
-      _rowList.add(DataRow(cells: <DataCell>[
-        DataCell(
-          TextFormField(
-            keyboardType: TextInputType.text,
-            controller: controller,
+  void _addRow(String? position) {
+    if (position == null) {
+      int index = _rowList.length;
+      TextEditingController controller = TextEditingController();
+      _controllerList.add(controller);
+      setState(() {
+        _rowList.add(DataRow(cells: <DataCell>[
+          DataCell(
+            TextFormField(
+              keyboardType: TextInputType.text,
+              controller: controller,
+            ),
           ),
-        ),
-        DataCell(Icon(Icons.delete), onTap: () {
-          _deleteRow(index);
-        }),
-      ]));
-    });
+          DataCell(Icon(Icons.delete), onTap: () {
+            _deleteRow(index);
+          }),
+        ]));
+      });
+    } else {
+      int index = _rowList.length;
+      TextEditingController controller = TextEditingController(text: position);
+      _controllerList.add(controller);
+      setState(() {
+        _rowList.add(DataRow(cells: <DataCell>[
+          DataCell(
+            TextFormField(
+              keyboardType: TextInputType.text,
+              controller: controller,
+            ),
+          ),
+          DataCell(Icon(Icons.delete), onTap: () {
+            _deleteRow(index);
+          }),
+        ]));
+      });
+    }
   }
 
   void _deleteRow(int index) {
     _rowList.removeAt(index);
+    _controllerList.removeAt(index);
     setState(() {
       print(index);
       _rowList;
+      _controllerList;
     });
+  }
+
+  void readPosition() async {
+    var jsonResponse = await JsonService()
+        .readJson('${current.path}/assets/json/positions.json');
+    if (jsonResponse != []) {
+      for (var position in jsonResponse) {
+        positions.add(position['position']);
+      }
+    }
+    if (positions.isNotEmpty) {
+      print(positions.length);
+      for (String position in positions) {
+        _addRow(position);
+      }
+    }
+  }
+
+  void updatePosition() async {
+    List<Map> positionsMap = [];
+    for (String position in positions) {
+      positionsMap.add({"position": position});
+    }
+    JsonService()
+        .updateJson('${current.path}/assets/json/positions.json', positionsMap);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    readPosition();
   }
 
   @override
@@ -159,7 +213,8 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                         height: 20,
                       ),
                       ElevatedButton(
-                          onPressed: _addRow, child: Text('Add position')),
+                          onPressed: () => _addRow(null),
+                          child: Text('Add position')),
                     ],
                   ),
                 ],
@@ -170,6 +225,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
             ),
             ElevatedButton(
                 onPressed: () async {
+                  /*
                   setState(() {
                     rows = [];
                   });
@@ -244,7 +300,13 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                         rows;
                       });
                     }
+                  }*/
+                  positions = [];
+                  for (TextEditingController controller in _controllerList) {
+                    positions.add(controller.text);
                   }
+                  updatePosition();
+                  updatePosition();
                 },
                 child: Text('Submit')),
             SizedBox(
