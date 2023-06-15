@@ -7,6 +7,7 @@ import 'package:project/widgets/navbar_inside.dart';
 import "package:webview_universal/webview_universal.dart";
 import 'package:project/models/connection.dart';
 import 'package:project/service/http/connection.dart';
+import 'package:string_similarity/string_similarity.dart';
 
 class CompanyInfoPage extends StatefulWidget {
   const CompanyInfoPage({super.key});
@@ -23,6 +24,8 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
   WebViewController webViewLinkedinController = WebViewController();
   List<Connection>? listData = [];
   Directory current = Directory.current;
+  String prueba = '';
+  String search = '';
 
   Future<void> connections(String company) async {
     await searchConnection(company).then((value) {
@@ -61,10 +64,12 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
     }
     conc = result.stdout.toString();
     bardResult = result.stdout.toString();
-    String search = conc.split("\n")[0];
-    connections(company.text);
+    search = conc.split("\n")[0];
     String replacedText = search.replaceAll(" ", "+");
     alertConnectionFound(search);
+    connections(company.text);
+
+    prueba = search;
     /*webViewSearchController.init(
       context: context,
       setState: setState,
@@ -80,7 +85,6 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
   }
 
   void alertConnectionFound(result) async {
-    print("On alert");
     String fullname = result.split(".")[0].toString().toUpperCase();
     String firstname = fullname.split(' ')[0];
     String lastname = fullname.split(' ')[1];
@@ -107,14 +111,28 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
 
   List<DataRow> rows() {
     List<DataRow> rowList = [];
+    String fullname = search.split(".")[0].toString().toUpperCase();
+    String firstname = fullname.split(' ')[0];
+    String lastname = fullname.split(' ')[1];
+
     for (int i = 0; i < listData!.length; i++) {
+      String linkedinLink = '';
+      if (listData![i].firstname!.toUpperCase().similarityTo(firstname) > 0.7 &&
+          listData![i].lastname!.toUpperCase().similarityTo(lastname) > 0.7) {
+        List<dynamic> listResume = bardResult.split(".").sublist(1);
+
+        linkedinLink =
+            'https://www${listResume[listResume.length - 2]}.${listResume.last}';
+        ;
+      }
       rowList.add(DataRow(cells: [
         DataCell(Text(listData![i].firstname!)),
         DataCell(Text(listData![i].lastname!)),
         DataCell(Text(listData![i].email!)),
         DataCell(Text(listData![i].company!)),
         DataCell(Text(listData![i].position!)),
-        DataCell(Text(listData![i].connection!))
+        DataCell(Text(listData![i].connection!)),
+        DataCell(SelectableText(linkedinLink)),
       ]));
     }
     return rowList;
@@ -168,12 +186,13 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                 ? Column(
                     children: [
                       SizedBox(
-                        height: 50,
+                        height: 30,
                       ),
                       SizedBox(
                         height: MediaQuery.of(context).size.height * 0.2,
                         width: MediaQuery.of(context).size.width * 0.8,
-                        child: SingleChildScrollView(child: Text(bardResult)),
+                        child: SingleChildScrollView(
+                            child: SelectableText(bardResult)),
                       ),
                       SizedBox(
                         height: 20,
@@ -185,6 +204,7 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                         DataColumn(label: Text('Company')),
                         DataColumn(label: Text('Position')),
                         DataColumn(label: Text('Connection')),
+                        DataColumn(label: Text('Link to LinkedIn'))
                       ], rows: rows()),
                       SizedBox(
                         height: 20,
@@ -199,7 +219,7 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                             "Email Address",
                             "Company",
                             "Position",
-                            "Connection"
+                            "Connection",
                           ]);
                           for (Connection connection in listData!) {
                             rows.add([
@@ -221,6 +241,7 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                         },
                         child: Text('Export to CSV'),
                       ),
+                      ElevatedButton(onPressed: () {}, child: Text('Prueba')),
                       SizedBox(
                         height: MediaQuery.of(context).size.height * 5,
                         width: MediaQuery.of(context).size.width,

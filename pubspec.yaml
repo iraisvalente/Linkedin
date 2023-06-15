@@ -51,6 +51,7 @@ dependencies:
   intl: ^0.18.1
   http: ^0.13.6
   webview_universal: ^0.0.4
+  string_similarity: ^2.0.0
 
 dev_dependencies:
   flutter_test:

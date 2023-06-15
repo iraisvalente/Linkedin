@@ -318,15 +318,6 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   updatePosition();
                 },
                 child: Text('Submit')),
-            ElevatedButton(
-                onPressed: () {
-                  for (var result in bardResult) {
-                    var personName;
-                    personName = result.split(".")[0].toString();
-                    List<dynamic> listResume = result.split(".").sublist(1);
-                  }
-                },
-                child: Text('prueba')),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.8,
               child: DataTable(columns: [
@@ -334,7 +325,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                 DataColumn(label: Text('Position')),
                 DataColumn(label: Text('Person')),
                 DataColumn(label: Text('Summary')),
-                DataColumn(label: Text('Link to LinkedIn')),
+                DataColumn(label: SelectableText('Link to LinkedIn')),
               ], rows: rows, dataRowHeight: 190),
             ),
             SizedBox(
