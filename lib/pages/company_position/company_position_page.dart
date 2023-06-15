@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:project/models/connection.dart';
+import 'package:project/service/http/connection.dart';
 import 'package:project/service/json_service.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:file_picker/file_picker.dart';
@@ -23,13 +25,20 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
   List<String> positions = [];
   List<TextEditingController> _controllerList = [];
   List<List<String>> _answerContent = [];
+  List<Connection>? listData = [];
 
-  Future readCsv(String path) async {
+  Future<List<String>> readCsv(String path) async {
     final File file = File(path);
     String contents = await file.readAsString();
     List<String> lines = contents.split('\n');
     lines.removeLast();
     return lines;
+  }
+
+  Future<void> connections(String company) async {
+    await searchConnection(company).then((value) {
+      print(value);
+    });
   }
 
   void _addRow(String? position) {
@@ -316,6 +325,15 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   }
                   updatePosition();
                   updatePosition();
+                },
+                child: Text('Submit')),
+            ElevatedButton(
+                onPressed: () async {
+                  List<String> companies = await readCsv(path);
+                  for (String company in companies) {
+                    print(company);
+                    await connections(company.toString());
+                  }
                 },
                 child: Text('Submit')),
             SizedBox(
