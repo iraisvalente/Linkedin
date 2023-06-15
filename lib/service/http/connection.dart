@@ -63,8 +63,6 @@ Future<List<Connection>?> searchConnection(String company) async {
   List<Connection>? connections = [];
   final response =
       await http.get(Uri.parse('http://127.0.0.1:8000/connections/$company'));
-  print('http://127.0.0.1:8000/connections/${company}');
-  print(response.body);
   try {
     var responseJson = json.decode(response.body);
     for (final response in responseJson) {

@@ -19,13 +19,14 @@ class CompanyInfoPage extends StatefulWidget {
 class _CompanyInfoPageState extends State<CompanyInfoPage> {
   TextEditingController company = TextEditingController();
   TextEditingController position = TextEditingController();
-  String bardResult = '';
+  ScrollController scrollController = ScrollController();
   WebViewController webViewSearchController = WebViewController();
   WebViewController webViewLinkedinController = WebViewController();
   List<Connection>? listData = [];
   Directory current = Directory.current;
   String prueba = '';
   String search = '';
+  String bardResult = '';
 
   Future<void> connections(String company) async {
     await searchConnection(company).then((value) {
@@ -81,7 +82,18 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
       setState: setState,
       uri: Uri.parse(
           "https://google.com/search?q=$replacedText+linkedin&btnI=I%27m+Feeling+Lucky&source=hp"),
-    );*/
+    );
+    SizedBox(
+      child: WebView(
+        controller: webViewSearchController,
+      ),
+    ),
+    SizedBox(
+      child: WebView(
+        controller: webViewLinkedinController,
+      ),
+    ),
+    */
   }
 
   void alertConnectionFound(result) async {
@@ -197,15 +209,20 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                       SizedBox(
                         height: 20,
                       ),
-                      DataTable(columns: [
-                        DataColumn(label: Text('First Name')),
-                        DataColumn(label: Text('Last Name')),
-                        DataColumn(label: Text('Email Address')),
-                        DataColumn(label: Text('Company')),
-                        DataColumn(label: Text('Position')),
-                        DataColumn(label: Text('Connection')),
-                        DataColumn(label: Text('Link to LinkedIn'))
-                      ], rows: rows()),
+                      Scrollbar(
+                          controller: scrollController,
+                          child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              controller: scrollController,
+                              child: DataTable(columns: [
+                                DataColumn(label: Text('First Name')),
+                                DataColumn(label: Text('Last Name')),
+                                DataColumn(label: Text('Email Address')),
+                                DataColumn(label: Text('Company')),
+                                DataColumn(label: Text('Position')),
+                                DataColumn(label: Text('Connection')),
+                                DataColumn(label: Text('Link to LinkedIn'))
+                              ], rows: rows()))),
                       SizedBox(
                         height: 20,
                       ),
@@ -240,21 +257,6 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                           print("File exported successfully!");
                         },
                         child: Text('Export to CSV'),
-                      ),
-                      ElevatedButton(onPressed: () {}, child: Text('Prueba')),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 5,
-                        width: MediaQuery.of(context).size.width,
-                        child: WebView(
-                          controller: webViewSearchController,
-                        ),
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 5,
-                        width: MediaQuery.of(context).size.width,
-                        child: WebView(
-                          controller: webViewLinkedinController,
-                        ),
                       ),
                     ],
                   )

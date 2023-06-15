@@ -382,7 +382,16 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                               cells.add(DataCell(Text(answer[0])));
                               cells.add(DataCell(Text(answer[1])));
                               cells.add(DataCell(Text(answer[2])));
-                              cells.add(DataCell(Text(answer[3])));
+                              cells.add(DataCell(TextField(
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                ),
+                                keyboardType: TextInputType.multiline,
+                                maxLines: 10,
+                                controller:
+                                    TextEditingController(text: answer[3]),
+                                enabled: false,
+                              )));
                               cells.add(DataCell(ElevatedButton(
                                   child: Text('Open'),
                                   onPressed: () async {
@@ -459,16 +468,18 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.9,
               child: Scrollbar(
-                thumbVisibility: true,
-                trackVisibility: true,
                 controller: scrollController,
-                child: DataTable(columns: [
-                  DataColumn(label: Text('Company')),
-                  DataColumn(label: Text('Position')),
-                  DataColumn(label: Text('Person')),
-                  DataColumn(label: Text('Summary')),
-                  DataColumn(label: Text('Link to LinkedIn')),
-                ], rows: rows, dataRowHeight: 190),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  controller: scrollController,
+                  child: DataTable(columns: [
+                    DataColumn(label: Text('Company')),
+                    DataColumn(label: Text('Position')),
+                    DataColumn(label: Text('Person')),
+                    DataColumn(label: Text('Summary')),
+                    DataColumn(label: Text('Link to LinkedIn')),
+                  ], rows: rows, dataRowHeight: 190),
+                ),
               ),
             ),
             SizedBox(
