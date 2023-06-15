@@ -26,7 +26,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
   List<TextEditingController> _controllerList = [];
   List<List<String>> _answerContent = [];
   List<Connection>? listData = [];
-  List<PaginatedDataTable> tables = [];
+  List<Column> tables = [];
 
   Future<List<String>> readCsv(String path) async {
     final File file = File(path);
@@ -56,14 +56,24 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
     ];
   }
 
-  PaginatedDataTable table(DataTableSource table) {
-    return PaginatedDataTable(
-      source: table,
-      columns: columns(),
-      columnSpacing: 100,
-      horizontalMargin: 10,
-      rowsPerPage: 5,
-      showCheckboxColumn: false,
+  Column table(DataTableSource table) {
+    return Column(
+      children: [
+        Container(
+          margin: EdgeInsets.all(30),
+          child: PaginatedDataTable(
+            source: table,
+            columns: columns(),
+            columnSpacing: 100,
+            horizontalMargin: 10,
+            rowsPerPage: 5,
+            showCheckboxColumn: false,
+          ),
+        ),
+        SizedBox(
+          height: 20,
+        )
+      ],
     );
   }
 
@@ -273,6 +283,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                           .toUpperCase()
                           .replaceAll("\n", " ");
                       comp = comp.toString().toUpperCase().replaceAll(" ", "");
+                      comp = comp.toString().toUpperCase().replaceAll('"', "");
                       comp = comp.trim();
                       var pos = controller.text.toString().toUpperCase();
                       print(comp);
@@ -301,31 +312,47 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                           print(listResume);
                           String resume = listResume.join(' ');
                           print(resume);
-                          String linkedinLink =
-                              'https://www${listResume[listResume.length - 2]}.${listResume.last}';
-                          print(linkedinLink);
-                          if (resume.contains(personName)) {
-                            print('encontrado');
+                          try {
+                            String linkedinLink =
+                                'https://www${listResume[listResume.length - 2]}.${listResume.last}';
+                            print(linkedinLink);
+                            if (resume.contains(personName)) {
+                              print('encontrado');
+                              List<String> answer = [
+                                company,
+                                controller.text,
+                                personName,
+                                resume,
+                                linkedinLink
+                              ];
+                              cells.add(DataCell(Text(answer[0])));
+                              cells.add(DataCell(Text(answer[1])));
+                              cells.add(DataCell(Text(answer[2])));
+                              cells.add(DataCell(Text(answer[3])));
+                              cells.add(DataCell(Text(answer[4])));
+                              rows.add(DataRow(cells: cells));
+                            } else {
+                              print('no encontrado');
+                              List<String> answer = [
+                                company,
+                                controller.text,
+                                '',
+                                '',
+                                ''
+                              ];
+                              cells.add(DataCell(Text(answer[0])));
+                              cells.add(DataCell(Text(answer[1])));
+                              cells.add(DataCell(Text(answer[2])));
+                              cells.add(DataCell(Text(answer[3])));
+                              cells.add(DataCell(Text(answer[4])));
+                              rows.add(DataRow(cells: cells));
+                            }
+                          } catch (e) {
                             List<String> answer = [
                               company,
                               controller.text,
                               personName,
                               resume,
-                              linkedinLink
-                            ];
-                            cells.add(DataCell(Text(answer[0])));
-                            cells.add(DataCell(Text(answer[1])));
-                            cells.add(DataCell(Text(answer[2])));
-                            cells.add(DataCell(Text(answer[3])));
-                            cells.add(DataCell(Text(answer[4])));
-                            rows.add(DataRow(cells: cells));
-                          } else {
-                            print('no encontrado');
-                            List<String> answer = [
-                              company,
-                              controller.text,
-                              '',
-                              '',
                               ''
                             ];
                             cells.add(DataCell(Text(answer[0])));
@@ -335,6 +362,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                             cells.add(DataCell(Text(answer[4])));
                             rows.add(DataRow(cells: cells));
                           }
+
                           cells = [];
                         }
                         bardResult = [];
@@ -343,6 +371,25 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                       setState(() {
                         rows;
                       });
+                      tables = [];
+                      List<String> companies = await readCsv(path);
+                      for (String company in companies) {
+                        var comp = company
+                            .toString()
+                            .toUpperCase()
+                            .replaceAll("\n", " ");
+                        comp =
+                            comp.toString().toUpperCase().replaceAll(" ", "");
+                        comp =
+                            comp.toString().toUpperCase().replaceAll('"', "");
+                        comp = comp.trim();
+                        List<Connection> conn = await connections(comp);
+                        DataTableSource tableConnection =
+                            ConnectionsTable(conn);
+                        setState(() {
+                          tables.add(table(tableConnection));
+                        });
+                      }
                     }
                   }
                   positions = [];
@@ -351,25 +398,6 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   }
                   updatePosition();
                   updatePosition();
-                },
-                child: Text('Submit')),
-            ElevatedButton(
-                onPressed: () async {
-                  tables = [];
-                  List<String> companies = await readCsv(path);
-                  for (String company in companies) {
-                    print(company);
-                    var comp =
-                        company.toString().toUpperCase().replaceAll("\n", " ");
-                    comp = comp.toString().toUpperCase().replaceAll(" ", "");
-                    comp = comp.toString().toUpperCase().replaceAll('"', "");
-                    comp = comp.trim();
-                    List<Connection> conn = await connections(comp);
-                    DataTableSource tableConnection = ConnectionsTable(conn);
-                    setState(() {
-                      tables.add(table(tableConnection));
-                    });
-                  }
                 },
                 child: Text('Submit')),
             SizedBox(
