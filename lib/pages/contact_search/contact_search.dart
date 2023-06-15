@@ -4,29 +4,37 @@ import 'package:flutter/material.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ImportContactSearchPage extends StatefulWidget {
-
   ImportContactSearchPage({super.key});
-
 
   @override
   State<ImportContactSearchPage> createState() =>
       _ImportContactSearchPageState();
-
 }
 
 class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
   String fileName = "No file chosen";
   String path = "";
   Directory current = Directory.current;
-  String conecction = "aroa@soaprojects.com";
+  String conecction = "";
 
+  void getCredentials() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    conecction = prefs.getString('email')!;
+  }
 
+  @override
+  void initState() {
+    super.initState();
+    getCredentials();
+  }
 
   @override
   Widget build(BuildContext context) {
-    String script= current.absolute.uri.toString().split("file:///")[1]+"linked.py";
+    String script =
+        current.absolute.uri.toString().split("file:///")[1] + "linked.py";
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -119,19 +127,16 @@ class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
                       //await appDocDirFolder.create(recursive: true);
                       //File('${appDocDirFolder.path}/$fileName')
                       //    .create(recursive: true);
-                      var result = await Process.run("python", [
-                        script,
-                        "Copy",
-                        path
-                      ]);
+                      var result =
+                          await Process.run("python", [script, "Copy", path]);
                       print(script);
                       print(path);
                       print(fileName);
                       print(result.stdout);
-                      result = await Process.run("python", [
-                        script,
-                        "append",conecction
-                      ]);
+
+                      result = await Process.run(
+                          "python", [script, "append", conecction]);
+
                       print(result.stdout);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
