@@ -332,7 +332,15 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   List<String> companies = await readCsv(path);
                   for (String company in companies) {
                     print(company);
-                    await connections(company.toString());
+                    var comp = company
+                        .toString()
+                        .toUpperCase()
+                        .replaceAll("\n", " ");
+                    comp = comp.toString().toUpperCase().replaceAll(" ", "");
+                    comp = comp.trim();
+                    //var pos = controller.text.toString().toUpperCase();
+
+                    await connections(comp);
                   }
                 },
                 child: Text('Submit')),

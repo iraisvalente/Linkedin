@@ -29,4 +29,4 @@ else:
         link=response.text.split('a a <a href="')[1].split('"')[0]
         print(f"Linked in link: {link}")
     except:
-        pass
+        print(f"")
