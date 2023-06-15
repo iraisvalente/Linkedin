@@ -8,6 +8,8 @@ import 'package:project/service/http/connection.dart';
 import 'package:project/service/json_service.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
+import "package:webview_universal/webview_universal.dart";
 
 class CompanyPositionPage extends StatefulWidget {
   const CompanyPositionPage({super.key});
@@ -20,6 +22,8 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
   String fileName = "No file chosen";
   String path = "";
   Directory current = Directory.current;
+  ScrollController scrollController = ScrollController();
+  WebViewController webViewLinkedinController = WebViewController();
 
   List<dynamic> bardResult = [];
   List<DataRow> _rowList = [];
@@ -41,7 +45,6 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
   Future<List<Connection>> connections(String company) async {
     List<Connection> connections = [];
     await searchConnection(company).then((value) {
-      print(value);
       connections = [];
       connections = value!;
     });
@@ -95,7 +98,6 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
               String csv = const ListToCsvConverter().convert(rows);
               Directory appDir = await getApplicationDocumentsDirectory();
               String appPath = appDir.path;
-              print("app_path: $appPath/connections_list.csv");
               File file = File("$appPath/connections_list.csv");
               await file.writeAsString(csv);
               print("File exported successfully!");
@@ -181,7 +183,6 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
     _rowList.removeAt(index);
     _controllerList.removeAt(index);
     setState(() {
-      print(index);
       _rowList;
       _controllerList;
     });
@@ -196,7 +197,6 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
       }
     }
     if (positions.isNotEmpty) {
-      print(positions.length);
       for (String position in positions) {
         _addRow(position);
       }
@@ -229,7 +229,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
             NavBar(),
             Container(
               margin: EdgeInsets.only(
-                  top: MediaQuery.of(context).size.width * 0.05,
+                  top: MediaQuery.of(context).size.width * 0.02,
                   left: MediaQuery.of(context).size.width * 0.20,
                   right: MediaQuery.of(context).size.width * 0.20),
               child: Row(
@@ -341,7 +341,6 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   for (String company in companies) {
                     for (TextEditingController controller in _controllerList) {
                       print('WORK IN PROCESS');
-
                       var comp = company
                           .toString()
                           .toUpperCase()
@@ -356,32 +355,23 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                       var result =
                           await Process.run("python", [script, comp, pos]);
                       if (result.exitCode != 0) {
-                        print("Erorr en bard");
-                        print(result.stderr);
+                        print("Error en bard");
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Search failed')),
                         );
                       } else {
                         print('DONE');
-                        print(result.stdout.toString());
-                        print(result.stdout.runtimeType);
                         bardResult.add(result.stdout);
                         for (var result in bardResult) {
                           var personName;
-                          print('RESULTADO');
                           personName = result.split(".")[0].toString();
-                          print(personName);
                           List<dynamic> listResume =
                               result.split(".").sublist(1);
-                          print(listResume);
                           String resume = listResume.join(' ');
-                          print(resume);
                           try {
                             String linkedinLink =
-                                'https://www${listResume[listResume.length - 2]}.${listResume.last}';
-                            print(linkedinLink);
+                                'https://www.${listResume[listResume.length - 2]}.${listResume.last}';
                             if (resume.contains(personName)) {
-                              print('encontrado');
                               List<String> answer = [
                                 company,
                                 controller.text,
@@ -393,10 +383,28 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                               cells.add(DataCell(Text(answer[1])));
                               cells.add(DataCell(Text(answer[2])));
                               cells.add(DataCell(Text(answer[3])));
-                              cells.add(DataCell(Text(answer[4])));
+                              cells.add(DataCell(ElevatedButton(
+                                  child: Text('Open'),
+                                  onPressed: () async {
+                                    webViewLinkedinController.init(
+                                      context: context,
+                                      setState: setState,
+                                      uri: Uri.parse(answer[4].trim()),
+                                    );
+                                    print(answer[4].trim());
+                                    SizedBox(
+                                      child: WebView(
+                                        controller: webViewLinkedinController,
+                                      ),
+                                    );
+                                    /*final Uri url = Uri.parse(answer[4].trim());
+                                    print(url);
+                                    if (!await launchUrl(url)) {
+                                      throw Exception('Could not launch $url');
+                                    }*/
+                                  })));
                               rows.add(DataRow(cells: cells));
                             } else {
-                              print('no encontrado');
                               List<String> answer = [
                                 company,
                                 controller.text,
@@ -430,7 +438,6 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                           cells = [];
                         }
                         bardResult = [];
-                        print(bardResult);
                       }
                       setState(() {
                         rows;
@@ -447,14 +454,22 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                 },
                 child: Text('Submit')),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8,
-              child: DataTable(columns: [
-                DataColumn(label: Text('Company')),
-                DataColumn(label: Text('Position')),
-                DataColumn(label: Text('Person')),
-                DataColumn(label: Text('Summary')),
-                DataColumn(label: SelectableText('Link to LinkedIn')),
-              ], rows: rows, dataRowHeight: 190),
+              height: 30,
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.9,
+              child: Scrollbar(
+                thumbVisibility: true,
+                trackVisibility: true,
+                controller: scrollController,
+                child: DataTable(columns: [
+                  DataColumn(label: Text('Company')),
+                  DataColumn(label: Text('Position')),
+                  DataColumn(label: Text('Person')),
+                  DataColumn(label: Text('Summary')),
+                  DataColumn(label: Text('Link to LinkedIn')),
+                ], rows: rows, dataRowHeight: 190),
+              ),
             ),
             SizedBox(
               height: 30,
@@ -471,10 +486,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
 
 class ConnectionsTable extends DataTableSource {
   final List<Connection> table;
-  ConnectionsTable(this.table) {
-    print('using table');
-    print(this.table.length);
-  }
+  ConnectionsTable(this.table);
 
   @override
   bool get isRowCountApproximate => false;

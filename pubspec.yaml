@@ -52,6 +52,9 @@ dependencies:
   http: ^0.13.6
   webview_universal: ^0.0.4
   string_similarity: ^2.0.0
+  desktop_multi_window: ^0.2.0
+  desktop_lifecycle: ^0.1.1
+  url_launcher: ^6.1.11
 
 dev_dependencies:
   flutter_test:
