@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:project/widgets/navbar_inside.dart';
+import 'package:url_launcher/url_launcher.dart';
 import "package:webview_universal/webview_universal.dart";
 import 'package:project/models/connection.dart';
 import 'package:project/service/http/connection.dart';
@@ -135,8 +136,8 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
         List<dynamic> listResume = bardResult.split(".").sublist(1);
 
         linkedinLink =
-            'https://www${listResume[listResume.length - 2]}.${listResume.last}';
-        ;
+            'https://www.${listResume[listResume.length - 2]}.${listResume.last}'
+                .trim();
       }
       rowList.add(DataRow(cells: [
         DataCell(Text(listData![i].firstname!)),
@@ -145,7 +146,15 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
         DataCell(Text(listData![i].company!)),
         DataCell(Text(listData![i].position!)),
         DataCell(Text(listData![i].connection!)),
-        DataCell(SelectableText(linkedinLink)),
+        DataCell(TextButton(
+          onPressed: () async {
+            final Uri url = Uri.parse(linkedinLink);
+            if (!await launchUrl(url)) {
+              throw Exception('Could not launch $url');
+            }
+          },
+          child: Text(linkedinLink),
+        )),
       ]));
     }
     return rowList;

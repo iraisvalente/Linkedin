@@ -405,25 +405,13 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                                       TextEditingController(text: answer[3]),
                                 ),
                               )));
-                              cells.add(DataCell(ElevatedButton(
-                                  child: Text('Open'),
+                              cells.add(DataCell(TextButton(
+                                  child: Text(answer[4].trim()),
                                   onPressed: () async {
-                                    webViewLinkedinController.init(
-                                      context: context,
-                                      setState: setState,
-                                      uri: Uri.parse(answer[4].trim()),
-                                    );
-                                    print(answer[4].trim());
-                                    SizedBox(
-                                      child: WebView(
-                                        controller: webViewLinkedinController,
-                                      ),
-                                    );
-                                    /*final Uri url = Uri.parse(answer[4].trim());
-                                    print(url);
+                                    final Uri url = Uri.parse(answer[4].trim());
                                     if (!await launchUrl(url)) {
                                       throw Exception('Could not launch $url');
-                                    }*/
+                                    }
                                   })));
                               rows.add(DataRow(cells: cells));
                             } else {
