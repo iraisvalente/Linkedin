@@ -61,41 +61,27 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
         await Process.run("python", [script, company.text, position.text]);
     if (result.exitCode != 0) {
       print("Erorr en bard");
+      print(result.exitCode);
+      if (result.exitCode == 1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Secure-1PSID ::: Invalid')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error searching with bard')),
+        );
+      }
     } else {
       print('DONE');
       print(result.stdout.toString());
+      conc = result.stdout.toString();
+      bardResult = result.stdout.toString();
+      search = conc.split("\n")[0];
+      String replacedText = search.replaceAll(" ", "+");
+      alertConnectionFound(search);
+      connections(company.text);
+      prueba = search;
     }
-    conc = result.stdout.toString();
-    bardResult = result.stdout.toString();
-    search = conc.split("\n")[0];
-    String replacedText = search.replaceAll(" ", "+");
-    alertConnectionFound(search);
-    connections(company.text);
-
-    prueba = search;
-    /*webViewSearchController.init(
-      context: context,
-      setState: setState,
-      uri: Uri.parse("https://google.com/search?q=$replacedText"),
-    );
-    replacedText = search.replaceAll(".", "");
-    webViewLinkedinController.init(
-      context: context,
-      setState: setState,
-      uri: Uri.parse(
-          "https://google.com/search?q=$replacedText+linkedin&btnI=I%27m+Feeling+Lucky&source=hp"),
-    );
-    SizedBox(
-      child: WebView(
-        controller: webViewSearchController,
-      ),
-    ),
-    SizedBox(
-      child: WebView(
-        controller: webViewLinkedinController,
-      ),
-    ),
-    */
   }
 
   void alertConnectionFound(result) async {
