@@ -5,7 +5,7 @@ cookie="Xwj3gSD38KvVzyxHFGXiBu80aR-cmKx-CFQRZwEyLtTK9-BDdshhv8vPO2iSXXUvizvgZA."
 
 from bardapi import Bard
 
-
+name=""
 token = cookie
 question = f"{sys.argv[1]}  {sys.argv[2]}"
 try:
@@ -30,8 +30,13 @@ except:
     print(f"{sys.argv[1]}  {sys.argv[2]}")
 else:
     try:
-        response=requests.get(f"https://google.com/search?q={sys.argv[1]}+{sys.argv[2]}+linkedin&btnI=I%27m+Feeling+Lucky&source=hp")
-        link=response.text.split('a a <a href="')[1].split('"')[0]
+        name=name[0].split(" ")
+        name= '+'.join(x for x in name)[1:]
+        search= f"https://google.com/search?q={name}+linkedin&btnI=I%27m+Feeling+Lucky&source=hp"
+        #print(search)
+        response=requests.get(search)
+        #print(response.text)
+        link=response.text.split('<a href="')[1].split('"')[0]
         print(f"Linked in link: {link}")
     except:
         print(f"")

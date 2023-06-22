@@ -49,7 +49,7 @@ dependencies:
   dart_mysql: ^0.0.1
   path_provider: ^2.0.15
   intl: ^0.18.1
-  http: ^0.13.6
+  http: ^1.0.0
   webview_universal: ^0.0.4
   string_similarity: ^2.0.0
   desktop_multi_window: ^0.2.0
