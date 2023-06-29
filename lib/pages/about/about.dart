@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import '../../widgets/navbar_init.dart';
+import 'package:project/widgets/navbar_init.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});

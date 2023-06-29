@@ -106,6 +106,9 @@ class _HomeState extends State<Home> {
                                         emailController.text.toString(),
                                         passwordController.text.toString()));
                                 print(result!.result);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Process done')),
+                                );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -138,6 +141,11 @@ class _HomeState extends State<Home> {
                                         emailController.text.toString(),
                                         passwordController.text.toString()));
                                 print(result!.result);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('Data downloaded successfully')),
+                                );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -168,6 +176,11 @@ class _HomeState extends State<Home> {
                                 LinkedResult? result =
                                     await linkedService.extract();
                                 print(result.result);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('File extracted successfully')),
+                                );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -199,6 +212,10 @@ class _HomeState extends State<Home> {
                                     await linkedService.append(Linked(
                                         emailController.text.toString(), null));
                                 print(result!.result);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('Saved in the database')),
+                                );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
