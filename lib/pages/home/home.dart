@@ -1,6 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:project/models/linked.dart';
+import 'package:project/models/linked_result.dart';
+import 'package:project/service/http/linked.dart';
 import 'package:project/widgets/navbar_inside.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,7 +17,7 @@ class _HomeState extends State<Home> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  Directory current = Directory.current;
+  LinkedService linkedService = LinkedService();
 
   void getCredentials() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -34,8 +35,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    String script = current.absolute.uri.toString() + "linked.py";
-    script = script.split("file:///")[1];
     return Scaffold(
         body: SingleChildScrollView(
       child: Column(
@@ -102,15 +101,11 @@ class _HomeState extends State<Home> {
                               if (_formKey.currentState!.validate()) {
                                 print(emailController.text.toString());
                                 print(passwordController.text.toString());
-                                print(script);
-
-                                var result = await Process.run("python", [
-                                  script,
-                                  emailController.text.toString(),
-                                  passwordController.text.toString(),
-                                  "choice"
-                                ]);
-                                print(result.stdout);
+                                LinkedResult? result =
+                                    await linkedService.choice(Linked(
+                                        emailController.text.toString(),
+                                        passwordController.text.toString()));
+                                print(result!.result);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -138,24 +133,11 @@ class _HomeState extends State<Home> {
                               if (_formKey.currentState!.validate()) {
                                 print(emailController.text.toString());
                                 print(passwordController.text.toString());
-                                print(script);
-
-                                var result = await Process.run("python", [
-                                  script,
-                                  emailController.text.toString(),
-                                  passwordController.text.toString(),
-                                  "download",
-                                ]);
-                                print(result.stdout);
-                                result = await Process.run(
-                                    "python", [script, "extract"]);
-                                print(result.stdout);
-                                result = await Process.run("python", [
-                                  script,
-                                  "append",
-                                  emailController.text.toString()
-                                ]);
-                                print(result.stdout);
+                                LinkedResult? result =
+                                    await linkedService.download(Linked(
+                                        emailController.text.toString(),
+                                        passwordController.text.toString()));
+                                print(result!.result);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -183,10 +165,9 @@ class _HomeState extends State<Home> {
                               if (_formKey.currentState!.validate()) {
                                 print(emailController.text.toString());
                                 print(passwordController.text.toString());
-
-                                var result = await Process.run(
-                                    "python", [script, "extract"]);
-                                print(result.stdout);
+                                LinkedResult? result =
+                                    await linkedService.extract();
+                                print(result.result);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -214,14 +195,10 @@ class _HomeState extends State<Home> {
                               if (_formKey.currentState!.validate()) {
                                 print(emailController.text.toString());
                                 print(passwordController.text.toString());
-                                //print(script);
-
-                                var result = await Process.run("python", [
-                                  script,
-                                  "append",
-                                  emailController.text.toString()
-                                ]);
-                                print(result.stdout);
+                                LinkedResult? result =
+                                    await linkedService.append(Linked(
+                                        emailController.text.toString(), null));
+                                print(result!.result);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(

@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:project/models/answer_bard.dart';
+import 'package:project/models/ask_bard.dart';
+import 'package:project/service/http/bard.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:url_launcher/url_launcher.dart';
 import "package:webview_universal/webview_universal.dart";
@@ -29,6 +31,7 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
   String prueba = '';
   String search = '';
   String bardResult = '';
+  BardService bardService = BardService();
 
   Future<void> connections(String company) async {
     await searchConnection(company).then((value) {
@@ -50,34 +53,18 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
   }
 
   void bardSearch() async {
-    String script = current.absolute.uri.toString() + "bard.py";
-    script = script.split("file:///")[1];
-    print('WORK IN PROGRESS');
-    String conc = '${company.text}+${position.text}';
-    print(company.text);
-    print(position.text);
-    print(script);
-    var result =
-        await Process.run("python", [script, company.text, position.text]);
-    if (result.exitCode != 0) {
-      print("Erorr en bard");
-      print(result.exitCode);
-      if (result.exitCode == 1) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Secure-1PSID ::: Invalid')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error searching with bard')),
-        );
-      }
+    AnswerBard? result =
+        await bardService.askBard(AskBard(company.text, position.text));
+    if (result!.answer.contains('Secure-1PSID') ||
+        result.answer.contains('Error')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result.answer)),
+      );
     } else {
       print('DONE');
-      print(result.stdout.toString());
-      conc = result.stdout.toString();
-      bardResult = result.stdout.toString();
+      String conc = result.answer;
+      bardResult = result.answer;
       search = conc.split("\n")[0];
-      String replacedText = search.replaceAll(" ", "+");
       alertConnectionFound(search);
       connections(company.text);
       prueba = search;
@@ -119,11 +106,8 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
       String linkedinLink = '';
       if (listData![i].firstname!.toUpperCase().similarityTo(firstname) > 0.7 &&
           listData![i].lastname!.toUpperCase().similarityTo(lastname) > 0.7) {
-        List<dynamic> listResume = bardResult.split(".").sublist(1);
-
-        linkedinLink =
-            'https://www.${listResume[listResume.length - 2]}.${listResume.last}'
-                .trim();
+        List<dynamic> listResume = bardResult.split("\n").sublist(1);
+        linkedinLink = '${listResume.last}'.trim();
       }
       rowList.add(DataRow(cells: [
         DataCell(Text(listData![i].firstname!)),

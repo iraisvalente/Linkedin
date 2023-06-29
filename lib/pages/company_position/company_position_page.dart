@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:project/models/answer_bard.dart';
+import 'package:project/models/ask_bard.dart';
 import 'package:project/models/connection.dart';
+import 'package:project/service/http/bard.dart';
 import 'package:project/service/http/connection.dart';
 import 'package:project/service/json_service.dart';
 import 'package:project/widgets/navbar_inside.dart';
@@ -24,6 +26,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
   Directory current = Directory.current;
   ScrollController scrollController = ScrollController();
   WebViewController webViewLinkedinController = WebViewController();
+  BardService bardService = BardService();
 
   List<dynamic> bardResult = [];
   List<DataRow> _rowList = [];
@@ -360,28 +363,24 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                       comp = comp.toString().toUpperCase().replaceAll('"', "");
                       comp = comp.trim();
                       var pos = controller.text.toString().toUpperCase();
-                      print(comp);
-                      print(pos);
-                      print(script);
-                      var result =
-                          await Process.run("python", [script, comp, pos]);
-                      if (result.exitCode != 0) {
-                        print("Error en bard");
+                      AnswerBard? result =
+                          await bardService.askBard(AskBard(comp, pos));
+                      if (result!.answer.contains('Secure-1PSID') ||
+                          result.answer.contains('Error')) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Search failed')),
+                          SnackBar(content: Text(result.answer)),
                         );
                       } else {
                         print('DONE');
-                        bardResult.add(result.stdout);
+                        bardResult.add(result.answer);
                         for (var result in bardResult) {
-                          var personName;
+                          String personName;
                           personName = result.split(".")[0].toString();
                           List<dynamic> listResume =
-                              result.split(".").sublist(1);
+                              result.split("\n").sublist(1);
                           String resume = listResume.join(' ');
                           try {
-                            String linkedinLink =
-                                'https://www.${listResume[listResume.length - 2]}.${listResume.last}';
+                            String linkedinLink = '${listResume.last}';
                             if (resume.contains(personName)) {
                               List<String> answer = [
                                 company,

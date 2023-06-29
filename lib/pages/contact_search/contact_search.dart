@@ -1,6 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:project/models/linked.dart';
+import 'package:project/models/linked_result.dart';
+import 'package:project/service/http/linked.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
@@ -19,6 +22,7 @@ class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
   String path = "";
   Directory current = Directory.current;
   String conecction = "";
+  LinkedService linkedService = LinkedService();
 
   void getCredentials() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -110,38 +114,19 @@ class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
                   SizedBox(
                       child: ElevatedButton(
                     onPressed: () async {
-                      //DateTime now = DateTime.now();
-                      //String date = DateFormat.d().format(now) +
-                      //    '-' +
-                      //    DateFormat.M().format(now) +
-                      //    '-' +
-                      //    DateFormat.y().format(now);
-                      //String hour = DateFormat.H().format(now) +
-                      //    '-' +
-                      //    DateFormat.m().format(now) +
-                      //    '-' +
-                      //    DateFormat.s().format(now);
-                      //Directory currentDir = Directory.current;
-                      //final Directory appDocDirFolder = Directory(
-                      //    '${currentDir.path}/LinkedIn/${'$date-$hour'}');
-                      //await appDocDirFolder.create(recursive: true);
-                      //File('${appDocDirFolder.path}/$fileName')
-                      //    .create(recursive: true);
-                      var result =
-                          await Process.run("python", [script, "Copy", path]);
-                      print(script);
-                      print(path);
-                      print(fileName);
-                      print(result.stdout);
-
-                      result = await Process.run(
-                          "python", [script, "append", conecction]);
-
-                      print(result.stdout);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('File imported successfully')),
-                      );
+                      try {
+                        LinkedResult? result = await linkedService.copy(path);
+                        result = await linkedService
+                            .append(Linked(conecction, null));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('File imported successfully')),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('File import failed')),
+                        );
+                      }
                     },
                     child: const Text('Import'),
                   )),
