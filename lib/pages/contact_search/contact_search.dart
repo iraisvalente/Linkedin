@@ -1,12 +1,15 @@
-import 'dart:io';
+import 'dart:convert';
 
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
+import 'package:project/models/file_request.dart';
 import 'package:project/models/linked.dart';
 import 'package:project/models/linked_result.dart';
 import 'package:project/service/http/linked.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
+import 'dart:html' as html;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ImportContactSearchPage extends StatefulWidget {
@@ -19,8 +22,7 @@ class ImportContactSearchPage extends StatefulWidget {
 
 class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
   String fileName = "No file chosen";
-  String path = "";
-  Directory current = Directory.current;
+  String fileContent = "";
   String conecction = "";
   LinkedService linkedService = LinkedService();
 
@@ -37,9 +39,6 @@ class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    String script =
-        current.absolute.uri.toString().split("file:///")[1] + "linked.py";
-
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -82,22 +81,34 @@ class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
                         return Colors.black54;
                       }),
                     ),
-                    onPressed: () async {
-                      var picked = await FilePicker.platform.pickFiles(
-                          type: FileType.custom,
-                          allowedExtensions: [
-                            'csv',
-                            'xlsx',
-                            'xlsm',
-                            'xlsb',
-                            'xltx'
-                          ]);
-                      if (picked != null) {
-                        path = picked.files.first.path.toString();
-                        setState(() {
-                          fileName = picked.files.first.name;
+                    onPressed: () {
+                      html.FileUploadInputElement uploadInput =
+                          html.FileUploadInputElement();
+                      uploadInput.multiple = false;
+                      uploadInput.accept = 'text/csv';
+                      uploadInput.onChange.listen((event) {
+                        html.File file = uploadInput.files!.first;
+                        html.FileReader reader = html.FileReader();
+                        reader.readAsText(file);
+                        reader.onLoadEnd.listen((event) {
+                          String fileContent = reader.result as String;
+                          List<List<dynamic>> csvData =
+                              CsvToListConverter().convert(fileContent);
+                          fileContent = csvData
+                              .map((innerList) => innerList
+                                  .map((element) => element
+                                      .toString()
+                                      .replaceAll('[', '')
+                                      .replaceAll(']', ''))
+                                  .join(', '))
+                              .join('\n');
+                          setState(() {
+                            fileName = file.name; // Set the fileName directly
+                          });
                         });
-                      }
+                      });
+                      html.document.body?.append(uploadInput);
+                      uploadInput.click();
                     },
                     child: const Text('Choose File'),
                   )),
@@ -114,15 +125,14 @@ class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
                   SizedBox(
                       child: ElevatedButton(
                     onPressed: () async {
-                      try {
-                        LinkedResult? result = await linkedService.copy(path);
-                        result = await linkedService
-                            .append(Linked(conecction, null));
+                      LinkedResult? result = await linkedService.uploadFile(
+                          FileRequest(fileName, fileContent, conecction));
+                      if (result!.result == 'Copied') {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                               content: Text('File imported successfully')),
                         );
-                      } catch (e) {
+                      } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('File import failed')),
                         );

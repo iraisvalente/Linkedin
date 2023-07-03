@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:project/models/file_request.dart';
 import 'package:project/models/linked.dart';
 import 'package:project/models/linked_result.dart';
 
@@ -83,19 +85,22 @@ class LinkedService {
     }
   }
 
-  Future<LinkedResult?> copy(String path) async {
+  Future<LinkedResult?> uploadFile(FileRequest file) async {
     late LinkedResult result;
     final response = await http.post(
       Uri.parse('http://127.0.0.1:8000/linked/copy/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<String, String>{"src": path}),
+      body: jsonEncode(<String, String>{
+        "name": file.name,
+        "content": file.content,
+        "email": file.email
+      }),
     );
     try {
       var responseJson = json.decode(response.body);
       result = LinkedResult(responseJson['result']);
-      print(result.result);
       return result;
     } catch (e) {
       print(e);
