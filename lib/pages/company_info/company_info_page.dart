@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:convert';
 
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
@@ -12,6 +12,7 @@ import "package:webview_universal/webview_universal.dart";
 import 'package:project/models/connection.dart';
 import 'package:project/service/http/connection.dart';
 import 'package:string_similarity/string_similarity.dart';
+import 'dart:html' as html;
 
 class CompanyInfoPage extends StatefulWidget {
   const CompanyInfoPage({super.key});
@@ -27,7 +28,6 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
   WebViewController webViewSearchController = WebViewController();
   WebViewController webViewLinkedinController = WebViewController();
   List<Connection>? listData = [];
-  Directory current = Directory.current;
   String prueba = '';
   String search = '';
   String bardResult = '';
@@ -208,46 +208,38 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                       ),
                       ElevatedButton(
                         onPressed: () async {
-                          String? outputFile =
-                              await FilePicker.platform.saveFile(
-                            dialogTitle: 'Select the folder to save the file:',
-                            fileName: 'company_info.csv',
-                          );
-
-                          if (outputFile == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('The file was not exported')),
-                            );
-                          } else {
-                            List<List<dynamic>> rows = [];
+                          List<List<dynamic>> rows = [];
+                          rows.add([
+                            "First Name",
+                            "Last Name",
+                            "Email Address",
+                            "Company",
+                            "Position",
+                            "Connection",
+                          ]);
+                          for (Connection connection in listData!) {
                             rows.add([
-                              "First Name",
-                              "Last Name",
-                              "Email Address",
-                              "Company",
-                              "Position",
-                              "Connection",
+                              connection.firstname,
+                              connection.lastname,
+                              connection.email,
+                              connection.company,
+                              connection.position,
+                              connection.connection
                             ]);
-                            for (Connection connection in listData!) {
-                              rows.add([
-                                connection.firstname,
-                                connection.lastname,
-                                connection.email,
-                                connection.company,
-                                connection.position,
-                                connection.connection
-                              ]);
-                            }
-                            String csv =
-                                const ListToCsvConverter().convert(rows);
-                            File file = File(outputFile!);
-                            await file.writeAsString(csv);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('File exported successfully')),
-                            );
                           }
+
+                          String csv = const ListToCsvConverter().convert(rows);
+                          final bytes = utf8.encode(csv);
+                          final blob = html.Blob([bytes]);
+                          final url = html.Url.createObjectUrlFromBlob(blob);
+                          final anchor = html.document.createElement('a')
+                              as html.AnchorElement
+                            ..href = url
+                            ..style.display = 'none'
+                            ..download = 'company_info.csv';
+                          html.document.body!.children.add(anchor);
+                          anchor.click();
+                          html.Url.revokeObjectUrl(url);
                         },
                         child: Text('Export to CSV'),
                       ),

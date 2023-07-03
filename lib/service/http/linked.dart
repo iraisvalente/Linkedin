@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:project/models/file_request.dart';
 import 'package:project/models/linked.dart';
