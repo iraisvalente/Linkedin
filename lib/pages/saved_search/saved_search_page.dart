@@ -1,12 +1,15 @@
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:project/models/connection.dart';
 import 'package:project/models/saved_search.dart';
+import 'package:project/models/search.dart';
 import 'package:project/pages/search/search_page.dart';
+import 'package:project/service/http/search.dart';
 import 'package:project/service/json_service.dart';
 import 'package:project/widgets/navbar_inside.dart';
+import 'package:http/http.dart' as http;
 
 class SavedSearchPage extends StatefulWidget {
   const SavedSearchPage({super.key});
@@ -16,27 +19,11 @@ class SavedSearchPage extends StatefulWidget {
 }
 
 class _SavedSearchPageState extends State<SavedSearchPage> {
-  List<SavedSearch> searches = [];
-  Directory currentDir = Directory.current;
-  readSearches() async {
-    Directory currentDir = Directory.current;
-    var jsonResponse = await JsonService()
-        .readJson('${currentDir.path}/assets/json/saved_search.json');
-    if (jsonResponse != []) {
-      for (var search in jsonResponse) {
-        searches.add(SavedSearch(
-            search['name'],
-            search['note'],
-            search['search'],
-            Connection(
-                search['connection']['first_name'],
-                search['connection']['last_name'],
-                search['connection']['email'],
-                search['connection']['company'],
-                search['connection']['position'],
-                search['connection']['connection'])));
-      }
-    }
+  List<Search> searches = [];
+  SearchService search = SearchService();
+
+  void getAllSearches() async {
+    searches = await search.getAllSearches();
     setState(() {
       rows();
     });
@@ -46,8 +33,8 @@ class _SavedSearchPageState extends State<SavedSearchPage> {
     List<DataRow> row = [];
     for (int i = 0; i < searches.length; i++) {
       row.add(DataRow(cells: [
-        DataCell(Text(searches[i].name)),
-        DataCell(Text(searches[i].note)),
+        DataCell(Text(searches[i].name!)),
+        DataCell(Text(searches[i].note!)),
         DataCell(Row(
           children: [
             ElevatedButton(
@@ -55,11 +42,8 @@ class _SavedSearchPageState extends State<SavedSearchPage> {
                   Navigator.push(
                     context,
                     PageRouteBuilder(
-                      pageBuilder: (_, __, ___) => SearchPage(
-                          name: searches[i].name,
-                          note: searches[i].note,
-                          search: searches[i].search,
-                          connection: searches[i].connection),
+                      pageBuilder: (_, __, ___) =>
+                          SearchPage(search: searches[i]),
                       transitionDuration: Duration(seconds: 0),
                     ),
                   );
@@ -84,11 +68,9 @@ class _SavedSearchPageState extends State<SavedSearchPage> {
                   }),
                 ),
                 onPressed: () {
-                  searches.remove(searches[i]);
+                  search.deleteSearch(searches[i].id!);
                   setState(() {
-                    JsonService().updateJson(
-                        '${currentDir.path}/assets/json/saved_search.json',
-                        searches);
+                    getAllSearches();
                   });
                 },
                 child: Text("Delete"))
@@ -102,7 +84,7 @@ class _SavedSearchPageState extends State<SavedSearchPage> {
   @override
   void initState() {
     super.initState();
-    readSearches();
+    getAllSearches();
   }
 
   @override
@@ -129,12 +111,22 @@ class _SavedSearchPageState extends State<SavedSearchPage> {
                         width: MediaQuery.of(context).size.width * 0.90,
                         child: DataTable(columns: [
                           DataColumn(
-                            label: Text('Name'),
+                            label: Text(
+                              'Name',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ),
                           DataColumn(
-                            label: Text('Note'),
+                            label: Text(
+                              'Note',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ),
-                          DataColumn(label: Text('Action')),
+                          DataColumn(
+                              label: Text(
+                            'Action',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          )),
                         ], rows: rows())),
                   )
                 ],

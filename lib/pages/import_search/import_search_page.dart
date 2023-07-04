@@ -1,11 +1,12 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:project/models/connection.dart';
+import 'package:project/models/message.dart';
 import 'package:project/models/saved_search.dart';
+import 'package:project/models/search.dart';
 import 'package:project/pages/saved_search/saved_search_page.dart';
+import 'package:project/service/http/search.dart';
 import 'package:project/service/json_service.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:file_picker/file_picker.dart';
@@ -22,38 +23,53 @@ class _ImportSearchPageState extends State<ImportSearchPage> {
   String path = "";
   List<List<dynamic>> data = [];
   List<SavedSearch> searches = [];
-  Directory currentDir = Directory.current;
+  List<List<dynamic>> rowsAsListOfValues = [];
+  SearchService search = SearchService();
+  List<Message?> messages = [];
 
-  Future readCsv(String path) async {
-    final File file = File(path);
-    String contents = await file.readAsString();
-    return const CsvToListConverter().convert(contents, eol: "\n");
-  }
+  // Future readCsv(String path) async {
+  //   final File file = File(path);
+  //   String contents = await file.readAsString();
+  //   return const CsvToListConverter().convert(contents, eol: "\n");
+  // }
 
-  readSearches() async {
-    var jsonResponse = await JsonService()
-        .readJson('${currentDir.path}/assets/json/saved_search.json');
-    if (jsonResponse != []) {
-      for (var search in jsonResponse) {
-        searches.add(SavedSearch(
-            search['name'],
-            search['note'],
-            search['search'],
-            Connection(
-                search['connection']['first_name'],
-                search['connection']['last_name'],
-                search['connection']['email'],
-                search['connection']['company'],
-                search['connection']['position'],
-                search['connection']['connection'])));
+  void importCSV() async {
+    // Pick file
+    FilePickerResult? csvFile = await FilePicker.platform.pickFiles(
+      allowedExtensions: ['csv'],
+      type: FileType.custom,
+      allowMultiple: false,
+    );
+
+    if (csvFile != null) {
+      final bytes = csvFile.files[0].bytes;
+      if (bytes != null) {
+        // Decode bytes back to utf8
+        final decodedBytes = utf8.decode(bytes);
+
+        // Convert CSV content to a List of Lists
+        List<List<dynamic>> rowsAsListOfValues =
+            const CsvToListConverter().convert(decodedBytes);
+
+        // Process the CSV data as needed
+        // ...
       }
     }
+  }
+
+  bool parseBool(String value) {
+    if (value.toLowerCase() == 'true') {
+      return true;
+    } else if (value.toLowerCase() == 'false') {
+      return false;
+    }
+    return false;
   }
 
   @override
   void initState() {
     super.initState();
-    readSearches();
+    //readSearches();
   }
 
   @override
@@ -101,21 +117,24 @@ class _ImportSearchPageState extends State<ImportSearchPage> {
                       }),
                     ),
                     onPressed: () async {
-                      var picked = await FilePicker.platform.pickFiles(
-                          type: FileType.custom,
-                          allowedExtensions: [
-                            'csv',
-                            'xlsx',
-                            'xlsm',
-                            'xlsb',
-                            'xltx'
-                          ]);
-                      if (picked != null) {
-                        path = picked.files.first.path.toString();
-                        fileName = picked.files.first.name;
-                        setState(() {
-                          fileName = fileName;
-                        });
+                      FilePickerResult? csvFile =
+                          await FilePicker.platform.pickFiles(
+                        allowedExtensions: ['csv'],
+                        type: FileType.custom,
+                        allowMultiple: false,
+                      );
+
+                      if (csvFile != null) {
+                        final bytes = csvFile.files[0].bytes;
+                        if (bytes != null) {
+                          // Decode bytes back to utf8
+                          final decodedBytes = utf8.decode(bytes);
+                          rowsAsListOfValues =
+                              const CsvToListConverter().convert(decodedBytes);
+                          setState(() {
+                            fileName = csvFile.files[0].name;
+                          });
+                        }
                       }
                     },
                     child: const Text('Choose File'),
@@ -133,21 +152,39 @@ class _ImportSearchPageState extends State<ImportSearchPage> {
                   SizedBox(
                       child: ElevatedButton(
                     onPressed: () async {
-                      data = await readCsv(path);
-                      data.removeAt(0);
-                      for (List<dynamic> search in data) {
-                        searches.add(SavedSearch(
-                            search[0],
-                            search[1],
-                            (search[2] == "FALSE" || search[2] == "false")
-                                ? false
-                                : true,
-                            Connection(search[3], search[4], search[5],
-                                search[6], search[7], search[8])));
+                      rowsAsListOfValues.removeAt(0);
+                      for (int i = 0; i < rowsAsListOfValues.length; i++) {
+                        Message? message = await search.saveSearch(Search(
+                            null,
+                            rowsAsListOfValues[i][0],
+                            rowsAsListOfValues[i][1],
+                            parseBool(rowsAsListOfValues[i][2]),
+                            rowsAsListOfValues[i][3],
+                            rowsAsListOfValues[i][4],
+                            rowsAsListOfValues[i][5],
+                            rowsAsListOfValues[i][6],
+                            rowsAsListOfValues[i][7],
+                            rowsAsListOfValues[i][8]));
+                        print(message!.message);
+                        messages.add(message);
                       }
-                      JsonService().updateJson(
-                          '${currentDir.path}/assets/json/saved_search.json',
-                          searches);
+                      int messageWrong = 0;
+                      for (Message? message in messages) {
+                        if (message!.message != 'Search added successfully') {
+                          messageWrong += 1;
+                        }
+                      }
+                      if (messageWrong < 0) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(
+                                  'Something went wrong at adding the search from the CSV')),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Search added successfully')),
+                        );
+                      }
                       Navigator.push(
                           context,
                           PageRouteBuilder(

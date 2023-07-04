@@ -14,8 +14,10 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  TextEditingController emailController =
+      TextEditingController(text: 'iraguirre112@gmail.com');
+  TextEditingController passwordController =
+      TextEditingController(text: 'yamaha112');
   late Future log;
 
   void saveCredentials(String email, String password) async {

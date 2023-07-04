@@ -3,17 +3,14 @@ import 'dart:convert';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:project/models/file_request.dart';
-import 'package:project/models/linked.dart';
 import 'package:project/models/linked_result.dart';
 import 'package:project/service/http/linked.dart';
 import 'package:project/widgets/navbar_inside.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:intl/intl.dart';
 import 'dart:html' as html;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ImportContactSearchPage extends StatefulWidget {
-  ImportContactSearchPage({super.key});
+  const ImportContactSearchPage({super.key});
 
   @override
   State<ImportContactSearchPage> createState() =>
@@ -127,6 +124,7 @@ class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
                     onPressed: () async {
                       LinkedResult? result = await linkedService.uploadFile(
                           FileRequest(fileName, fileContent, conecction));
+                      print(result!.result);
                       if (result!.result == 'Copied') {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(

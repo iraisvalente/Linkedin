@@ -1,25 +1,19 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:project/models/connection.dart';
 import 'package:project/models/saved_search.dart';
+import 'package:project/models/search.dart';
 import 'package:project/service/http/connection.dart';
 import 'package:project/service/json_service.dart';
 import 'package:project/widgets/navbar_inside.dart';
 
 class SearchPage extends StatefulWidget {
-  final String? name;
-  final String? note;
-  final Connection? connection;
-  final bool? search;
+  final Search? search;
 
-  const SearchPage(
-      {super.key, this.name, this.note, this.connection, this.search});
+  const SearchPage({super.key, this.search});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -128,39 +122,39 @@ class _SearchPageState extends State<SearchPage> {
                 child: const Text('OK'),
                 onPressed: () async {
                   List<SavedSearch> searches = [];
-                  Directory currentDir = Directory.current;
-                  var jsonResponse = await JsonService().readJson(
-                      '${currentDir.path}/assets/json/saved_search.json');
-                  if (jsonResponse != []) {
-                    for (var search in jsonResponse) {
-                      searches.add(SavedSearch(
-                          search['name'],
-                          search['note'],
-                          search['search'],
-                          Connection(
-                              search['connection']['first_name'],
-                              search['connection']['last_name'],
-                              search['connection']['email'],
-                              search['connection']['company'],
-                              search['connection']['position'],
-                              search['connection']['connection'])));
-                    }
-                  }
+                  // Directory currentDir = Directory.current;
+                  // var jsonResponse = await JsonService().readJson(
+                  //     '${currentDir.path}/assets/json/saved_search.json');
+                  // if (jsonResponse != []) {
+                  //   for (var search in jsonResponse) {
+                  //     searches.add(SavedSearch(
+                  //         search['name'],
+                  //         search['note'],
+                  //         search['search'],
+                  //         Connection(
+                  //             search['connection']['first_name'],
+                  //             search['connection']['last_name'],
+                  //             search['connection']['email'],
+                  //             search['connection']['company'],
+                  //             search['connection']['position'],
+                  //             search['connection']['connection'])));
+                  //   }
+                  // }
 
-                  searches.add(SavedSearch(
-                      searchName.text,
-                      searchNote.text,
-                      valuefirst,
-                      Connection(
-                          firstnameController.text,
-                          lastnameController.text,
-                          emailController.text,
-                          companyController.text,
-                          positionController.text,
-                          connectedOnController.text)));
-                  JsonService().updateJson(
-                      '${currentDir.path}/assets/json/saved_search.json',
-                      searches);
+                  // searches.add(SavedSearch(
+                  //     searchName.text,
+                  //     searchNote.text,
+                  //     valuefirst,
+                  //     Connection(
+                  //         firstnameController.text,
+                  //         lastnameController.text,
+                  //         emailController.text,
+                  //         companyController.text,
+                  //         positionController.text,
+                  //         connectedOnController.text)));
+                  // JsonService().updateJson(
+                  //     '${currentDir.path}/assets/json/saved_search.json',
+                  //     searches);
 
                   setState(() {
                     searchName.text = '';
@@ -177,13 +171,13 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    if (widget.connection != null) {
-      firstnameController.text = widget.connection!.firstname!;
-      lastnameController.text = widget.connection!.lastname!;
-      emailController.text = widget.connection!.email!;
-      companyController.text = widget.connection!.company!;
-      positionController.text = widget.connection!.position!;
-      connectedOnController.text = widget.connection!.connection!;
+    if (widget.search != null) {
+      firstnameController.text = widget.search!.firstname ?? '';
+      lastnameController.text = widget.search!.lastname ?? '';
+      emailController.text = widget.search!.email ?? '';
+      companyController.text = widget.search!.company ?? '';
+      positionController.text = widget.search!.position ?? '';
+      connectedOnController.text = widget.search!.connection ?? '';
       print(widget.search);
 
       if (widget.search == false) {
@@ -195,7 +189,7 @@ class _SearchPageState extends State<SearchPage> {
             positionController.text,
             connectedOnController.text));
       } else {
-        valuefirst = widget.search!;
+        valuefirst = widget.search!.search!;
         filters();
       }
     } else {
@@ -458,44 +452,44 @@ class _SearchPageState extends State<SearchPage> {
                     SizedBox(
                         child: ElevatedButton(
                       onPressed: () async {
-                        String? outputFile = await FilePicker.platform.saveFile(
-                          dialogTitle: 'Select the folder to save the file:',
-                          fileName: 'search_list.csv',
-                        );
+                        // String? outputFile = await FilePicker.platform.saveFile(
+                        //   dialogTitle: 'Select the folder to save the file:',
+                        //   fileName: 'search_list.csv',
+                        // );
 
-                        if (outputFile == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('The file was not exported')),
-                          );
-                        } else {
-                          List<List<dynamic>> rows = [];
-                          rows.add([
-                            "First Name",
-                            "Last Name",
-                            "Email Address",
-                            "Company",
-                            "Position",
-                            "Connection"
-                          ]);
-                          for (Connection connection in listData!) {
-                            rows.add([
-                              connection.firstname,
-                              connection.lastname,
-                              connection.email,
-                              connection.company,
-                              connection.position,
-                              connection.connection
-                            ]);
-                          }
-                          String csv = const ListToCsvConverter().convert(rows);
-                          File file = File(outputFile);
-                          await file.writeAsString(csv);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('File exported successfully')),
-                          );
-                        }
+                        // if (outputFile == null) {
+                        //   ScaffoldMessenger.of(context).showSnackBar(
+                        //     const SnackBar(
+                        //         content: Text('The file was not exported')),
+                        //   );
+                        // } else {
+                        //   List<List<dynamic>> rows = [];
+                        //   rows.add([
+                        //     "First Name",
+                        //     "Last Name",
+                        //     "Email Address",
+                        //     "Company",
+                        //     "Position",
+                        //     "Connection"
+                        //   ]);
+                        //   for (Connection connection in listData!) {
+                        //     rows.add([
+                        //       connection.firstname,
+                        //       connection.lastname,
+                        //       connection.email,
+                        //       connection.company,
+                        //       connection.position,
+                        //       connection.connection
+                        //     ]);
+                        //   }
+                        //   String csv = const ListToCsvConverter().convert(rows);
+                        //   File file = File(outputFile);
+                        //   await file.writeAsString(csv);
+                        //   ScaffoldMessenger.of(context).showSnackBar(
+                        //     const SnackBar(
+                        //         content: Text('File exported successfully')),
+                        //   );
+                        // }
                       },
                       child: const Text('Export selected'),
                     )),
