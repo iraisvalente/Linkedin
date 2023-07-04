@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:project/models/file_request.dart';
 import 'package:project/models/linked.dart';
 import 'package:project/models/linked_result.dart';
+import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 
 class LinkedService {
   Future<LinkedResult?> choice(Linked linked) async {
@@ -84,25 +86,42 @@ class LinkedService {
     }
   }
 
-  Future<LinkedResult?> uploadFile(FileRequest file) async {
-    late LinkedResult result;
-    final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/linked/copy/'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        "name": file.name,
-        "content": file.content,
-        "email": file.email
-      }),
+  // Future<LinkedResult?> uploadFile(FileRequest file) async {
+  //   late LinkedResult result;
+  //   final response = await http.post(
+  //     Uri.parse('http://127.0.0.1:8000/linked/copy/'),
+  //     headers: <String, String>{
+  //       'Content-Type': 'application/json; charset=UTF-8',
+  //     },
+  //     body: jsonEncode(<String, String>{
+  //       "name": file.name,
+  //       "content": file.content,
+  //       "email": file.email
+  //     }),
+  //   );
+  //   try {
+  //     var responseJson = json.decode(response.body);
+  //     result = LinkedResult(responseJson['result']);
+  //     print(result);
+  //     return result;
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
+  Future<String> uploadFile(
+      List<int> file, String fileName, String email) async {
+    var dio = Dio();
+    FormData formData = FormData.fromMap({
+      "file": MultipartFile.fromBytes(
+        file,
+        filename: fileName,
+        contentType: MediaType("csv", "png"),
+      ),
+    });
+    var response = await dio.post(
+      "http://127.0.0.1:8000/linked/copy/${email}",
+      data: formData,
     );
-    try {
-      var responseJson = json.decode(response.body);
-      result = LinkedResult(responseJson['result']);
-      return result;
-    } catch (e) {
-      print(e);
-    }
+    return response.data['result'];
   }
 }

@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:csv/csv.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:project/models/file_request.dart';
 import 'package:project/models/linked_result.dart';
 import 'package:project/service/http/linked.dart';
@@ -26,6 +28,31 @@ class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
   void getCredentials() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     conecction = prefs.getString('email')!;
+  }
+
+  List<PlatformFile>? _paths;
+
+  void pickFiles() async {
+    try {
+      _paths = (await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowMultiple: false,
+        onFileLoading: (FilePickerStatus status) => print(status),
+        allowedExtensions: ['csv'],
+      ))
+          ?.files;
+    } on PlatformException catch (e) {
+      print('Unsupported operation' + e.toString());
+    } catch (e) {
+      print(e.toString());
+    }
+    setState(() {
+      if (_paths != null) {
+        if (_paths != null) {
+          fileName = _paths!.first.name;
+        }
+      }
+    });
   }
 
   @override
@@ -79,33 +106,39 @@ class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
                       }),
                     ),
                     onPressed: () {
-                      html.FileUploadInputElement uploadInput =
-                          html.FileUploadInputElement();
-                      uploadInput.multiple = false;
-                      uploadInput.accept = 'text/csv';
-                      uploadInput.onChange.listen((event) {
-                        html.File file = uploadInput.files!.first;
-                        html.FileReader reader = html.FileReader();
-                        reader.readAsText(file);
-                        reader.onLoadEnd.listen((event) {
-                          String fileContent = reader.result as String;
-                          List<List<dynamic>> csvData =
-                              CsvToListConverter().convert(fileContent);
-                          fileContent = csvData
-                              .map((innerList) => innerList
-                                  .map((element) => element
-                                      .toString()
-                                      .replaceAll('[', '')
-                                      .replaceAll(']', ''))
-                                  .join(', '))
-                              .join('\n');
-                          setState(() {
-                            fileName = file.name; // Set the fileName directly
-                          });
-                        });
-                      });
-                      html.document.body?.append(uploadInput);
-                      uploadInput.click();
+                      pickFiles();
+                      // html.FileUploadInputElement uploadInput =
+                      //     html.FileUploadInputElement();
+                      // uploadInput.multiple = false;
+                      // uploadInput.accept = 'text/csv';
+                      // uploadInput.onChange.listen((event) {
+                      //   html.File file = uploadInput.files!.first;
+                      //   html.FileReader reader = html.FileReader();
+                      //   reader.readAsText(file);
+                      //   reader.onLoadEnd.listen((event) {
+                      //     String result = reader.result
+                      //         as String; // Use a separate variable
+                      //     List<List<dynamic>> csvData =
+                      //         CsvToListConverter().convert(result);
+                      //     print(csvData[0][7]);
+                      //     result = csvData
+                      //         .map((innerList) => innerList
+                      //             .map((element) => element
+                      //                 .toString()
+                      //                 .replaceAll(',', '')
+                      //                 .replaceAll('[', '')
+                      //                 .replaceAll(']', ''))
+                      //             .join(', '))
+                      //         .join('\n');
+                      //     setState(() {
+                      //       fileContent =
+                      //           result; // Assign the result to the separate variable
+                      //       fileName = file.name;
+                      //     });
+                      //   });
+                      // });
+                      // html.document.body?.append(uploadInput);
+                      // uploadInput.click();
                     },
                     child: const Text('Choose File'),
                   )),
@@ -122,10 +155,10 @@ class _ImportContactSearchPageState extends State<ImportContactSearchPage> {
                   SizedBox(
                       child: ElevatedButton(
                     onPressed: () async {
-                      LinkedResult? result = await linkedService.uploadFile(
-                          FileRequest(fileName, fileContent, conecction));
-                      print(result!.result);
-                      if (result!.result == 'Copied') {
+                      String result = await linkedService.uploadFile(
+                          _paths!.first.bytes!, _paths!.first.name, conecction);
+                      print(result);
+                      if (result == 'Copied') {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                               content: Text('File imported successfully')),
