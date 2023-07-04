@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import 'package:project/widgets/navbar_init.dart';
@@ -12,23 +10,10 @@ class AboutPage extends StatefulWidget {
 }
 
 class _AboutPageState extends State<AboutPage> {
-  Directory current = Directory.current;
-  String privacyPolicy = '';
-
-  Future<String> readCsv(String path) async {
-    final File file = File(path);
-    String contents = await file.readAsString();
-    return contents;
-  }
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      privacyPolicy =
-          await readCsv('${current.path}/assets/txt/privacy_policy.txt');
-    });
   }
 
   @override
@@ -39,7 +24,7 @@ class _AboutPageState extends State<AboutPage> {
         NavBar(),
         Container(
           height: 100,
-          child: Center(child: Text(privacyPolicy)),
+          child: Center(child: Text('This is the privacy policy')),
         )
       ],
     ));
