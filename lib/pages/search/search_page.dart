@@ -1,13 +1,12 @@
 import 'dart:convert';
 
 import 'package:csv/csv.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:project/models/connection.dart';
-import 'package:project/models/saved_search.dart';
 import 'package:project/models/search.dart';
 import 'package:project/service/http/connection.dart';
-import 'package:project/service/json_service.dart';
+import 'package:project/service/http/search.dart';
+import 'dart:html' as html;
 import 'package:project/widgets/navbar_inside.dart';
 
 class SearchPage extends StatefulWidget {
@@ -37,6 +36,8 @@ class _SearchPageState extends State<SearchPage> {
   bool valuefirst = false;
   late Future conn;
   List<bool> disable = [true, true, true, true, true, true];
+
+  SearchService search = SearchService();
 
   Future<void> allConnections() async {
     await connections().then((value) {
@@ -121,41 +122,17 @@ class _SearchPageState extends State<SearchPage> {
                 textColor: Colors.white,
                 child: const Text('OK'),
                 onPressed: () async {
-                  List<SavedSearch> searches = [];
-                  // Directory currentDir = Directory.current;
-                  // var jsonResponse = await JsonService().readJson(
-                  //     '${currentDir.path}/assets/json/saved_search.json');
-                  // if (jsonResponse != []) {
-                  //   for (var search in jsonResponse) {
-                  //     searches.add(SavedSearch(
-                  //         search['name'],
-                  //         search['note'],
-                  //         search['search'],
-                  //         Connection(
-                  //             search['connection']['first_name'],
-                  //             search['connection']['last_name'],
-                  //             search['connection']['email'],
-                  //             search['connection']['company'],
-                  //             search['connection']['position'],
-                  //             search['connection']['connection'])));
-                  //   }
-                  // }
-
-                  // searches.add(SavedSearch(
-                  //     searchName.text,
-                  //     searchNote.text,
-                  //     valuefirst,
-                  //     Connection(
-                  //         firstnameController.text,
-                  //         lastnameController.text,
-                  //         emailController.text,
-                  //         companyController.text,
-                  //         positionController.text,
-                  //         connectedOnController.text)));
-                  // JsonService().updateJson(
-                  //     '${currentDir.path}/assets/json/saved_search.json',
-                  //     searches);
-
+                  search.saveSearch(Search(
+                      null,
+                      searchName.text,
+                      searchNote.text,
+                      valuefirst,
+                      firstnameController.text,
+                      lastnameController.text,
+                      emailController.text,
+                      companyController.text,
+                      positionController.text,
+                      connectedOnController.text));
                   setState(() {
                     searchName.text = '';
                     searchNote.text = '';
@@ -178,9 +155,7 @@ class _SearchPageState extends State<SearchPage> {
       companyController.text = widget.search!.company ?? '';
       positionController.text = widget.search!.position ?? '';
       connectedOnController.text = widget.search!.connection ?? '';
-      print(widget.search);
-
-      if (widget.search == false) {
+      if (widget.search!.search == false) {
         allFilters(Connection(
             firstnameController.text,
             lastnameController.text,
@@ -452,44 +427,41 @@ class _SearchPageState extends State<SearchPage> {
                     SizedBox(
                         child: ElevatedButton(
                       onPressed: () async {
-                        // String? outputFile = await FilePicker.platform.saveFile(
-                        //   dialogTitle: 'Select the folder to save the file:',
-                        //   fileName: 'search_list.csv',
-                        // );
-
-                        // if (outputFile == null) {
-                        //   ScaffoldMessenger.of(context).showSnackBar(
-                        //     const SnackBar(
-                        //         content: Text('The file was not exported')),
-                        //   );
-                        // } else {
-                        //   List<List<dynamic>> rows = [];
-                        //   rows.add([
-                        //     "First Name",
-                        //     "Last Name",
-                        //     "Email Address",
-                        //     "Company",
-                        //     "Position",
-                        //     "Connection"
-                        //   ]);
-                        //   for (Connection connection in listData!) {
-                        //     rows.add([
-                        //       connection.firstname,
-                        //       connection.lastname,
-                        //       connection.email,
-                        //       connection.company,
-                        //       connection.position,
-                        //       connection.connection
-                        //     ]);
-                        //   }
-                        //   String csv = const ListToCsvConverter().convert(rows);
-                        //   File file = File(outputFile);
-                        //   await file.writeAsString(csv);
-                        //   ScaffoldMessenger.of(context).showSnackBar(
-                        //     const SnackBar(
-                        //         content: Text('File exported successfully')),
-                        //   );
-                        // }
+                        List<List<dynamic>> rows = [];
+                        rows.add([
+                          "First Name",
+                          "Last Name",
+                          "Email Address",
+                          "Company",
+                          "Position",
+                          "Connection"
+                        ]);
+                        for (Connection connection in listData!) {
+                          rows.add([
+                            connection.firstname,
+                            connection.lastname,
+                            connection.email,
+                            connection.company,
+                            connection.position,
+                            connection.connection
+                          ]);
+                        }
+                        String csv = const ListToCsvConverter().convert(rows);
+                        final bytes = utf8.encode(csv);
+                        final blob = html.Blob([bytes]);
+                        final url = html.Url.createObjectUrlFromBlob(blob);
+                        final anchor = html.document.createElement('a')
+                            as html.AnchorElement
+                          ..href = url
+                          ..style.display = 'none'
+                          ..download = 'Connections_search.csv';
+                        html.document.body!.children.add(anchor);
+                        anchor.click();
+                        html.Url.revokeObjectUrl(url);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('File exported successfully')),
+                        );
                       },
                       child: const Text('Export selected'),
                     )),
