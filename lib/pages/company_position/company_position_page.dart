@@ -1,17 +1,19 @@
-import 'dart:io';
+import 'dart:convert';
 
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:project/models/answer_bard.dart';
 import 'package:project/models/ask_bard.dart';
 import 'package:project/models/connection.dart';
+import 'package:project/models/position.dart';
 import 'package:project/service/http/bard.dart';
 import 'package:project/service/http/connection.dart';
-import 'package:project/service/json_service.dart';
+import 'package:project/service/http/position.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import "package:webview_universal/webview_universal.dart";
+import 'dart:html' as html;
 
 class CompanyPositionPage extends StatefulWidget {
   const CompanyPositionPage({super.key});
@@ -23,7 +25,6 @@ class CompanyPositionPage extends StatefulWidget {
 class _CompanyPositionPageState extends State<CompanyPositionPage> {
   String fileName = "No file chosen";
   String path = "";
-  Directory current = Directory.current;
   ScrollController scrollController = ScrollController();
   WebViewController webViewLinkedinController = WebViewController();
   BardService bardService = BardService();
@@ -31,19 +32,14 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
   List<dynamic> bardResult = [];
   List<DataRow> _rowList = [];
   List<DataRow> rows = [];
-  List<String> positions = [];
   List<TextEditingController> _controllerList = [];
   List<List<String>> _answerContent = [];
+  List<Position> positions = [];
   List<Connection>? listData = [];
   List<Column> tables = [];
-
-  Future<List<String>> readCsv(String path) async {
-    final File file = File(path);
-    String contents = await file.readAsString();
-    List<String> lines = contents.split('\n');
-    lines.removeLast();
-    return lines;
-  }
+  List<List<dynamic>> rowsAsListOfValues = [];
+  int originalPositions = 0;
+  PositionService positionService = PositionService();
 
   Future<List<Connection>> connections(String company) async {
     List<Connection> connections = [];
@@ -55,7 +51,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
   }
 
   void createTable() async {
-    List<String> companies = await readCsv(path);
+    List companies = rowsAsListOfValues.expand((element) => element).toList();
     for (String company in companies) {
       var comp = company.toString().toUpperCase().replaceAll("\n", " ");
       comp = comp.toString().toUpperCase().replaceAll(" ", "");
@@ -71,50 +67,48 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
       children: [
         ElevatedButton(
             onPressed: () async {
-              String? outputFile = await FilePicker.platform.saveFile(
-                dialogTitle: 'Select the folder to save the file:',
-                fileName: 'connections_list.csv',
-              );
+              List<List<dynamic>> rows = [];
+              rows.add([
+                "First Name",
+                "Last Name",
+                "Email Address",
+                "Company",
+                "Position",
+                "Connection"
+              ]);
+              for (String company in companies) {
+                var comp =
+                    company.toString().toUpperCase().replaceAll("\n", " ");
+                comp = comp.toString().toUpperCase().replaceAll(" ", "");
+                comp = comp.toString().toUpperCase().replaceAll('"', "");
+                comp = comp.trim();
+                List<Connection> conn = await connections(comp);
 
-              if (outputFile == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('The file was not exported')),
-                );
-              } else {
-                List<List<dynamic>> rows = [];
-                rows.add([
-                  "First Name",
-                  "Last Name",
-                  "Email Address",
-                  "Company",
-                  "Position",
-                  "Connection"
-                ]);
-                for (String company in companies) {
-                  var comp =
-                      company.toString().toUpperCase().replaceAll("\n", " ");
-                  comp = comp.toString().toUpperCase().replaceAll(" ", "");
-                  comp = comp.toString().toUpperCase().replaceAll('"', "");
-                  comp = comp.trim();
-                  List<Connection> conn = await connections(comp);
-
-                  for (Connection connection in conn) {
-                    rows.add([
-                      connection.firstname,
-                      connection.lastname,
-                      connection.email,
-                      connection.company,
-                      connection.position,
-                    ]);
-                  }
+                for (Connection connection in conn) {
+                  rows.add([
+                    connection.firstname,
+                    connection.lastname,
+                    connection.email,
+                    connection.company,
+                    connection.position,
+                  ]);
                 }
-                String csv = const ListToCsvConverter().convert(rows);
-                File file = File(outputFile);
-                await file.writeAsString(csv);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('File exported successfully')),
-                );
               }
+              String csv = const ListToCsvConverter().convert(rows);
+              final bytes = utf8.encode(csv);
+              final blob = html.Blob([bytes]);
+              final url = html.Url.createObjectUrlFromBlob(blob);
+              final anchor =
+                  html.document.createElement('a') as html.AnchorElement
+                    ..href = url
+                    ..style.display = 'none'
+                    ..download = 'Connections_search.csv';
+              html.document.body!.children.add(anchor);
+              anchor.click();
+              html.Url.revokeObjectUrl(url);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('File exported successfully')),
+              );
             },
             child: Text('Export CSV')),
         SizedBox(
@@ -155,7 +149,14 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
     );
   }
 
-  void _addRow(String? position) {
+  DataTable positionTable() {
+    return DataTable(columns: [
+      DataColumn(label: Text('Position')),
+      DataColumn(label: Text('')),
+    ], rows: _rowList);
+  }
+
+  void _addRow(String? position, int? id) {
     if (position == null) {
       int index = _rowList.length;
       TextEditingController controller = TextEditingController();
@@ -169,7 +170,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
             ),
           ),
           DataCell(Icon(Icons.delete), onTap: () {
-            _deleteRow(index);
+            _deleteRow(index, null);
           }),
         ]));
       });
@@ -186,56 +187,65 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
             ),
           ),
           DataCell(Icon(Icons.delete), onTap: () {
-            _deleteRow(index);
+            _deleteRow(index, id!);
           }),
         ]));
       });
     }
   }
 
-  void _deleteRow(int index) {
-    _rowList.removeAt(index);
-    _controllerList.removeAt(index);
+  void _deleteRow(int? index, int? id) {
+    if (id != null) {
+      originalPositions -= 1;
+      deletePosition(id);
+      setState(() {
+        _rowList.removeAt(index!);
+        _controllerList.removeAt(index);
+      });
+    } else {
+      setState(() {
+        _rowList.removeAt(index!);
+        _controllerList.removeAt(index);
+      });
+    }
+  }
+
+  void getPositions() async {
+    positions = await positionService.getAllPositions();
+    if (positions.isNotEmpty) {
+      originalPositions = positions.length;
+      for (Position position in positions) {
+        _addRow(position.position, position.id!);
+      }
+    }
+  }
+
+  void saveNewPositions() async {
+    if (originalPositions > 0) {
+      for (int i = 0; i < originalPositions; i++) {
+        _controllerList.removeAt(i);
+      }
+    }
+    for (TextEditingController controller in _controllerList) {
+      positionService.savePosition(Position(null, controller.text, null));
+    }
     setState(() {
-      _rowList;
-      _controllerList;
+      positionTable();
     });
   }
 
-  void readPosition() async {
-    var jsonResponse = await JsonService()
-        .readJson('${current.path}/assets/json/positions.json');
-    if (jsonResponse != []) {
-      for (var position in jsonResponse) {
-        positions.add(position['position']);
-      }
-    }
-    if (positions.isNotEmpty) {
-      for (String position in positions) {
-        _addRow(position);
-      }
-    }
-  }
-
-  void updatePosition() async {
-    List<Map> positionsMap = [];
-    for (String position in positions) {
-      positionsMap.add({"position": position});
-    }
-    JsonService()
-        .updateJson('${current.path}/assets/json/positions.json', positionsMap);
+  void deletePosition(int searchId) async {
+    positionService.deletePosition(searchId);
   }
 
   @override
   void initState() {
     super.initState();
-    readPosition();
+    getPositions();
   }
 
   @override
   Widget build(BuildContext context) {
-    String script = current.absolute.uri.toString() + "bard.py";
-    script = script.split("file:///")[1];
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -286,21 +296,24 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                           }),
                         ),
                         onPressed: () async {
-                          var picked = await FilePicker.platform.pickFiles(
-                              type: FileType.custom,
-                              allowedExtensions: [
-                                'csv',
-                                'xlsx',
-                                'xlsm',
-                                'xlsb',
-                                'xltx'
-                              ]);
-                          if (picked != null) {
-                            path = picked.files.first.path.toString();
-                            fileName = picked.files.first.name;
-                            setState(() {
-                              fileName = fileName;
-                            });
+                          FilePickerResult? csvFile =
+                              await FilePicker.platform.pickFiles(
+                            allowedExtensions: ['csv'],
+                            type: FileType.custom,
+                            allowMultiple: false,
+                          );
+
+                          if (csvFile != null) {
+                            final bytes = csvFile.files[0].bytes;
+                            if (bytes != null) {
+                              // Decode bytes back to utf8
+                              final decodedBytes = utf8.decode(bytes);
+                              rowsAsListOfValues = const CsvToListConverter()
+                                  .convert(decodedBytes);
+                              setState(() {
+                                fileName = csvFile.files[0].name;
+                              });
+                            }
                           }
                         },
                         child: const Text('Choose File'),
@@ -324,17 +337,14 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                         width: 300,
                         height: 300,
                         child: SingleChildScrollView(
-                          child: DataTable(columns: [
-                            DataColumn(label: Text('Position')),
-                            DataColumn(label: Text('')),
-                          ], rows: _rowList),
+                          child: positionTable(),
                         ),
                       ),
                       SizedBox(
                         height: 20,
                       ),
                       ElevatedButton(
-                          onPressed: () => _addRow(null),
+                          onPressed: () => _addRow(null, null),
                           child: Text('Add position')),
                     ],
                   ),
@@ -351,7 +361,9 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                     tables = [];
                   });
                   List<DataCell> cells = [];
-                  List companies = await readCsv(path);
+                  List companies =
+                      rowsAsListOfValues.expand((element) => element).toList();
+                  print(companies);
                   for (String company in companies) {
                     for (TextEditingController controller in _controllerList) {
                       print('WORK IN PROCESS');
@@ -455,10 +467,9 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   }
                   positions = [];
                   for (TextEditingController controller in _controllerList) {
-                    positions.add(controller.text);
+                    positions.add(Position(null, controller.text, null));
                   }
-                  updatePosition();
-                  updatePosition();
+                  saveNewPositions();
                   createTable();
                 },
                 child: Text('Submit')),

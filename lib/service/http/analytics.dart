@@ -66,7 +66,8 @@ Future<List<Position>?> positions(bool count) async {
       print(responseJson);
 
       for (final response in responseJson) {
-        positions.add(Position(response['Position']!, response['Count']!));
+        positions
+            .add(Position(null, response['Position']!, response['Count']!));
       }
       return positions;
     } else {
@@ -79,7 +80,7 @@ Future<List<Position>?> positions(bool count) async {
     if (response.statusCode == 200) {
       var responseJson = json.decode(response.body);
       for (final response in responseJson) {
-        positions.add(Position(response['Position']!, null));
+        positions.add(Position(null, response['Position']!, null));
       }
       return positions;
     } else {
