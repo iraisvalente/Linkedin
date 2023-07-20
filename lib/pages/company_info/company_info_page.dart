@@ -3,9 +3,13 @@ import 'dart:convert';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:project/models/answer_bard.dart';
+import 'package:project/models/ask.dart';
 import 'package:project/models/ask_bard.dart';
+import 'package:project/service/http/ask.dart';
 import 'package:project/service/http/bard.dart';
+import 'package:project/models/response.dart';
 import 'package:project/widgets/navbar_inside.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import "package:webview_universal/webview_universal.dart";
 import 'package:project/models/connection.dart';
@@ -29,8 +33,11 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
   List<Connection>? listData = [];
   String prueba = '';
   String search = '';
-  String bardResult = '';
-  BardService bardService = BardService();
+  String askResult = '';
+  String email = '';
+  String password = '';
+  // BardService bardService = BardService();
+  AskService askService = AskService();
 
   Future<void> connections(String company) async {
     await searchConnection(company).then((value) {
@@ -51,7 +58,75 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
     return connection;
   }
 
-  void bardSearch() async {
+  String extractSingleValue(String input, String field) {
+    RegExp regExp = RegExp("$field: ([^\n]*)");
+    RegExpMatch? match = regExp.firstMatch(input);
+    if (match != null) {
+      return match.group(1)!.trim();
+    }
+    return "";
+  }
+
+  String extractResumeWithLinkedin(
+      String input, String startField, String endField) {
+    RegExp regExp = RegExp("$startField: ([^\n]*)");
+    RegExpMatch? match = regExp.firstMatch(input);
+    if (match != null) {
+      int startIndex = match.end;
+      int endIndex = input.indexOf(endField, startIndex);
+      if (endIndex != -1) {
+        return input.substring(startIndex, endIndex).trim();
+      }
+    }
+    return "";
+  }
+
+  String extractResumeWithoutLinkedin(String input, String startField) {
+    RegExp regExp = RegExp("$startField: ");
+    RegExpMatch? match = regExp.firstMatch(input);
+    if (match != null) {
+      int startIndex = match.end;
+      return input.substring(startIndex).trim();
+    }
+    return "";
+  }
+
+  String addline(String input) {
+    List<String> words = input.split(' ');
+    String result = '';
+    int wordCount = 0;
+
+    for (String word in words) {
+      result += word + ' ';
+      wordCount++;
+
+      if (wordCount == 20) {
+        result += '\n';
+        wordCount = 0;
+      }
+    }
+
+    return result.trim();
+  }
+
+  void getCredentials() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    email = prefs.getString('email')!;
+    password = prefs.getString('password')!;
+  }
+
+  void newSearch() async {
+    Response? response =
+        await askService.ask(Ask(company.text, position.text, email, password));
+    String? conc = response?.response;
+    askResult = response!.response;
+    search = extractSingleValue(conc!, 'Name');
+    print('SEARCH');
+    print(search);
+    alertConnectionFound(search);
+    connections(company.text);
+    prueba = search;
+    /*
     AnswerBard? result =
         await bardService.askBard(AskBard(company.text, position.text));
     if (result!.answer.contains('Secure-1PSID') ||
@@ -62,12 +137,12 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
     } else {
       print('DONE');
       String conc = result.answer;
-      bardResult = result.answer;
+      askResult = result.answer;
       search = conc.split("\n")[0];
       alertConnectionFound(search);
       connections(company.text);
       prueba = search;
-    }
+    }*/
   }
 
   void alertConnectionFound(result) async {
@@ -105,7 +180,7 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
       String linkedinLink = '';
       if (listData![i].firstname!.toUpperCase().similarityTo(firstname) > 0.7 &&
           listData![i].lastname!.toUpperCase().similarityTo(lastname) > 0.7) {
-        List<dynamic> listResume = bardResult.split("\n").sublist(1);
+        List<dynamic> listResume = askResult.split("\n").sublist(1);
         linkedinLink = '${listResume.last}'.trim();
       }
       rowList.add(DataRow(cells: [
@@ -132,6 +207,7 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
   @override
   void initState() {
     super.initState();
+    getCredentials();
   }
 
   @override
@@ -166,25 +242,60 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                     width: 100,
                     child: ElevatedButton(
                         onPressed: () {
-                          bardSearch();
+                          newSearch();
                         },
                         child: Text('Search')),
                   ),
                 ],
               ),
             ),
-            bardResult != ''
+            askResult != ''
                 ? Column(
                     children: [
                       SizedBox(
                         height: 30,
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.2,
+                        height: MediaQuery.of(context).size.height * 0.4,
                         width: MediaQuery.of(context).size.width * 0.8,
                         child: SingleChildScrollView(
-                            child: SelectableText(bardResult)),
+                            child: Card(
+                                clipBehavior: Clip.antiAlias,
+                                margin: EdgeInsets.all(20),
+                                child: Container(
+                                  padding: EdgeInsets.all(20),
+                                  child: Column(
+                                    children: [
+                                      Text('Name',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                      SelectableText(
+                                          '${extractSingleValue(askResult, 'Name')}\n'),
+                                      Text('LinkedIn',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                      SelectableText(
+                                          '${extractSingleValue(askResult, 'Link')}\n'),
+                                      Text('Description',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                      SelectableText(
+                                        askResult.contains("Link: ")
+                                            ? addline(
+                                                '${extractResumeWithLinkedin(askResult, 'Resume', 'Link')}\n')
+                                            : addline(
+                                                '${extractResumeWithoutLinkedin(askResult, 'Resume')}\n'),
+                                      )
+                                    ],
+                                  ),
+                                ))),
                       ),
+                      // SizedBox(
+                      //   height: MediaQuery.of(context).size.height * 0.2,
+                      //   width: MediaQuery.of(context).size.width * 0.8,
+                      //   child: SingleChildScrollView(
+                      //       child: SelectableText(askResult)),
+                      // ),
                       SizedBox(
                         height: 20,
                       ),

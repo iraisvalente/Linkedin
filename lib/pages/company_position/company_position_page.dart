@@ -3,14 +3,18 @@ import 'dart:convert';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:project/models/answer_bard.dart';
+import 'package:project/models/ask.dart';
 import 'package:project/models/ask_bard.dart';
 import 'package:project/models/connection.dart';
 import 'package:project/models/position.dart';
+import 'package:project/service/http/ask.dart';
 import 'package:project/service/http/bard.dart';
 import 'package:project/service/http/connection.dart';
 import 'package:project/service/http/position.dart';
+import 'package:project/models/response.dart';
 import 'package:project/widgets/navbar_inside.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import "package:webview_universal/webview_universal.dart";
 import 'dart:html' as html;
@@ -29,6 +33,8 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
   WebViewController webViewLinkedinController = WebViewController();
   BardService bardService = BardService();
 
+  String email = '';
+  String password = '';
   List<dynamic> bardResult = [];
   List<DataRow> _rowList = [];
   List<DataRow> rows = [];
@@ -40,6 +46,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
   List<List<dynamic>> rowsAsListOfValues = [];
   int originalPositions = 0;
   PositionService positionService = PositionService();
+  AskService askService = AskService();
 
   Future<List<Connection>> connections(String company) async {
     List<Connection> connections = [];
@@ -238,10 +245,68 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
     positionService.deletePosition(searchId);
   }
 
+  String extractSingleValue(String input, String field) {
+    RegExp regExp = RegExp("$field: ([^\n]*)");
+    RegExpMatch? match = regExp.firstMatch(input);
+    if (match != null) {
+      return match.group(1)!.trim();
+    }
+    return "";
+  }
+
+  String extractResumeWithLinkedin(
+      String input, String startField, String endField) {
+    RegExp regExp = RegExp("$startField: ([^\n]*)");
+    RegExpMatch? match = regExp.firstMatch(input);
+    if (match != null) {
+      int startIndex = match.end;
+      int endIndex = input.indexOf(endField, startIndex);
+      if (endIndex != -1) {
+        return input.substring(startIndex, endIndex).trim();
+      }
+    }
+    return "";
+  }
+
+  String extractResumeWithoutLinkedin(String input, String startField) {
+    RegExp regExp = RegExp("$startField: ");
+    RegExpMatch? match = regExp.firstMatch(input);
+    if (match != null) {
+      int startIndex = match.end;
+      return input.substring(startIndex).trim();
+    }
+    return "";
+  }
+
+  String addline(String input) {
+    List<String> words = input.split(' ');
+    String result = '';
+    int wordCount = 0;
+
+    for (String word in words) {
+      result += word + ' ';
+      wordCount++;
+
+      if (wordCount == 20) {
+        result += '\n';
+        wordCount = 0;
+      }
+    }
+
+    return result.trim();
+  }
+
+  void getCredentials() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    email = prefs.getString('email')!;
+    password = prefs.getString('password')!;
+  }
+
   @override
   void initState() {
     super.initState();
     getPositions();
+    getCredentials();
   }
 
   @override
@@ -367,6 +432,9 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   for (String company in companies) {
                     for (TextEditingController controller in _controllerList) {
                       print('WORK IN PROCESS');
+                      String name = 'No name found';
+                      String resume = 'No description found';
+                      String linkedin = 'No linkedin link found';
                       var comp = company
                           .toString()
                           .toUpperCase()
@@ -375,91 +443,117 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                       comp = comp.toString().toUpperCase().replaceAll('"', "");
                       comp = comp.trim();
                       var pos = controller.text.toString().toUpperCase();
-                      AnswerBard? result =
-                          await bardService.askBard(AskBard(comp, pos));
-                      if (result!.answer.contains('Secure-1PSID') ||
-                          result.answer.contains('Error')) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(result.answer)),
-                        );
+                      Response? response =
+                          await askService.ask(Ask(comp, pos, email, password));
+                      if (response!.response.contains("Link: ")) {
+                        resume = addline(extractResumeWithLinkedin(
+                            response.response, 'Resume', 'Link'));
                       } else {
-                        print('DONE');
-                        bardResult.add(result.answer);
-                        for (var result in bardResult) {
-                          String personName;
-                          personName = result.split(".")[0].toString();
-                          List<dynamic> listResume =
-                              result.split("\n").sublist(1);
-                          String resume = listResume.join(' ');
-                          try {
-                            String linkedinLink = '${listResume.last}';
-                            if (resume.contains(personName)) {
-                              List<String> answer = [
-                                company,
-                                controller.text,
-                                personName,
-                                resume,
-                                linkedinLink
-                              ];
-                              cells.add(DataCell(Text(answer[0])));
-                              cells.add(DataCell(Text(answer[1])));
-                              cells.add(DataCell(Text(answer[2])));
-                              cells.add(DataCell(SizedBox(
-                                width: 650,
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                  ),
-                                  keyboardType: TextInputType.multiline,
-                                  maxLines: 10,
-                                  controller:
-                                      TextEditingController(text: answer[3]),
-                                ),
-                              )));
-                              cells.add(DataCell(TextButton(
-                                  child: Text(answer[4].trim()),
-                                  onPressed: () async {
-                                    final Uri url = Uri.parse(answer[4].trim());
-                                    if (!await launchUrl(url)) {
-                                      throw Exception('Could not launch $url');
-                                    }
-                                  })));
-                              rows.add(DataRow(cells: cells));
-                            } else {
-                              List<String> answer = [
-                                company,
-                                controller.text,
-                                '',
-                                '',
-                                ''
-                              ];
-                              cells.add(DataCell(Text(answer[0])));
-                              cells.add(DataCell(Text(answer[1])));
-                              cells.add(DataCell(Text(answer[2])));
-                              cells.add(DataCell(Text(answer[3])));
-                              cells.add(DataCell(Text(answer[4])));
-                              rows.add(DataRow(cells: cells));
-                            }
-                          } catch (e) {
-                            List<String> answer = [
-                              company,
-                              controller.text,
-                              personName,
-                              resume,
-                              ''
-                            ];
-                            cells.add(DataCell(Text(answer[0])));
-                            cells.add(DataCell(Text(answer[1])));
-                            cells.add(DataCell(Text(answer[2])));
-                            cells.add(DataCell(Text(answer[3])));
-                            cells.add(DataCell(Text(answer[4])));
-                            rows.add(DataRow(cells: cells));
-                          }
-
-                          cells = [];
-                        }
-                        bardResult = [];
+                        resume = addline(extractResumeWithoutLinkedin(
+                            response.response, 'Resume'));
                       }
+                      name = extractSingleValue(response.response, 'Name');
+                      linkedin = extractSingleValue(response.response, 'Link');
+                      print('DONE');
+                      List<String> answer = [
+                        company,
+                        controller.text,
+                        name,
+                        resume,
+                        linkedin
+                      ];
+                      cells.add(DataCell(Text(answer[0])));
+                      cells.add(DataCell(Text(answer[1])));
+                      cells.add(DataCell(Text(answer[2])));
+                      cells.add(DataCell(Text(answer[3])));
+                      cells.add(DataCell(Text(answer[4])));
+                      rows.add(DataRow(cells: cells));
+                      cells = [];
+                      /*AnswerBard? result =
+                          await bardService.askBard(AskBard(comp, pos));*/
+                      // if (result!.answer.contains('Secure-1PSID') ||
+                      //     result.answer.contains('Error')) {
+                      //   ScaffoldMessenger.of(context).showSnackBar(
+                      //     SnackBar(content: Text(result.answer)),
+                      //   );
+                      // } else {
+                      //   print('DONE');
+                      //   bardResult.add(result.answer);
+                      //   for (var result in bardResult) {
+                      //     String personName;
+                      //     personName = result.split(".")[0].toString();
+                      //     List<dynamic> listResume =
+                      //         result.split("\n").sublist(1);
+                      //     String resume = listResume.join(' ');
+                      //     try {
+                      //       String linkedinLink = '${listResume.last}';
+                      //       if (resume.contains(personName)) {
+                      //         List<String> answer = [
+                      //           company,
+                      //           controller.text,
+                      //           personName,
+                      //           resume,
+                      //           linkedinLink
+                      //         ];
+                      //         cells.add(DataCell(Text(answer[0])));
+                      //         cells.add(DataCell(Text(answer[1])));
+                      //         cells.add(DataCell(Text(answer[2])));
+                      //         cells.add(DataCell(SizedBox(
+                      //           width: 650,
+                      //           child: TextField(
+                      //             decoration: InputDecoration(
+                      //               border: InputBorder.none,
+                      //             ),
+                      //             keyboardType: TextInputType.multiline,
+                      //             maxLines: 10,
+                      //             controller:
+                      //                 TextEditingController(text: answer[3]),
+                      //           ),
+                      //         )));
+                      //         cells.add(DataCell(TextButton(
+                      //             child: Text(answer[4].trim()),
+                      //             onPressed: () async {
+                      //               final Uri url = Uri.parse(answer[4].trim());
+                      //               if (!await launchUrl(url)) {
+                      //                 throw Exception('Could not launch $url');
+                      //               }
+                      //             })));
+                      //         rows.add(DataRow(cells: cells));
+                      //       } else {
+                      //         List<String> answer = [
+                      //           company,
+                      //           controller.text,
+                      //           '',
+                      //           '',
+                      //           ''
+                      //         ];
+                      //         cells.add(DataCell(Text(answer[0])));
+                      //         cells.add(DataCell(Text(answer[1])));
+                      //         cells.add(DataCell(Text(answer[2])));
+                      //         cells.add(DataCell(Text(answer[3])));
+                      //         cells.add(DataCell(Text(answer[4])));
+                      //         rows.add(DataRow(cells: cells));
+                      //       }
+                      //     } catch (e) {
+                      //       List<String> answer = [
+                      //         company,
+                      //         controller.text,
+                      //         personName,
+                      //         resume,
+                      //         ''
+                      //       ];
+                      //       cells.add(DataCell(Text(answer[0])));
+                      //       cells.add(DataCell(Text(answer[1])));
+                      //       cells.add(DataCell(Text(answer[2])));
+                      //       cells.add(DataCell(Text(answer[3])));
+                      //       cells.add(DataCell(Text(answer[4])));
+                      //       rows.add(DataRow(cells: cells));
+                      //     }
+
+                      //     cells = [];
+                      //   }
+                      //   bardResult = [];
+                      // }
                       setState(() {
                         rows;
                       });
