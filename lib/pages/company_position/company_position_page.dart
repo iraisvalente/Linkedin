@@ -29,6 +29,7 @@ class CompanyPositionPage extends StatefulWidget {
 class _CompanyPositionPageState extends State<CompanyPositionPage> {
   String fileName = "No file chosen";
   String path = "";
+  bool loading = true;
   ScrollController scrollController = ScrollController();
   WebViewController webViewLinkedinController = WebViewController();
   BardService bardService = BardService();
@@ -65,10 +66,12 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
       comp = comp.toString().toUpperCase().replaceAll('"', "");
       comp = comp.trim();
       List<Connection> conn = await connections(comp);
-      DataTableSource tableConnection = ConnectionsTable(conn);
-      setState(() {
-        tables.add(table(tableConnection));
-      });
+      if (conn.isNotEmpty) {
+        DataTableSource tableConnection = ConnectionsTable(conn);
+        setState(() {
+          tables.add(table(tableConnection));
+        });
+      }
     }
     tables.add(Column(
       children: [
@@ -127,11 +130,21 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
 
   List<DataColumn> columns() {
     return [
-      DataColumn(label: Text('Firstname')),
-      DataColumn(label: Text('Lastname')),
-      DataColumn(label: Text('Email Addres')),
-      DataColumn(label: Text('Company')),
-      DataColumn(label: Text('Position'))
+      DataColumn(
+          label:
+              Text('Firstname', style: TextStyle(fontWeight: FontWeight.bold))),
+      DataColumn(
+          label:
+              Text('Lastname', style: TextStyle(fontWeight: FontWeight.bold))),
+      DataColumn(
+          label: Text('Email Addres',
+              style: TextStyle(fontWeight: FontWeight.bold))),
+      DataColumn(
+          label:
+              Text('Company', style: TextStyle(fontWeight: FontWeight.bold))),
+      DataColumn(
+          label:
+              Text('Position', style: TextStyle(fontWeight: FontWeight.bold)))
     ];
   }
 
@@ -307,10 +320,18 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
     super.initState();
     getPositions();
     getCredentials();
+    loading = false;
   }
 
   @override
   Widget build(BuildContext context) {
+    if (loading == true) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -424,6 +445,7 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   setState(() {
                     rows = [];
                     tables = [];
+                    loading = true;
                   });
                   List<DataCell> cells = [];
                   List companies =
@@ -554,9 +576,6 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                       //   }
                       //   bardResult = [];
                       // }
-                      setState(() {
-                        rows;
-                      });
                     }
                   }
                   positions = [];
@@ -565,6 +584,10 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   }
                   saveNewPositions();
                   createTable();
+                  setState(() {
+                    rows;
+                    loading = false;
+                  });
                 },
                 child: Text('Submit')),
             SizedBox(
@@ -579,11 +602,21 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                   controller: scrollController,
                   child: Center(
                     child: DataTable(columns: [
-                      DataColumn(label: Text('Company')),
-                      DataColumn(label: Text('Position')),
-                      DataColumn(label: Text('Person')),
-                      DataColumn(label: Text('Summary')),
-                      DataColumn(label: Text('Link to LinkedIn')),
+                      DataColumn(
+                          label: Text('Company',
+                              style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(
+                          label: Text('Position',
+                              style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(
+                          label: Text('Person',
+                              style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(
+                          label: Text('Summary',
+                              style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(
+                          label: Text('Link to LinkedIn',
+                              style: TextStyle(fontWeight: FontWeight.bold))),
                     ], rows: rows, dataRowHeight: 190),
                   ),
                 ),
