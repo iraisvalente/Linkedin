@@ -126,6 +126,7 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
     String? conc = response?.response;
     askResult = response!.response;
     search = extractSingleValue(conc!, 'Name');
+    print(search);
     print('SEARCH');
     print(search);
     alertConnectionFound(search);
@@ -284,23 +285,22 @@ class _CompanyInfoPageState extends State<CompanyInfoPage> {
                                       Text('Name',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold)),
-                                      SelectableText(
-                                          '${extractSingleValue(askResult, 'Name')}\n'),
+                                      SelectableText(askResult.contains('Name')
+                                          ? '${extractSingleValue(askResult, 'Name')}\n'
+                                          : 'No name found\n'),
                                       Text('LinkedIn',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold)),
-                                      SelectableText(
-                                          '${extractSingleValue(askResult, 'Link')}\n'),
+                                      SelectableText(askResult.contains('Link')
+                                          ? '${extractSingleValue(askResult, 'Link')}\n'
+                                          : 'No linkedin link found\n'),
                                       Text('Description',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold)),
-                                      SelectableText(
-                                        askResult.contains("Link: ")
-                                            ? addline(
-                                                '${extractResumeWithLinkedin(askResult, 'Resume', 'Link')}\n')
-                                            : addline(
-                                                '${extractResumeWithoutLinkedin(askResult, 'Resume')}\n'),
-                                      )
+                                      SelectableText(askResult
+                                              .contains('Resume')
+                                          ? '${extractSingleValue(askResult, 'Resume')}\n'
+                                          : 'No description found\n'),
                                     ],
                                   ),
                                 ))),

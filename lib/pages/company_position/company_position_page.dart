@@ -297,10 +297,10 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
     int wordCount = 0;
 
     for (String word in words) {
-      result += word + ' ';
+      result += '$word ';
       wordCount++;
 
-      if (wordCount == 20) {
+      if (wordCount == 15) {
         result += '\n';
         wordCount = 0;
       }
@@ -467,15 +467,17 @@ class _CompanyPositionPageState extends State<CompanyPositionPage> {
                       var pos = controller.text.toString().toUpperCase();
                       Response? response =
                           await askService.ask(Ask(comp, pos, email, password));
-                      if (response!.response.contains("Link: ")) {
-                        resume = addline(extractResumeWithLinkedin(
-                            response.response, 'Resume', 'Link'));
-                      } else {
-                        resume = addline(extractResumeWithoutLinkedin(
-                            response.response, 'Resume'));
+                      if (response!.response.contains('Name')) {
+                        name = extractSingleValue(response!.response, 'Name');
                       }
-                      name = extractSingleValue(response.response, 'Name');
-                      linkedin = extractSingleValue(response.response, 'Link');
+                      if (response!.response.contains('Resume')) {
+                        resume = addline(
+                            extractSingleValue(response!.response, 'Resume'));
+                      }
+                      if (response!.response.contains('Link')) {
+                        linkedin =
+                            extractSingleValue(response!.response, 'Link');
+                      }
                       print('DONE');
                       List<String> answer = [
                         company,
